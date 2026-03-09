@@ -1,0 +1,25 @@
+name: supabase_notes
+version: 1.0.0+1
+publish_to: none
+description: CRUD with Authentication and Authorization using GET X CLI and Supabase.
+environment:
+  sdk: ">=2.18.5 <3.10.0"
+
+dependencies:
+  cupertino_icons: ^1.0.2
+  get: ^4.6.6
+  supabase_flutter: ^2.8.3
+  flutter:
+    sdk: flutter
+  flutter_dotenv: ^5.0.2
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  assets:
+    - .env
+    - assets/images/
+  uses-material-design: true
