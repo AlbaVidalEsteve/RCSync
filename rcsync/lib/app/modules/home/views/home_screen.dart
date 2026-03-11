@@ -6,6 +6,7 @@ import 'package:supabase_notes/core/widgets/rc_primary_button.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
 import '../controllers/home_controller.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
+import 'package:supabase_notes/app/modules/results/views/results_view.dart';
 
 /// The main dashboard screen showing upcoming events with a stylish bottom bar.
 class HomeScreen extends GetView<HomeController> {
@@ -80,12 +81,7 @@ class HomeScreen extends GetView<HomeController> {
               ),
 
               // --- TAB 2: Ranking ---
-              const Center(
-                child: Text(
-                  "Ranking",
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ),
+              ResultsView(),
               // --- TAB 3: Admin ---
               const Center(
                 child: Text(
