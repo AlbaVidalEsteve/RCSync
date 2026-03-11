@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/rc_colors.dart';
-import '../../register/views/register_view.dart'; // Import if needed for navigation
 import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {

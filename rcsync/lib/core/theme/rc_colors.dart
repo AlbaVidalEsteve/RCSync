@@ -5,6 +5,7 @@ class RCColors {
   static const orange = Color(0xFFF24E02);
   static const darkBlue = Color(0xFF02255A);
   static const background = Color(0xFF090F18);
+  static const backgroundShine = Color(0xFF474F59);
   static const cardDark = Color(0xFF1A1F26);
   static const white = Color(0xFFEAEAEB);
 }

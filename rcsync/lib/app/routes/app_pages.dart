@@ -1,6 +1,5 @@
 // ignore_for_file: constant_identifier_names
 
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 
 import 'package:supabase_notes/app/modules/add_producte/bindings/add_producte_binding.dart';
@@ -14,7 +13,7 @@ import 'package:supabase_notes/app/modules/edit_supermercat/views/edit_supermerc
 import 'package:supabase_notes/app/modules/home/bindings/home_binding.dart';
 import 'package:supabase_notes/app/modules/list/bindings/list_binding.dart';
 import 'package:supabase_notes/app/modules/list/views/list_view.dart';
-import 'package:supabase_notes/app/modules/home/views/home_view.dart';
+import 'package:supabase_notes/app/modules/home/views/home_screen.dart';
 import 'package:supabase_notes/app/modules/login/bindings/login_binding.dart';
 import 'package:supabase_notes/app/modules/login/views/login_view.dart';
 import 'package:supabase_notes/app/modules/profile/bindings/profile_binding.dart';
@@ -32,7 +31,7 @@ class AppPages {
   static final routes = [
     GetPage(
       name: _Paths.HOME,
-      page: () => const HomeView(),
+      page: () => const HomeScreen(),
       binding: HomeBinding(),
     ),
     GetPage(

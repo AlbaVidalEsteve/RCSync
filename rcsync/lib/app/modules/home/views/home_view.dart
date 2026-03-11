@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_notes/app/data/models/productes_model.dart';
 import 'package:supabase_notes/app/data/models/supermercats_model.dart';
 import 'package:supabase_notes/app/routes/app_pages.dart';
 import 'package:supabase_notes/app/controllers/auth_controller.dart';

@@ -1,29 +1,50 @@
-// lib/models/race_event_model.dart
 class RaceEventModel {
-  final String id;
+  final int idEvent;
+  final int? idChampionship;
+  final int? idCircuit;
   final String name;
-  final String location;
-  final DateTime date;
-  final String? imageUrl;
-  final List<String> categories;
+  final DateTime? eventDateIni;
+  final DateTime? eventDateFin;
+  final DateTime? eventRegIni;
+  final DateTime? eventRegFin;
+  final int prize;
+  final String? description;
+  final String? imageEvent;
+  final DateTime? createdAt;
 
   RaceEventModel({
-    required this.id,
+    required this.idEvent,
+    this.idChampionship,
+    this.idCircuit,
     required this.name,
-    required this.location,
-    required this.date,
-    this.imageUrl,
-    required this.categories,
+    this.eventDateIni,
+    this.eventDateFin,
+    this.eventRegIni,
+    this.eventRegFin,
+    required this.prize,
+    this.description,
+    this.imageEvent,
+    this.createdAt,
   });
 
-  factory RaceEventModel.fromMap(Map<String, dynamic> map) {
+  factory RaceEventModel.fromJson(Map<String, dynamic> json) {
     return RaceEventModel(
-      id: map['id'],
-      name: map['name'],
-      location: map['location'],
-      date: DateTime.parse(map['event_date']),
-      imageUrl: map['image_url'],
-      categories: List<String>.from(map['categories'] ?? []),
+      idEvent: json['id_event'],
+      idChampionship: json['id_championship'],
+      idCircuit: json['id_circuit'],
+      name: json['name'],
+      eventDateIni: json['event_date_ini'] != null ? DateTime.parse(json['event_date_ini']) : null,
+      eventDateFin: json['event_date_fin'] != null ? DateTime.parse(json['event_date_fin']) : null,
+      eventRegIni: json['event_reg_ini'] != null ? DateTime.parse(json['event_reg_ini']) : null,
+      eventRegFin: json['event_reg_fin'] != null ? DateTime.parse(json['event_reg_fin']) : null,
+      prize: json['prize'] ?? 0,
+      description: json['description'],
+      imageEvent: json['image_event'],
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
     );
+  }
+
+  static List<RaceEventModel> fromJsonList(List<dynamic> list) {
+    return list.map((item) => RaceEventModel.fromJson(item)).toList();
   }
 }
