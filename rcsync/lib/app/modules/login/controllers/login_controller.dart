@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../routes/app_pages.dart';
+import 'package:supabase_notes/core/theme/rc_colors.dart';
 
 class LoginController extends GetxController {
   RxBool isLoading = false.obs;
@@ -17,12 +19,23 @@ class LoginController extends GetxController {
         await client.auth
             .signInWithPassword(email: emailC.text, password: passwordC.text);
         isLoading.value = false;
+
         Get.defaultDialog(
             barrierDismissible: false,
             title: "Login success",
             middleText: "Will be redirect to Home Page",
-            backgroundColor: Colors.green);
+            backgroundColor: RCColors.orange);
+
+        await Future.delayed(const Duration(milliseconds: 1500));
+
+        if (Get.isDialogOpen == true) {
+          Get.back();
+        }
+
+        Get.offAllNamed(Routes.HOME);
+
         return true;
+
       } catch (e) {
         isLoading.value = false;
         Get.snackbar("ERROR", e.toString());
