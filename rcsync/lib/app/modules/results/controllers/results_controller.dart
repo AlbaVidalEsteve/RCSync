@@ -6,10 +6,11 @@ import '../../../data/models/ranking_model.dart';
 class ResultsController extends GetxController {
   final _supabase = Supabase.instance.client;
 
-  RxString selectedYear = "2025".obs;
+  RxString selectedYear = "".obs;
   RxString selectedMainCategory = "".obs;
   RxString selectedSubFilter = "General".obs;
   RxBool isChampionshipActive = true.obs;
+  RxList<String> availableYears = <String>[].obs;
 
   // NUEVO: Lista dinámica de categorías desde la base de datos
   RxList<String> availableCategories = <String>[].obs;
@@ -20,48 +21,54 @@ class ResultsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchCategoriesAndRanking(); // Cambiamos la llamada inicial
+    // Cambiamos la llamada inicial para que primero busque los años
+    fetchAvailableYears();
   }
 
   // NUEVO: Función maestra que carga las categorías antes del ranking
   Future<void> fetchCategoriesAndRanking() async {
     try {
-      print("🔍 Buscando campeonato para el año: ${selectedYear.value}");
+      print("🔍 Buscando categorías para el año: ${selectedYear.value}");
 
-      // 1. Buscamos el campeonato usando el nombre exacto de la columna: id_championship
+      // 1. Buscamos el ID del campeonato y si está activo
       final champResponse = await _supabase
           .from('championships')
-          .select('id_championship, is_active') // <--- CORREGIDO
+          .select('id_championship, is_active')
           .eq('year', int.parse(selectedYear.value))
           .limit(1);
 
       if (champResponse.isNotEmpty) {
         final champData = champResponse.first;
         isChampionshipActive.value = champData['is_active'] ?? true;
-        int champId = champData['id_championship']; // <--- CORREGIDO
+        int champId = champData['id_championship'];
 
-        print("✅ Campeonato encontrado. ID: $champId. Buscando categorías...");
-
-        // 2. Buscamos las categorías usando el nombre exacto de la llave foránea: id_championship
+        // 2. NUEVA LÓGICA: Buscamos las categorías a través de la tabla intermedia
+        // Hacemos un join con la tabla 'categories' para traer el nombre
         final catData = await _supabase
-            .from('categories')
-            .select('name')
-            .eq('id_championship', champId); // <--- CORREGIDO
+            .from('championship_categories')
+            .select('''
+              categories (
+                name
+              )
+            ''')
+            .eq('id_championship', champId);
 
-        List<String> fetchedCats = (catData as List).map((c) => c['name'].toString()).toList();
-        print("✅ Categorías encontradas: $fetchedCats");
+        // Extraemos los nombres de la respuesta anidada
+        List<String> fetchedCats = (catData as List)
+            .map((c) => c['categories']['name'].toString())
+            .toList();
 
+        print("✅ Categorías encontradas para este año: $fetchedCats");
         availableCategories.assignAll(fetchedCats);
 
       } else {
         print("⚠️ No hay campeonato para el año ${selectedYear.value}.");
-        isChampionshipActive.value = true;
         availableCategories.clear();
       }
 
-      // 3. Seleccionamos la primera categoría por defecto
+      // 3. Selección por defecto
       if (availableCategories.isNotEmpty) {
-        if (!availableCategories.contains(selectedMainCategory.value)) {
+        if (selectedMainCategory.value.isEmpty || !availableCategories.contains(selectedMainCategory.value)) {
           selectedMainCategory.value = availableCategories.first;
         }
         await fetchRanking();
@@ -136,5 +143,38 @@ class ResultsController extends GetxController {
         : b.totalGross.compareTo(a.totalGross));
 
     filteredEntries.assignAll(list);
+  }
+
+  // NUEVO: Función para buscar qué años tienen campeonato
+  Future<void> fetchAvailableYears() async {
+    try {
+      print("🔍 Buscando años de campeonatos disponibles...");
+
+      final response = await _supabase
+          .from('championships')
+          .select('year')
+          .order('year', ascending: false); // Los más recientes primero
+
+      if (response.isNotEmpty) {
+        // Extraemos los años, usamos un Set para evitar duplicados si hay varios campeonatos el mismo año
+        final Set<String> yearsSet = {};
+        for (var row in response) {
+          yearsSet.add(row['year'].toString());
+        }
+
+        availableYears.assignAll(yearsSet.toList());
+
+        // Seleccionamos el año más reciente por defecto
+        selectedYear.value = availableYears.first;
+        print("✅ Años cargados: $availableYears. Seleccionado por defecto: ${selectedYear.value}");
+
+        // Una vez tenemos el año, ya podemos buscar sus categorías y resultados
+        await fetchCategoriesAndRanking();
+      } else {
+        print("⚠️ No hay campeonatos en la base de datos.");
+      }
+    } catch (e) {
+      print("❌ Error crítico cargando años: $e");
+    }
   }
 }

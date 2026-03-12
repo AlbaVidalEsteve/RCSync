@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../routes/app_pages.dart';
-import 'package:supabase_notes/core/theme/rc_colors.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
 
 class LoginController extends GetxController {
   RxBool isLoading = false.obs;

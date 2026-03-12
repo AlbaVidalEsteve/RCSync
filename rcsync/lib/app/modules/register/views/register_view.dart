@@ -12,7 +12,7 @@ class RegisterView extends GetView<RegisterController> {
       backgroundColor: RCColors.background,
       body: Stack(
         children: [
-          // --- CAPA DE FONDO: DOS TONOS SÓLIDOS (Estilo RCSync) ---
+          // --- CAPA DE FONDO: DOS TONOS SÓLIDOS (Estilo rcsync) ---
           Column(
             children: [
               Expanded(

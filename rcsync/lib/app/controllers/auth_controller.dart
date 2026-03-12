@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:supabase_notes/app/routes/app_pages.dart';
+import 'package:rcsync/app/routes/app_pages.dart';
 import 'dart:async';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
