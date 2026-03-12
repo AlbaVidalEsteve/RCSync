@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:supabase_notes/app/data/models/supermercats_model.dart';
 import 'package:supabase_notes/app/data/models/race_event_model.dart';
 import 'package:supabase_notes/core/theme/rc_colors.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 
 class HomeController extends GetxController {
-  RxList<Supermercat> allSupermarkets = <Supermercat>[].obs;
   RxBool isLoading = false.obs;
   SupabaseClient client = Supabase.instance.client;
 
-  // Track the current index for the stylish bottom bar
   var selectedIndex = 0.obs;
 
+  final RxList<RaceEventModel> rawEvents = <RaceEventModel>[].obs;
   final RxList<NeatCleanCalendarEvent> eventList = <NeatCleanCalendarEvent>[].obs;
+
+  // New states for the filtering logic
+  var selectedDate = DateTime.now().obs;
+  var isDaySelected = false.obs;
+  var currentMonth = DateTime.now().obs;
+  var showAllFutureEvents = false.obs;
 
   @override
   void onInit() {
@@ -29,47 +34,97 @@ class HomeController extends GetxController {
   Future<void> getEvents() async {
     try {
       isLoading.value = true;
-      final response = await client.from("events").select().order("event_date_ini", ascending: true);
+      final response = await client.from("events").select('''
+        *,
+        circuits (*),
+        championships (
+          *,
+          profiles (*)
+        )
+      ''').order("event_date_ini", ascending: true);
+      
       final List<RaceEventModel> fetchedEvents = RaceEventModel.fromJsonList(response);
+      rawEvents.assignAll(fetchedEvents);
 
-      // Map database events to the calendar format
       eventList.assignAll(fetchedEvents.map((e) => NeatCleanCalendarEvent(
         e.name,
         startTime: e.eventDateIni ?? DateTime.now(),
         endTime: e.eventDateFin ?? (e.eventDateIni ?? DateTime.now()).add(const Duration(hours: 8)),
-        description: e.description ?? '',
-        color: RCColors.orange,
+        description: e.circuitName ?? e.description ?? '',
+        color: Colors.blueAccent,
       )).toList());
 
     } catch (e) {
       print("Error fetching events: $e");
-      Get.snackbar("Error", "No s'han pogut carregar els esdeveniments");
     } finally {
       isLoading.value = false;
     }
   }
 
-  Future<void> getAllSupermarquets() async {
-    try {
-      final response = await client
-          .from("supermercats")
-          .select()
-          .order("id", ascending: false);
-      
-      allSupermarkets.assignAll(Supermercat.fromJsonList(response));
-    } catch (e) {
-      print("Error fetching supermarkets: $e");
+  // Helper to get events for the currently shown month
+  List<RaceEventModel> get eventsOfCurrentMonth {
+    return rawEvents.where((e) {
+      if (e.eventDateIni == null) return false;
+      return e.eventDateIni!.year == currentMonth.value.year && 
+             e.eventDateIni!.month == currentMonth.value.month;
+    }).toList();
+  }
+
+  // Helper to get all future events
+  List<RaceEventModel> get futureEvents {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return rawEvents.where((e) {
+      if (e.eventDateIni == null) return false;
+      return e.eventDateIni!.isAfter(today.subtract(const Duration(seconds: 1)));
+    }).toList();
+  }
+
+  // Helper to get events for a specific day
+  List<RaceEventModel> eventsOfDay(DateTime date) {
+    return rawEvents.where((e) {
+      if (e.eventDateIni == null) return false;
+      return e.eventDateIni!.year == date.year && 
+             e.eventDateIni!.month == date.month && 
+             e.eventDateIni!.day == date.day;
+    }).toList();
+  }
+
+  String get listTitle {
+    if (showAllFutureEvents.value) {
+      return "Próximos eventos";
+    }
+    if (isDaySelected.value) {
+      return "Eventos del ${DateFormat('dd MMMM', 'es_ES').format(selectedDate.value)}";
+    } else {
+      return "Eventos de ${DateFormat('MMMM', 'es_ES').format(currentMonth.value)}";
     }
   }
 
-  Future<void> deleteSupermercat(int id) async {
-    try {
-      await client.from("supermercats").delete().eq("id", id);
-      allSupermarkets.removeWhere((element) => element.id == id);
-      Get.snackbar("Success", "Supermercat eliminat correctament");
-    } catch (e) {
-      print("Error deleting supermarket: $e");
-      Get.snackbar("Error", "No s'ha pogut eliminar el supermercat");
+  void handleDateSelected(DateTime date) {
+    showAllFutureEvents.value = false;
+    if (isDaySelected.value && 
+        selectedDate.value.year == date.year && 
+        selectedDate.value.month == date.month && 
+        selectedDate.value.day == date.day) {
+      // Toggle off if same day clicked
+      isDaySelected.value = false;
+    } else {
+      selectedDate.value = date;
+      isDaySelected.value = true;
+    }
+  }
+
+  void handleMonthChanged(DateTime date) {
+    currentMonth.value = date;
+    isDaySelected.value = false;
+    showAllFutureEvents.value = false;
+  }
+
+  void toggleAllFutureEvents() {
+    showAllFutureEvents.value = !showAllFutureEvents.value;
+    if (showAllFutureEvents.value) {
+      isDaySelected.value = false;
     }
   }
 }

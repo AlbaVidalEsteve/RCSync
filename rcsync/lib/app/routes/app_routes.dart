@@ -11,10 +11,7 @@ abstract class Routes {
   static const LOGIN = _Paths.LOGIN;
   static const REGISTER = _Paths.REGISTER;
   static const PROFILE = _Paths.PROFILE;
-  static const ADD_PRODUCTE = _Paths.ADD_PRODUCTE;
-  static const EDIT_PRODUCTE = _Paths.EDIT_PRODUCTE;
-  static const ADD_SUPERMERCAT = _Paths.ADD_SUPERMERCAT;
-  static const EDIT_SUPERMERCAT = _Paths.EDIT_SUPERMERCAT;
+  static const EVENT_DETAIL = _Paths.EVENT_DETAIL;
 }
 
 abstract class _Paths {
@@ -23,8 +20,5 @@ abstract class _Paths {
   static const LOGIN = '/login';
   static const REGISTER = '/register';
   static const PROFILE = '/profile';
-  static const ADD_PRODUCTE = '/add-producte';
-  static const EDIT_PRODUCTE = '/edit-producte';
-  static const ADD_SUPERMERCAT = '/add-supermercat';
-  static const EDIT_SUPERMERCAT = '/edit-supermercat';
+  static const EVENT_DETAIL = '/event-detail';
 }

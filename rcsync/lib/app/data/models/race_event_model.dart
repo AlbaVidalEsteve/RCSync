@@ -12,6 +12,13 @@ class RaceEventModel {
   final String? imageEvent;
   final DateTime? createdAt;
 
+  // Relational data
+  final String? circuitName;
+  final double? circuitLat;
+  final double? circuitLng;
+  final String? circuitAddress;
+  final String? organizerName;
+
   RaceEventModel({
     required this.idEvent,
     this.idChampionship,
@@ -25,9 +32,19 @@ class RaceEventModel {
     this.description,
     this.imageEvent,
     this.createdAt,
+    this.circuitName,
+    this.circuitLat,
+    this.circuitLng,
+    this.circuitAddress,
+    this.organizerName,
   });
 
   factory RaceEventModel.fromJson(Map<String, dynamic> json) {
+    // Nested data from Supabase joins
+    final circuit = json['circuits'];
+    final championship = json['championships'];
+    final organizer = championship != null ? championship['profiles'] : null;
+
     return RaceEventModel(
       idEvent: json['id_event'],
       idChampionship: json['id_championship'],
@@ -41,6 +58,13 @@ class RaceEventModel {
       description: json['description'],
       imageEvent: json['image_event'],
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      
+      // Map joined fields
+      circuitName: circuit != null ? circuit['name'] : null,
+      circuitLat: circuit != null ? (circuit['location_lat'] as num?)?.toDouble() : null,
+      circuitLng: circuit != null ? (circuit['location_lng'] as num?)?.toDouble() : null,
+      circuitAddress: circuit != null ? circuit['address'] : null,
+      organizerName: organizer != null ? organizer['full_name'] : null,
     );
   }
 
