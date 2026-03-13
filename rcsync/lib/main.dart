@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:rcsync/app/controllers/auth_controller.dart';
+import 'package:supabase_notes/app/controllers/auth_controller.dart';
 import 'app/routes/app_pages.dart';
 
 void main() async {
@@ -22,7 +22,7 @@ void main() async {
 
   runApp(
     GetMaterialApp(
-      title: "rcsync",
+      title: "RCSync",
       initialRoute: Supabase.instance.client.auth.currentUser == null
           ? Routes.LOGIN
           : Routes.HOME,

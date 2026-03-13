@@ -1,6 +1,6 @@
 {
-    "name": "rcsync",
-    "short_name": "rcsync",
+    "name": "supabase_notes",
+    "short_name": "supabase_notes",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.rcsync"
+    namespace = "com.example.supabase_notes"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.rcsync"
+        applicationId = "com.example.supabase_notes"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -39,19 +39,25 @@ flutter {
 
 configurations.all {
     resolutionStrategy {
+<<<<<<< Updated upstream
         // Forzamos las librerías de Kotlin a la versión 2.1.0 para evitar el error de metadatos
         force "org.jetbrains.kotlin:kotlin-stdlib:2.1.0"
         force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0"
         force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0"
-
-        // Versiones de AndroidX forzadas para evitar errores del plugin de Gradle
-        versionName        // Forzamos las librerías de Kotlin para evitar errores de metadatos
+        
+        force 'androidx.core:core-ktx:1.15.0'
+        force 'androidx.core:core:1.15.0'
+        force 'androidx.browser:browser:1.8.0'
+=======
         // Los que pusimos antes (no los borres)
         force 'androidx.core:core-ktx:1.15.0'
         force 'androidx.core:core:1.15.0'
         force 'androidx.browser:browser:1.8.0'
+
+        // --- LOS NUEVOS PARA ESTE ERROR ---
         force 'androidx.activity:activity-ktx:1.9.3'
         force 'androidx.activity:activity:1.9.3'
         force 'androidx.navigationevent:navigationevent-android:1.0.0'
+>>>>>>> Stashed changes
     }
 }

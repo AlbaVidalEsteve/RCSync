@@ -13,7 +13,7 @@ class EventLocationMap extends StatelessWidget {
     super.key,
     required this.lat,
     required this.lng,
-    this.title = "Carrera rcsync"
+    this.title = "Carrera RCSync"
   });
 
   // Función para abrir Google Maps Externo
@@ -52,7 +52,7 @@ class EventLocationMap extends StatelessWidget {
                 children: [
                   TileLayer(
                     urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'com.example.rcsync',
+                    userAgentPackageName: 'com.example.supabase_notes',
                   ),
                   MarkerLayer(
                     markers: [

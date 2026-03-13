@@ -3,43 +3,39 @@ import 'package:supabase_notes/app/data/models/profiles_model.dart'; // Asegúra
 class RankingEntry {
   final String idProfile;
   final String fullName;
-  final String? imageProfile;
   final bool isJunior;
-  final String rol;
-  final String subcategory;
-  final DateTime? createdAt;
+  final List<int> points; // Lista de puntos de todas las carreras
+  final List<int> positions; // Lista de posiciones finales (1-10 son Final A)
 
-  ProfileModel({
+  RankingEntry({
     required this.idProfile,
     required this.fullName,
-    this.imageProfile,
-    this.isJunior = false,
-    this.rol = 'piloto',
-    this.subcategory = 'STOCK',
-    this.createdAt,
+    required this.isJunior,
+    required this.points,
+    required this.positions,
   });
 
-  factory ProfileModel.fromJson(Map<String, dynamic> json) {
-    return ProfileModel(
-      idProfile: json['id_profile'],
-      fullName: json['full_name'],
-      imageProfile: json['image_profile'],
-      isJunior: json['is_junior'] ?? false,
-      rol: json['rol'] ?? 'piloto',
-      subcategory: json['subcategory'] ?? 'STOCK',
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
-    );
+  // Puntuación Bruta
+  int get totalGross => points.fold(0, (sum, item) => sum + item);
+
+  // Puntuación Neta (Descartando el peor resultado)
+  int get totalNet {
+    if (points.length < 2) return totalGross;
+    List<int> sorted = List.from(points)..sort();
+    return sorted.skip(1).fold(0, (sum, item) => sum + item);
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id_profile': idProfile,
-      'full_name': fullName,
-      'image_profile': imageProfile,
-      'is_junior': isJunior,
-      'rol': rol,
-      'subcategory': subcategory,
-      'created_at': createdAt?.toIso8601String(),
-    };
+  // Lógica Dinámica Tamiya GT
+  String get calculatedLevel {
+    // 1. Queda 1 vez entre los 5 primeros (1º al 5º) de una Final A.
+    bool hasTop5 = positions.any((p) => p >= 1 && p <= 5);
+    if (hasTop5) return "SUPERSTOCK";
+
+    // 2. Logra meterse en la Final A dos veces consecutivas (6º al 10º).
+    // Para simplificar, buscamos si tiene al menos dos Top 10.
+    int top10Count = positions.where((p) => p >= 6 && p <= 10).length;
+    if (top10Count >= 2) return "SUPERSTOCK";
+
+    return "STOCK";
   }
 }

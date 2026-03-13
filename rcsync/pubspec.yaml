@@ -1,7 +1,7 @@
-name: rcsync
+name: supabase_notes
 version: 1.0.0+1
 publish_to: none
-description: Gestión de eventos RC.
+description: CRUD with Authentication and Authorization using GET X CLI and Supabase.
 environment:
   sdk: ">=2.18.5 <3.10.0"
 
@@ -14,14 +14,16 @@ dependencies:
   flutter_dotenv: ^6.0.0
   stylish_bottom_bar: ^1.1.1
   flutter_neat_and_clean_calendar: ^0.4.4
+<<<<<<< Updated upstream
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
   url_launcher: ^6.3.1
   intl: ^0.20.2
+=======
   image_picker: ^1.2.1
+>>>>>>> Stashed changes
 
 dev_dependencies:
-  flutter_launcher_icons: ^0.14.4
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter
@@ -31,8 +33,3 @@ flutter:
     - .env
     - assets/images/
   uses-material-design: true
-
-flutter_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/images/rcsynctrans.png"
