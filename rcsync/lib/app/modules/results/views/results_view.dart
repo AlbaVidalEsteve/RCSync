@@ -30,18 +30,28 @@ class ResultsView extends GetView<ResultsController> {
               // --- COMBOBOX AÑO ---
               Expanded(
                 flex: 1,
-                child: Obx(() => DropdownButtonFormField<String>(
-                  value: controller.selectedYear.value,
-                  decoration: const InputDecoration(labelText: "Año"),
-                  items: ["2024", "2025"].map((y) => DropdownMenuItem<String>(value: y, child: Text(y))).toList(),
-                  onChanged: (val) {
-                    if (val != null) {
-                      controller.selectedYear.value = val;
-                      // Recargamos las categorías de ese campeonato
-                      controller.fetchCategoriesAndRanking();
-                    }
-                  },
-                )),
+                child: Obx(() {
+                  // 1. Escudo protector: si el año seleccionado no está en la lista aún, pasamos null temporalmente
+                  final safeValue = controller.availableYears.contains(controller.selectedYear.value)
+                      ? controller.selectedYear.value
+                      : null;
+
+                  return DropdownButtonFormField<String>(
+                    value: safeValue,
+                    decoration: const InputDecoration(labelText: "Año"),
+                    // 2. Usamos la lista de años de la base de datos en lugar de ["2024", "2025"]
+                    items: controller.availableYears
+                        .map((y) => DropdownMenuItem<String>(value: y, child: Text(y)))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        controller.selectedYear.value = val;
+                        // Recargamos las categorías de ese campeonato
+                        controller.fetchCategoriesAndRanking();
+                      }
+                    },
+                  );
+                }),
               ),
               const SizedBox(width: 12),
 

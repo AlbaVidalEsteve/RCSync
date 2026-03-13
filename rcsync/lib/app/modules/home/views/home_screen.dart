@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_notes/core/theme/rc_colors.dart';
-import 'package:supabase_notes/core/widgets/rc_event_card.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
+import 'package:rcsync/core/widgets/rc_event_card.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/home_controller.dart';
