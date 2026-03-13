@@ -57,7 +57,7 @@ class EventDetailScreen extends StatelessWidget {
                   else
                     Image.asset('assets/images/logo_rcsync.jpeg', fit: BoxFit.cover),
                   
-                  // Gradiente oscuro para que el texto se lea bien
+                  // Gradiente oscuro
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -171,12 +171,12 @@ class EventDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            event.organizerName ?? "Organizador RCSync",
+                            event.organizerName ?? "Organizador rcsync",
                             style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           Text(
                             "Organizador Verificado",
-                            style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),
+                            style: TextStyle(color: Colors.white.withAlpha(128), fontSize: 14),
                           ),
                         ],
                       )
@@ -201,7 +201,7 @@ class EventDetailScreen extends StatelessWidget {
                       ],
                       Text(
                         event.description ?? "No hay descripción disponible para este evento.",
-                        style: TextStyle(color: Colors.white.withOpacity(0.6), height: 1.5),
+                        style: TextStyle(color: Colors.white.withAlpha(153), height: 1.5),
                       ),
                     ],
                   ),
@@ -248,8 +248,8 @@ class EventDetailScreen extends StatelessWidget {
       height: 55,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: isOpen ? Colors.greenAccent.withOpacity(0.5) : Colors.redAccent.withOpacity(0.5)),
-        color: isOpen ? Colors.greenAccent.withOpacity(0.05) : Colors.redAccent.withOpacity(0.05),
+        border: Border.all(color: isOpen ? Colors.greenAccent.withAlpha(128) : Colors.redAccent.withAlpha(128)),
+        color: isOpen ? Colors.greenAccent.withAlpha(13) : Colors.redAccent.withAlpha(13),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -298,7 +298,7 @@ class EventDetailScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withAlpha(25),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: iconColor, size: 24),
@@ -309,7 +309,7 @@ class EventDetailScreen extends StatelessWidget {
             children: [
               Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 2),
-              Text(subtitle, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14)),
+              Text(subtitle, style: TextStyle(color: Colors.white.withAlpha(128), fontSize: 14)),
             ],
           )
         ],

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_notes/core/theme/rc_colors.dart';
-import 'package:supabase_notes/core/widgets/rc_event_card.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
+import 'package:rcsync/core/widgets/rc_event_card.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
 import '../../../routes/app_pages.dart';
 import '../controllers/home_controller.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'package:supabase_notes/app/modules/results/views/results_view.dart';
 import 'package:supabase_notes/app/modules/map/views/map_view.dart';
+import 'package:supabase_notes/app/modules/profile/views/profile_view.dart';
 
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});
@@ -33,7 +34,7 @@ class HomeScreen extends GetView<HomeController> {
               ResultsView(),
 
               // --- TAB 3: Profile ---
-              const Center(child: Text("Profile", style: TextStyle(color: Colors.white))),
+              const ProfileView(),
             ],
           )),
       bottomNavigationBar: Obx(() => StylishBottomBar(
