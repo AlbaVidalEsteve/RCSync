@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:supabase_notes/app/data/models/race_event_model.dart';
-import 'package:supabase_notes/core/theme/rc_colors.dart';
+import 'package:rcsync/app/data/models/race_event_model.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 
 class HomeController extends GetxController {
