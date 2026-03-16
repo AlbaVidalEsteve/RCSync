@@ -10,6 +10,7 @@ import 'package:rcsync/app/modules/results/views/results_view.dart';
 import 'package:rcsync/app/modules/map/views/map_view.dart';
 import 'package:rcsync/app/modules/profile/views/profile_view.dart';
 
+
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});
 
