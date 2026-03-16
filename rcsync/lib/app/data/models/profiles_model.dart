@@ -1,4 +1,4 @@
-import 'package:supabase_notes/app/data/models/profiles_model.dart'; // Asegúrate de tener este import
+import 'package:rcsync/app/data/models/profiles_model.dart'; // Asegúrate de tener este import
 
 class RankingEntry {
   final String idProfile;

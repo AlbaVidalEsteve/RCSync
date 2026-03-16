@@ -171,7 +171,7 @@ class EventDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            event.organizerName ?? "Organizador RCSync",
+                            event.organizerName ?? "Organizador rcsync",
                             style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           Text(

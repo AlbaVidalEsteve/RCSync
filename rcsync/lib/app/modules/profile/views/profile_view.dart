@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:supabase_notes/app/controllers/auth_controller.dart';
-import 'package:supabase_notes/app/routes/app_pages.dart';
+import 'package:rcsync/app/controllers/auth_controller.dart';
+import 'package:rcsync/app/routes/app_pages.dart';
 
 import '../controllers/profile_controller.dart';
 

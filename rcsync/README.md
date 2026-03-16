@@ -1,4 +1,4 @@
-# supabase_notes
+# rcsync
 
 A new Flutter project.
 
