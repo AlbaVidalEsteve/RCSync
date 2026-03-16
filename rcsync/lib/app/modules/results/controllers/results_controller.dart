@@ -12,7 +12,7 @@ class ResultsController extends GetxController {
   RxBool isChampionshipActive = true.obs;
   RxList<String> availableYears = <String>[].obs;
 
-  // Lista dinámica de categorías desde la base de datos
+  // Lista dinamica de categorías desde la base de datos
   RxList<String> availableCategories = <String>[].obs;
 
   RxList<RankingEntry> allEntries = <RankingEntry>[].obs;
@@ -24,7 +24,7 @@ class ResultsController extends GetxController {
     fetchAvailableYears();
   }
 
-  // Carga las categorías vinculadas al año seleccionado
+  // Carga las categorias vinculadas al año seleccionado
   Future<void> fetchCategoriesAndRanking() async {
     try {
       final champResponse = await _supabase
