@@ -3,7 +3,7 @@ version: 1.0.0+1
 publish_to: none
 description: Gestión de eventos RC.
 environment:
-  sdk: ">=2.18.5 <3.10.0"
+  sdk: ">=2.18.5 <4.0.0"
 
 dependencies:
   cupertino_icons: ^1.0.2
