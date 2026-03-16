@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:rcsync/app/controllers/auth_controller.dart';
-import 'package:rcsync/app/routes/app_pages.dart';
 import '../../../../core/theme/rc_colors.dart';
 import '../controllers/profile_controller.dart';
 
