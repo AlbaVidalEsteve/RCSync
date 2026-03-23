@@ -17,9 +17,9 @@ class ProfileView extends GetView<ProfileController> {
             // HEADER CON GRADIENTE
             Container(
               width: double.infinity,
-              height: 150,
-              padding: const EdgeInsets.only(top: 25, bottom: 10),
-              alignment: Alignment.center,
+              height: 200, // Aumentado para dar más aire
+              padding: const EdgeInsets.only(top: 60), // Bajamos el texto desde arriba
+              alignment: Alignment.topCenter,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -27,26 +27,31 @@ class ProfileView extends GetView<ProfileController> {
                   colors: [RCColors.orange, Color(0xFFF68B28)],
                 ),
               ),
-              child: const Text(
-                "MI PERFIL",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
+              child: const Column(
+                children: [
+                  Text(
+                    "MI PERFIL",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  SizedBox(height: 20), // <--- ESTE ES EL PADDING EXTRA DEBAJO DEL TEXTO
+                ],
               ),
             ),
 
             // AGRUPAMOS LA TARJETA Y EL BOTÓN DE CERRAR SESIÓN PARA QUE SUBAN JUNTOS
             Transform.translate(
-              offset: const Offset(0, -50), // Subimos todo el bloque 50px
+              offset: const Offset(0, -70), // Ajustado para que encaje con el nuevo header
               child: Column(
                 children: [
                   // CARD DE PERFIL (Estilo Oscuro)
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
-                    padding: const EdgeInsets.all(20), // Reducido de 25 a 20
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: RCColors.cardDark,
                       borderRadius: BorderRadius.circular(30),
@@ -69,7 +74,7 @@ class ProfileView extends GetView<ProfileController> {
                                 border: Border.all(color: RCColors.orange, width: 3),
                               ),
                               child: CircleAvatar(
-                                radius: 55, // Ligeramente más pequeña
+                                radius: 55,
                                 backgroundColor: RCColors.background,
                                 backgroundImage: controller.profileData['image_profile'] != null
                                     ? NetworkImage(controller.profileData['image_profile'])
@@ -96,7 +101,7 @@ class ProfileView extends GetView<ProfileController> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20), // Reducido de 30 a 20
+                        const SizedBox(height: 20),
 
                         // CAMPO: NOMBRE
                         _buildInputField(
@@ -115,17 +120,17 @@ class ProfileView extends GetView<ProfileController> {
                         // CAMPO: ROL (BLOQUEADO)
                         _buildRoleField(),
 
-                        const Divider(color: Colors.white10, height: 25), // Reducido de 40 a 25
+                        const Divider(color: Colors.white10, height: 25),
 
                         // SECCIÓN: TRANSPONDERS
                         _buildTranspondersSection(),
 
-                        const SizedBox(height: 25), // Reducido de 40 a 25
+                        const SizedBox(height: 25),
 
                         // BOTÓN EDITAR / GUARDAR
                         Obx(() => SizedBox(
                           width: double.infinity,
-                          height: 55, // Altura del botón interior
+                          height: 55,
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15),
@@ -169,7 +174,7 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                   ),
 
-                  const SizedBox(height: 15), // <-- ESTE ES EL NUEVO MARGEN ENTRE LA TARJETA Y CERRAR SESIÓN
+                  const SizedBox(height: 15),
 
                   // BOTÓN CERRAR SESIÓN
                   Padding(
@@ -194,7 +199,7 @@ class ProfileView extends GetView<ProfileController> {
                 ],
               ),
             ),
-            const SizedBox(height: 30), // Margen inferior de seguridad
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -235,7 +240,7 @@ class ProfileView extends GetView<ProfileController> {
             contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           ),
         )),
-        const SizedBox(height: 15), // Reducido de 20 a 15
+        const SizedBox(height: 15),
       ],
     );
   }
@@ -274,7 +279,7 @@ class ProfileView extends GetView<ProfileController> {
             ),
           );
         }),
-        const SizedBox(height: 15), // Reducido de 20 a 15
+        const SizedBox(height: 15),
       ],
     );
   }
@@ -290,13 +295,13 @@ class ProfileView extends GetView<ProfileController> {
             Text("Mis Transponders", style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
           ],
         ),
-        const SizedBox(height: 10), // Reducido de 12 a 10
+        const SizedBox(height: 10),
 
         // Input para añadir nuevo
         Obx(() {
           if (!controller.isEditMode.value) return const SizedBox();
           return Padding(
-            padding: const EdgeInsets.only(bottom: 12.0), // Reducido de 15 a 12
+            padding: const EdgeInsets.only(bottom: 12.0),
             child: Row(
               children: [
                 Expanded(
@@ -312,7 +317,7 @@ class ProfileView extends GetView<ProfileController> {
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Unifica la altura
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     ),
                   ),
                 ),
@@ -332,7 +337,7 @@ class ProfileView extends GetView<ProfileController> {
             String val = transponder['number'].toString();
             String id = transponder['id_transponder'];
             return Container(
-              margin: const EdgeInsets.only(bottom: 8), // Reducido de 10 a 8
+              margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
               decoration: BoxDecoration(
                 color: RCColors.background.withAlpha(100),
