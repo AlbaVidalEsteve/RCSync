@@ -40,32 +40,34 @@ class HomeScreen extends GetView<HomeController> {
           )),
       bottomNavigationBar: Obx(() => StylishBottomBar(
             backgroundColor: RCColors.background,
+            currentIndex: controller.selectedIndex.value,
+            onTap: (index) => controller.changeIndex(index),
             option: DotBarOptions(
               dotStyle: DotStyle.circle,
               gradient: const LinearGradient(
                 colors: [RCColors.orange, Color(0xFFF68B28)],
               ),
             ),
-            currentIndex: controller.selectedIndex.value,
-            onTap: (index) => controller.changeIndex(index),
             items: [
               BottomBarItem(
-                icon: const Icon(Icons.calendar_today_outlined),
-                selectedIcon: const Icon(Icons.calendar_today),
-                title: const Text('Eventos'),
+                icon: const Icon(Icons.calendar_today_outlined, color: Colors.white54),
+                selectedIcon: const Icon(Icons.calendar_today, color: RCColors.orange),
+                title: const Icon(Icons.calendar_today, color: RCColors.orange),
               ),
               BottomBarItem(
-                icon: const Icon(Icons.map_outlined),
-                selectedIcon: const Icon(Icons.map),
-                title: const Text('Mapa'),
+                icon: const Icon(Icons.map_outlined, color: Colors.white54),
+                selectedIcon: const Icon(Icons.map, color: RCColors.orange),
+                title: const Icon(Icons.map, color: RCColors.orange),
               ),
               BottomBarItem(
-                icon: const Icon(Icons.satellite_alt_outlined),
-                title: const Text('Resultados'),
+                icon: const Icon(Icons.satellite_alt_outlined, color: Colors.white54),
+                selectedIcon: const Icon(Icons.satellite_alt, color: RCColors.orange),
+                title: const Icon(Icons.satellite_alt, color: RCColors.orange),
               ),
               BottomBarItem(
-                icon: const Icon(Icons.person_outline),
-                title: const Text('Perfil'),
+                icon: const Icon(Icons.person_outline, color: Colors.white54),
+                selectedIcon: const Icon(Icons.person, color: RCColors.orange),
+                title: const Icon(Icons.person, color: RCColors.orange),
               ),
             ],
           )),
