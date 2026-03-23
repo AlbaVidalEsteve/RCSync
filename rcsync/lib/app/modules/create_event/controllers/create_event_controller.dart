@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../home/controllers/home_controller.dart';
 
@@ -11,8 +13,10 @@ class CreateEventController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final descriptionController = TextEditingController();
-  final prizeController = TextEditingController();
-  final imageUrlController = TextEditingController();
+  
+  // Image handling
+  final ImagePicker _picker = ImagePicker();
+  final Rxn<XFile> selectedImage = Rxn<XFile>();
 
   // Selected values
   final Rxn<DateTime> startDate = Rxn<DateTime>();
@@ -47,6 +51,39 @@ class CreateEventController extends GetxController {
     }
   }
 
+  Future<void> pickImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        selectedImage.value = image;
+      }
+    } catch (e) {
+      Get.snackbar("Error", "No se pudo seleccionar la imagen: $e");
+    }
+  }
+
+  Future<String?> _uploadImage(XFile image) async {
+    try {
+      final file = File(image.path);
+      final fileExt = image.path.split('.').last;
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+      // Nueva ruta especificada: carpeta eventosfoto dentro del bucket imagenes
+      final String filePath = 'eventosfoto/$fileName';
+
+      await client.storage.from('imagenes').upload(
+        filePath,
+        file,
+        fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
+      );
+
+      final String publicUrl = client.storage.from('imagenes').getPublicUrl(filePath);
+      return publicUrl;
+    } catch (e) {
+      print("Error uploading image: $e");
+      return null;
+    }
+  }
+
   Future<void> selectDate(BuildContext context, Rxn<DateTime> dateTarget) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -70,17 +107,27 @@ class CreateEventController extends GetxController {
     try {
       isLoading.value = true;
       
+      String? imageUrl;
+      if (selectedImage.value != null) {
+        imageUrl = await _uploadImage(selectedImage.value!);
+        if (imageUrl == null) {
+           Get.snackbar("Error", "No se pudo subir la imagen al servidor");
+           isLoading.value = false;
+           return;
+        }
+      }
+
       final eventData = {
-        'name': nameController.text,
-        'description': descriptionController.text,
+        'name': nameController.text.trim(),
+        'description': descriptionController.text.trim(),
         'event_date_ini': startDate.value!.toIso8601String(),
         'event_date_fin': endDate.value!.toIso8601String(),
         'event_reg_ini': regStartDate.value?.toIso8601String(),
         'event_reg_fin': regEndDate.value?.toIso8601String(),
-        'prize': double.tryParse(prizeController.text) ?? 0.0,
-        'image_event': imageUrlController.text,
+        'image_event': imageUrl,
         'id_circuit': selectedCircuitId.value,
         'id_championship': selectedChampionshipId.value,
+        'status': 'active',
       };
 
       await client.from('events').insert(eventData);
@@ -88,13 +135,28 @@ class CreateEventController extends GetxController {
       Get.back();
       Get.snackbar("Éxito", "Evento creado correctamente", backgroundColor: Colors.green, colorText: Colors.white);
       
-      // Actualizar la lista de la Home
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().getEvents();
       }
       
+    } on PostgrestException catch (e) {
+      // Simplificado para evitar errores de compilación según la versión de la librería
+      print("DATABASE ERROR: ${e.message} (Code: ${e.code})");
+      
+      String errorMsg = e.message;
+      if (e.code == '23505') {
+        errorMsg = "Ya existe un registro con estos datos. Verifica que el nombre sea único.";
+      }
+      
+      Get.snackbar(
+        "Error de Base de Datos", 
+        errorMsg, 
+        backgroundColor: Colors.redAccent, 
+        colorText: Colors.white,
+        duration: const Duration(seconds: 8)
+      );
     } catch (e) {
-      Get.snackbar("Error", "No se pudo crear el evento: $e");
+      Get.snackbar("Error", "Ocurrió un error inesperado: $e");
     } finally {
       isLoading.value = false;
     }
@@ -104,8 +166,6 @@ class CreateEventController extends GetxController {
   void onClose() {
     nameController.dispose();
     descriptionController.dispose();
-    prizeController.dispose();
-    imageUrlController.dispose();
     super.onClose();
   }
 }

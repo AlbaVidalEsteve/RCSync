@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
@@ -29,14 +30,16 @@ class CreateEventView extends GetView<CreateEventController> {
               children: [
                 _buildTextField("Nombre del Evento", controller.nameController, Icons.event),
                 _buildTextField("Descripción", controller.descriptionController, Icons.description, maxLines: 3),
-                _buildTextField("Premio (opcional)", controller.prizeController, Icons.emoji_events, keyboardType: TextInputType.number),
-                _buildTextField("URL de la imagen", controller.imageUrlController, Icons.image),
+                
+                const SizedBox(height: 10),
+                const Text("Imagen del Evento", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                _buildImagePicker(),
                 
                 const SizedBox(height: 20),
                 const Text("Configuración", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 
-                // Dropdowns for Circuits and Championships
                 _buildDropdown("Seleccionar Circuito", controller.selectedCircuitId, controller.circuits, 'id_circuit'),
                 _buildDropdown("Seleccionar Campeonato", controller.selectedChampionshipId, controller.championships, 'id_championship'),
 
@@ -69,6 +72,34 @@ class CreateEventView extends GetView<CreateEventController> {
         );
       }),
     );
+  }
+
+  Widget _buildImagePicker() {
+    return Obx(() => GestureDetector(
+      onTap: () => controller.pickImage(),
+      child: Container(
+        width: double.infinity,
+        height: 150,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: controller.selectedImage.value != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: Image.file(File(controller.selectedImage.value!.path), fit: BoxFit.cover),
+              )
+            : const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.add_a_photo, color: RCColors.orange, size: 40),
+                  SizedBox(height: 10),
+                  Text("Toca para subir una imagen", style: TextStyle(color: Colors.white70)),
+                ],
+              ),
+      ),
+    ));
   }
 
   Widget _buildTextField(String label, TextEditingController textController, IconData icon, {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
