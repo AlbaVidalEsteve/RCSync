@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rcsync/app/routes/app_pages.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 
@@ -42,6 +43,30 @@ class ProfileController extends GetxController {
     super.onClose();
   }
 
+  void _showSnackbar(String title, String message, {bool isError = false}) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: isError ? Colors.redAccent : RCColors.orange,
+      colorText: Colors.white,
+      borderRadius: 15,
+      margin: const EdgeInsets.all(15),
+      duration: const Duration(seconds: 3),
+      icon: Icon(
+        isError ? Icons.error_outline : Icons.check_circle_outline,
+        color: Colors.white,
+      ),
+      boxShadows: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.3),
+          blurRadius: 10,
+          offset: const Offset(0, 5),
+        )
+      ],
+    );
+  }
+
   Future<void> getProfile() async {
     try {
       isLoading.value = true;
@@ -59,7 +84,7 @@ class ProfileController extends GetxController {
 
     } catch (e) {
       print("Error fetching profile: $e");
-      Get.snackbar("Error", "No se pudo cargar el perfil");
+      _showSnackbar("Error", "No se pudo cargar el perfil", isError: true);
     } finally {
       isLoading.value = false;
     }
@@ -83,7 +108,6 @@ class ProfileController extends GetxController {
   void toggleEdit() {
     isEditMode.value = !isEditMode.value;
     if (!isEditMode.value) {
-      // Revertir cambios si cancelamos? O simplemente dejar que guarde.
       getProfile();
       getTransponders();
     }
@@ -97,25 +121,28 @@ class ProfileController extends GetxController {
         final file = File(image.path);
         final userId = client.auth.currentUser!.id;
         final fileExt = image.path.split('.').last;
-        final fileName = '$userId-${DateTime.now().millisecondsSinceEpoch}.$fileExt';
-        final filePath = 'avatars/$fileName';
+        
+        final fileName = '${userId}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+        final filePath = 'perfilfoto/$fileName';
 
-        // Subir a Supabase Storage
-        await client.storage.from('profiles').upload(filePath, file);
+        await client.storage.from('imagenes').upload(
+          filePath, 
+          file,
+          fileOptions: const FileOptions(cacheControl: '3600', upsert: false),
+        );
 
-        // Obtener URL pública
-        final publicUrl = client.storage.from('profiles').getPublicUrl(filePath);
+        final publicUrl = client.storage.from('imagenes').getPublicUrl(filePath);
 
-        // Actualizar tabla profiles
         await client.from("profiles").update({
           "image_profile": publicUrl,
         }).eq("id_profile", userId);
 
         profileData.update("image_profile", (_) => publicUrl);
-        Get.snackbar("Éxito", "Foto de perfil actualizada");
+        
+        _showSnackbar("Éxito", "Foto de perfil actualizada correctamente");
       } catch (e) {
         print("Error uploading image: $e");
-        Get.snackbar("Error", "No se pudo subir la imagen");
+        _showSnackbar("Error", "No se encontró el bucket 'imagenes' o no tienes permisos", isError: true);
       } finally {
         isLoading.value = false;
       }
@@ -135,11 +162,12 @@ class ProfileController extends GetxController {
         
         transponders.insert(0, res);
         newTransponderC.clear();
+        _showSnackbar("Éxito", "Transponder añadido");
       } catch (e) {
-        Get.snackbar("Error", "No se pudo añadir el transponder");
+        _showSnackbar("Error", "No se pudo añadir el transponder", isError: true);
       }
     } else {
-      Get.snackbar("Error", "El número de transponder debe ser válido");
+      _showSnackbar("Error", "El número de transponder debe ser válido", isError: true);
     }
   }
 
@@ -147,8 +175,9 @@ class ProfileController extends GetxController {
     try {
       await client.from("transponders").delete().eq("id_transponder", idTransponder);
       transponders.removeWhere((t) => t["id_transponder"] == idTransponder);
+      _showSnackbar("Eliminado", "Transponder eliminado correctamente");
     } catch (e) {
-      Get.snackbar("Error", "No se pudo eliminar el transponder");
+      _showSnackbar("Error", "No se pudo eliminar el transponder", isError: true);
     }
   }
 
@@ -162,9 +191,9 @@ class ProfileController extends GetxController {
       }).eq("id_profile", userId);
 
       isEditMode.value = false;
-      Get.snackbar("Éxito", "Perfil actualizado correctamente");
+      _showSnackbar("Éxito", "Perfil actualizado correctamente");
     } catch (e) {
-      Get.snackbar("Error", "No se pudo actualizar el perfil");
+      _showSnackbar("Error", "No se pudo actualizar el perfil", isError: true);
     } finally {
       isLoading.value = false;
     }

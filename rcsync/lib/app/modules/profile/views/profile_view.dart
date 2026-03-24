@@ -17,158 +17,189 @@ class ProfileView extends GetView<ProfileController> {
             // HEADER CON GRADIENTE
             Container(
               width: double.infinity,
-              height: 200,
+              height: 200, // Aumentado para dar más aire
+              padding: const EdgeInsets.only(top: 60), // Bajamos el texto desde arriba
+              alignment: Alignment.topCenter,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF6A11CB), Color(0xFFF24E02)],
+                  colors: [RCColors.orange, Color(0xFFF68B28)],
                 ),
               ),
-              child: const Center(
-                child: Text(
-                  "Perfil",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+              child: const Column(
+                children: [
+                  Text(
+                    "MI PERFIL",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
                   ),
-                ),
+                  SizedBox(height: 20), // <--- ESTE ES EL PADDING EXTRA DEBAJO DEL TEXTO
+                ],
               ),
             ),
 
-            // CARD DE PERFIL
+            // AGRUPAMOS LA TARJETA Y EL BOTÓN DE CERRAR SESIÓN PARA QUE SUBAN JUNTOS
             Transform.translate(
-              offset: const Offset(0, -50),
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(25),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(25),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    )
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // FOTO DE PERFIL
-                    Stack(
-                      children: [
-                        Obx(() => CircleAvatar(
-                          radius: 60,
-                          backgroundColor: Colors.grey[200],
-                          backgroundImage: controller.profileData['image_profile'] != null
-                              ? NetworkImage(controller.profileData['image_profile'])
-                              : null,
-                          child: controller.profileData['image_profile'] == null
-                              ? Icon(Icons.person, size: 60, color: Colors.grey[400])
-                              : null,
-                        )),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: GestureDetector(
-                            onTap: () => controller.pickImage(),
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFF24E02),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                            ),
-                          ),
-                        ),
+              offset: const Offset(0, -70), // Ajustado para que encaje con el nuevo header
+              child: Column(
+                children: [
+                  // CARD DE PERFIL (Estilo Oscuro)
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: RCColors.cardDark,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(50),
+                          blurRadius: 15,
+                          offset: const Offset(0, 10),
+                        )
                       ],
                     ),
-                    const SizedBox(height: 30),
+                    child: Column(
+                      children: [
+                        // FOTO DE PERFIL
+                        Stack(
+                          children: [
+                            Obx(() => Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(color: RCColors.orange, width: 3),
+                              ),
+                              child: CircleAvatar(
+                                radius: 55,
+                                backgroundColor: RCColors.background,
+                                backgroundImage: controller.profileData['image_profile'] != null
+                                    ? NetworkImage(controller.profileData['image_profile'])
+                                    : null,
+                                child: controller.profileData['image_profile'] == null
+                                    ? const Icon(Icons.person, size: 55, color: Colors.white24)
+                                    : null,
+                              ),
+                            )),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: GestureDetector(
+                                onTap: () => controller.pickImage(),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: const BoxDecoration(
+                                    color: RCColors.orange,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
 
-                    // CAMPO: NOMBRE
-                    _buildInputField(
-                      label: "Nombre",
-                      controller: controller.nameC,
-                      icon: null,
+                        // CAMPO: NOMBRE
+                        _buildInputField(
+                          label: "Nombre Completo",
+                          controller: controller.nameC,
+                          icon: Icons.person_outline,
+                        ),
+
+                        // CAMPO: EMAIL
+                        _buildInputField(
+                          label: "Correo Electrónico",
+                          controller: controller.emailC,
+                          icon: Icons.email_outlined,
+                        ),
+
+                        // CAMPO: ROL (BLOQUEADO)
+                        _buildRoleField(),
+
+                        const Divider(color: Colors.white10, height: 25),
+
+                        // SECCIÓN: TRANSPONDERS
+                        _buildTranspondersSection(),
+
+                        const SizedBox(height: 25),
+
+                        // BOTÓN EDITAR / GUARDAR
+                        Obx(() => SizedBox(
+                          width: double.infinity,
+                          height: 55,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              gradient: const LinearGradient(
+                                colors: [RCColors.orange, Color(0xFFF68B28)],
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: RCColors.orange.withAlpha(76),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 6),
+                                )
+                              ],
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (controller.isEditMode.value) {
+                                  controller.updateProfile();
+                                } else {
+                                  controller.toggleEdit();
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                              ),
+                              child: Text(
+                                controller.isEditMode.value ? "GUARDAR CAMBIOS" : "EDITAR PERFIL",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  letterSpacing: 1.1,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )),
+                      ],
                     ),
+                  ),
 
-                    // CAMPO: EMAIL
-                    _buildInputField(
-                      label: "Email",
-                      controller: controller.emailC,
-                      icon: Icons.email_outlined,
-                    ),
+                  const SizedBox(height: 15),
 
-                    // CAMPO: ROL (BLOQUEADO)
-                    _buildRoleField(),
-
-                    const SizedBox(height: 20),
-
-                    // SECCIÓN: TRANSPONDERS
-                    _buildTranspondersSection(),
-
-                    const SizedBox(height: 30),
-
-                    // BOTÓN EDITAR / GUARDAR
-                    Obx(() => SizedBox(
+                  // BOTÓN CERRAR SESIÓN
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: SizedBox(
                       width: double.infinity,
                       height: 55,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF6DD5FA), Color(0xFFF24E02)],
-                          ),
+                      child: TextButton.icon(
+                        onPressed: () => controller.logout(),
+                        icon: const Icon(Icons.logout, color: Colors.redAccent),
+                        label: const Text(
+                          "Cerrar Sesión",
+                          style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (controller.isEditMode.value) {
-                              controller.updateProfile();
-                            } else {
-                              controller.toggleEdit();
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                          ),
-                          child: Text(
-                            controller.isEditMode.value ? "GUARDAR CAMBIOS" : "EDITAR",
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          ),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.redAccent.withAlpha(50),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                         ),
                       ),
-                    )),
-                  ],
-                ),
+                    ),
+                  ),
+                ],
               ),
             ),
-
-            // BOTÓN CERRAR SESIÓN
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: OutlinedButton(
-                  onPressed: () => controller.logout(),
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFFEBEE),
-                    side: const BorderSide(color: Colors.transparent),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  ),
-                  child: const Text(
-                    "Cerrar Sesión",
-                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 100),
+            const SizedBox(height: 30),
           ],
         ),
       ),
@@ -181,26 +212,35 @@ class ProfileView extends GetView<ProfileController> {
       children: [
         Row(
           children: [
-            if (icon != null) Icon(icon, size: 16, color: Colors.grey[600]),
-            if (icon != null) const SizedBox(width: 5),
-            Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+            if (icon != null) Icon(icon, size: 16, color: Colors.white70),
+            if (icon != null) const SizedBox(width: 8),
+            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
           ],
         ),
         const SizedBox(height: 8),
         Obx(() => TextField(
           controller: controller,
           enabled: this.controller.isEditMode.value,
+          style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: RCColors.background.withAlpha(128),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,
             ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: Colors.white.withAlpha(13), width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: const BorderSide(color: RCColors.orange, width: 1),
+            ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           ),
         )),
-        const SizedBox(height: 20),
+        const SizedBox(height: 15),
       ],
     );
   }
@@ -209,11 +249,11 @@ class ProfileView extends GetView<ProfileController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            Icon(Icons.bookmark_outline, size: 16, color: Colors.grey[600]),
-            const SizedBox(width: 5),
-            Text("Rol", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+            Icon(Icons.stars_outlined, size: 16, color: Colors.white70),
+            SizedBox(width: 8),
+            Text("Rol de Usuario", style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
           ],
         ),
         const SizedBox(height: 8),
@@ -223,17 +263,23 @@ class ProfileView extends GetView<ProfileController> {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             decoration: BoxDecoration(
-              color: const Color(0xFFE3F2FD),
+              color: Colors.blueAccent.withAlpha(50),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.blue.withAlpha(50)),
+              border: Border.all(color: RCColors.darkBlue.withAlpha(100)),
             ),
-            child: Text(
-              role.toUpperCase(),
-              style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+            child: Row(
+              children: [
+                const Icon(Icons.verified_user_sharp, color: Colors.blueAccent, size: 20),
+                const SizedBox(width: 10),
+                Text(
+                  role.toUpperCase(),
+                  style: const TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                ),
+              ],
             ),
           );
         }),
-        const SizedBox(height: 20),
+        const SizedBox(height: 15),
       ],
     );
   }
@@ -242,44 +288,48 @@ class ProfileView extends GetView<ProfileController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            Icon(Icons.credit_card, size: 16, color: Colors.grey[600]),
-            const SizedBox(width: 5),
-            Text("Transponders", style: TextStyle(color: Colors.grey[600], fontSize: 14)),
+            Icon(Icons.sensors, size: 16, color: Colors.white70),
+            SizedBox(width: 8),
+            Text("Mis Transponders", style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
           ],
         ),
-        const SizedBox(height: 8),
-        
+        const SizedBox(height: 10),
+
         // Input para añadir nuevo
         Obx(() {
           if (!controller.isEditMode.value) return const SizedBox();
-          return Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: controller.newTransponderC,
-                  decoration: InputDecoration(
-                    hintText: "Nuevo ID...",
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide.none,
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: controller.newTransponderC,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: "Número de transponder...",
+                      hintStyle: const TextStyle(color: Colors.white24),
+                      filled: true,
+                      fillColor: RCColors.background.withAlpha(128),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              IconButton(
-                onPressed: () => controller.addTransponder(),
-                icon: const Icon(Icons.add_circle, color: Color(0xFFF24E02), size: 30),
-              )
-            ],
+                const SizedBox(width: 10),
+                IconButton(
+                  onPressed: () => controller.addTransponder(),
+                  icon: const Icon(Icons.add_circle, color: RCColors.orange, size: 35),
+                )
+              ],
+            ),
           );
         }),
-        
-        const SizedBox(height: 10),
 
         // Listado de transponders
         Obx(() => Column(
@@ -288,19 +338,33 @@ class ProfileView extends GetView<ProfileController> {
             String id = transponder['id_transponder'];
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(10),
+                color: RCColors.background.withAlpha(100),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white.withAlpha(13)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(val, style: const TextStyle(fontWeight: FontWeight.w500)),
+                  Row(
+                    children: [
+                      const Icon(Icons.tag, color: RCColors.orange, size: 18),
+                      const SizedBox(width: 10),
+                      Text(val, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16)),
+                    ],
+                  ),
                   if (controller.isEditMode.value)
                     GestureDetector(
                       onTap: () => controller.removeTransponder(id),
-                      child: const Icon(Icons.close, color: Colors.red, size: 18),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent.withAlpha(40),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close, color: Colors.redAccent, size: 16),
+                      ),
                     ),
                 ],
               ),
