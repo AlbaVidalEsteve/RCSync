@@ -1,8 +1,11 @@
+// Archivo: lib/app/data/models/ranking_model.dart
+
 class RankingEntry {
   final String idProfile;
   final String fullName;
   final bool isJunior;
-  final String calculatedLevel; // Recibido directamente de SQL
+  final String calculatedLevel;
+  final String? imageProfile; // ⬅️ CAMBIO: Añadimos este campo opcional
   final List<int> points;
   final List<int> positions;
 
@@ -11,17 +14,18 @@ class RankingEntry {
     required this.fullName,
     required this.isJunior,
     required this.calculatedLevel,
+    this.imageProfile, // ⬅️ CAMBIO: Lo añadimos al constructor
     required this.points,
     required this.positions,
   });
 
-  // Puntos Brutos: Suma de todo
-  int get totalGross => points.fold(0, (sum, item) => sum + item);
+  // Mantengo tus getters originales de cálculo de puntos
+  int get totalGross => points.isNotEmpty ? points.reduce((a, b) => a + b) : 0;
 
-  // Puntos Netos: Suma de los 4 mejores resultados
   int get totalNet {
     if (points.isEmpty) return 0;
     List<int> sorted = List.from(points)..sort((a, b) => b.compareTo(a));
-    return sorted.take(4).fold(0, (sum, item) => sum + item);
+    Iterable<int> bestFour = sorted.take(4);
+    return bestFour.isEmpty ? 0 : bestFour.reduce((a, b) => a + b);
   }
 }
