@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,7 +16,8 @@ class CreateEventController extends GetxController {
   
   // Image handling
   final ImagePicker _picker = ImagePicker();
-  final Rxn<XFile> selectedImage = Rxn<XFile>();
+  final Rxn<Uint8List> selectedImageBytes = Rxn<Uint8List>();
+  final RxString selectedImageExt = ''.obs;
 
   // Selected values
   final Rxn<DateTime> startDate = Rxn<DateTime>();
@@ -40,7 +41,10 @@ class CreateEventController extends GetxController {
     try {
       isLoading.value = true;
       final circuitsData = await client.from('circuits').select('id_circuit, name');
-      final championshipsData = await client.from('championships').select('id_championship, name');
+      final championshipsData = await client
+          .from('championships')
+          .select('id_championship, name')
+          .eq('is_active', true);
       
       circuits.assignAll(List<Map<String, dynamic>>.from(circuitsData));
       championships.assignAll(List<Map<String, dynamic>>.from(championshipsData));
@@ -55,24 +59,25 @@ class CreateEventController extends GetxController {
     try {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
-        selectedImage.value = image;
+        selectedImageBytes.value = await image.readAsBytes();
+        selectedImageExt.value = image.path.split('.').last;
       }
     } catch (e) {
       Get.snackbar("Error", "No se pudo seleccionar la imagen: $e");
     }
   }
 
-  Future<String?> _uploadImage(XFile image) async {
+  Future<String?> _uploadImage() async {
     try {
-      final file = File(image.path);
-      final fileExt = image.path.split('.').last;
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}.$fileExt';
-      // Nueva ruta especificada: carpeta eventosfoto dentro del bucket imagenes
+      if (selectedImageBytes.value == null) return null;
+
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}.${selectedImageExt.value}';
       final String filePath = 'eventosfoto/$fileName';
 
-      await client.storage.from('imagenes').upload(
+      // Sube usando los bytes directamente (compatible con Web/Mobile)
+      await client.storage.from('imagenes').uploadBinary(
         filePath,
-        file,
+        selectedImageBytes.value!,
         fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
       );
 
@@ -99,22 +104,39 @@ class CreateEventController extends GetxController {
   Future<void> createEvent() async {
     if (!formKey.currentState!.validate()) return;
     
+    if (selectedCircuitId.value == null) {
+      Get.snackbar("Campo incompleto", "Debes seleccionar un circuito");
+      return;
+    }
+
+    if (selectedChampionshipId.value == null) {
+      Get.snackbar("Campo incompleto", "Debes seleccionar un campeonato");
+      return;
+    }
+
     if (startDate.value == null || endDate.value == null) {
-      Get.snackbar("Error", "Debes seleccionar las fechas del evento");
+      Get.snackbar("Campo incompleto", "Debes seleccionar las fechas del evento");
+      return;
+    }
+
+    if (regStartDate.value == null || regEndDate.value == null) {
+      Get.snackbar("Campo incompleto", "Debes seleccionar las fechas de inscripción");
+      return;
+    }
+    
+    if (selectedImageBytes.value == null) {
+      Get.snackbar("Imagen faltante", "Debes subir una imagen para el evento");
       return;
     }
 
     try {
       isLoading.value = true;
       
-      String? imageUrl;
-      if (selectedImage.value != null) {
-        imageUrl = await _uploadImage(selectedImage.value!);
-        if (imageUrl == null) {
-           Get.snackbar("Error", "No se pudo subir la imagen al servidor");
-           isLoading.value = false;
-           return;
-        }
+      String? imageUrl = await _uploadImage();
+      if (imageUrl == null) {
+         Get.snackbar("Error", "No se pudo subir la imagen al servidor");
+         isLoading.value = false;
+         return;
       }
 
       final eventData = {
@@ -122,8 +144,8 @@ class CreateEventController extends GetxController {
         'description': descriptionController.text.trim(),
         'event_date_ini': startDate.value!.toIso8601String(),
         'event_date_fin': endDate.value!.toIso8601String(),
-        'event_reg_ini': regStartDate.value?.toIso8601String(),
-        'event_reg_fin': regEndDate.value?.toIso8601String(),
+        'event_reg_ini': regStartDate.value!.toIso8601String(),
+        'event_reg_fin': regEndDate.value!.toIso8601String(),
         'image_event': imageUrl,
         'id_circuit': selectedCircuitId.value,
         'id_championship': selectedChampionshipId.value,
@@ -140,21 +162,12 @@ class CreateEventController extends GetxController {
       }
       
     } on PostgrestException catch (e) {
-      // Simplificado para evitar errores de compilación según la versión de la librería
       print("DATABASE ERROR: ${e.message} (Code: ${e.code})");
-      
       String errorMsg = e.message;
       if (e.code == '23505') {
         errorMsg = "Ya existe un registro con estos datos. Verifica que el nombre sea único.";
       }
-      
-      Get.snackbar(
-        "Error de Base de Datos", 
-        errorMsg, 
-        backgroundColor: Colors.redAccent, 
-        colorText: Colors.white,
-        duration: const Duration(seconds: 8)
-      );
+      Get.snackbar("Error de Base de Datos", errorMsg, backgroundColor: Colors.redAccent, colorText: Colors.white);
     } catch (e) {
       Get.snackbar("Error", "Ocurrió un error inesperado: $e");
     } finally {

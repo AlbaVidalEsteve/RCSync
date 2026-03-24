@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
@@ -85,10 +84,10 @@ class CreateEventView extends GetView<CreateEventController> {
           borderRadius: BorderRadius.circular(15),
           border: Border.all(color: Colors.white10),
         ),
-        child: controller.selectedImage.value != null
+        child: controller.selectedImageBytes.value != null
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(15),
-                child: Image.file(File(controller.selectedImage.value!.path), fit: BoxFit.cover),
+                child: Image.memory(controller.selectedImageBytes.value!, fit: BoxFit.cover),
               )
             : const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
