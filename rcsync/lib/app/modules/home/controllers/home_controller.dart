@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:rcsync/app/data/models/race_event_model.dart';
+import 'package:rcsync/app/data/models/profiles_model.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
+import '../../../routes/app_pages.dart';
 
 class HomeController extends GetxController {
   RxBool isLoading = false.obs;
@@ -13,6 +15,9 @@ class HomeController extends GetxController {
 
   final RxList<RaceEventModel> rawEvents = <RaceEventModel>[].obs;
   final RxList<NeatCleanCalendarEvent> eventList = <NeatCleanCalendarEvent>[].obs;
+  
+  // Perfil del usuario actual
+  final Rxn<ProfileModel> userProfile = Rxn<ProfileModel>();
 
   // New states for the filtering logic
   var selectedDate = DateTime.now().obs;
@@ -24,10 +29,47 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     getEvents();
+    getCurrentUserProfile();
   }
 
   void changeIndex(int index) {
     selectedIndex.value = index;
+  }
+
+  Future<void> getCurrentUserProfile() async {
+    try {
+      final user = client.auth.currentUser;
+      if (user != null) {
+        final response = await client
+            .from('profiles')
+            .select()
+            .eq('id_profile', user.id)
+            .single();
+        userProfile.value = ProfileModel.fromJson(response);
+      }
+    } catch (e) {
+      print("Error fetching user profile: $e");
+    }
+  }
+
+  void goToCreateEvent() {
+    if (userProfile.value == null) {
+      Get.snackbar("Error", "No se pudo cargar tu perfil");
+      return;
+    }
+
+    final role = userProfile.value!.rol.toLowerCase();
+    if (role == 'admin' || role == 'organizador') {
+      Get.toNamed(Routes.CREATE_EVENT);
+    } else {
+      Get.snackbar(
+        "Acceso denegado", 
+        "No tienes permisos para agregar un evento",
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   Future<void> getEvents() async {

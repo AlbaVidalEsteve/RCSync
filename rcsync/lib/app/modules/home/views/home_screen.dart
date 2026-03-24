@@ -101,21 +101,38 @@ class HomeScreen extends GetView<HomeController> {
                 ],
               ),
               const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                decoration: BoxDecoration(
-                  color: Colors.white.withAlpha((0.2 * 255).toInt()),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: const TextField(
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: "Buscar eventos...",
-                    hintStyle: TextStyle(color: Colors.white70),
-                    border: InputBorder.none,
-                    icon: Icon(Icons.search, color: Colors.white70),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha((0.2 * 255).toInt()),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const TextField(
+                        style: TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: "Buscar eventos...",
+                          hintStyle: TextStyle(color: Colors.white70),
+                          border: InputBorder.none,
+                          icon: Icon(Icons.search, color: Colors.white70),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 10),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha((0.2 * 255).toInt()),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      onPressed: () => controller.goToCreateEvent(),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

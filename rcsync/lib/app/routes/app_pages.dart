@@ -1,6 +1,8 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:get/get.dart';
+import 'package:rcsync/app/modules/create_event/bindings/create_event_binding.dart';
+import 'package:rcsync/app/modules/create_event/views/create_event_view.dart';
 import 'package:rcsync/app/modules/event_detail/views/event_details_view.dart';
 import 'package:rcsync/app/modules/home/bindings/home_binding.dart';
 import 'package:rcsync/app/modules/home/views/home_screen.dart';
@@ -42,6 +44,11 @@ class AppPages {
     GetPage(
       name: _Paths.EVENT_DETAIL,
       page: () => const EventDetailScreen(),
+    ),
+    GetPage(
+      name: _Paths.CREATE_EVENT,
+      page: () => const CreateEventView(),
+      binding: CreateEventBinding(),
     ),
   ];
 }
