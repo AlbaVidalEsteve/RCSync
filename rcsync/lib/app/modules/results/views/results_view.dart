@@ -13,7 +13,7 @@ class ResultsView extends GetView<ResultsController> {
       appBar: AppBar(
         title: const Text(
           "RESULTADOS",
-          style: TextStyle(color: RCColors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: RCColors.white, fontWeight: FontWeight.bold, letterSpacing: 1.2),
         ),
         backgroundColor: RCColors.orange,
         iconTheme: const IconThemeData(color: RCColors.white),
@@ -22,7 +22,16 @@ class ResultsView extends GetView<ResultsController> {
       ),
       body: Column(
         children: [
-          _buildFilters(),
+          // Fondo naranja detrás de la tarjeta superior para suavizar la transición
+          Stack(
+            children: [
+              Container(
+                height: 40,
+                color: RCColors.orange,
+              ),
+              _buildFiltersCard(),
+            ],
+          ),
           _buildStatusBanner(),
           Expanded(child: _buildList()),
         ],
@@ -30,24 +39,31 @@ class ResultsView extends GetView<ResultsController> {
     );
   }
 
-  Widget _buildFilters() {
+  // --- TARJETA DE FILTROS (ESTILO PROFILE VIEW) ---
+  Widget _buildFiltersCard() {
     return Container(
-      padding: const EdgeInsets.all(RCSpacing.md),
-      decoration: const BoxDecoration(
-        color: RCColors.orange,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(20),
-          bottomRight: Radius.circular(20),
-        ),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: RCColors.cardDark, // El grisáceo elegante
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(50),
+            blurRadius: 15,
+            offset: const Offset(0, 10),
+          )
+        ],
       ),
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
-                flex: 2,
-                child: Obx(() => _customDropdownOnOrange(
+                flex: 5,
+                child: Obx(() => _buildProfileStyleDropdown(
                   label: "Campeonato",
+                  icon: Icons.emoji_events_outlined,
                   value: controller.selectedChampionshipName.value.isEmpty ? null : controller.selectedChampionshipName.value,
                   items: controller.availableChampionships,
                   onChanged: (val) {
@@ -58,11 +74,12 @@ class ResultsView extends GetView<ResultsController> {
                   },
                 )),
               ),
-              const SizedBox(width: RCSpacing.sm),
+              const SizedBox(width: 15),
               Expanded(
-                flex: 1,
-                child: Obx(() => _customDropdownOnOrange(
+                flex: 3,
+                child: Obx(() => _buildProfileStyleDropdown(
                   label: "Año",
+                  icon: Icons.calendar_today_outlined,
                   value: controller.selectedYear.value.isEmpty ? null : controller.selectedYear.value,
                   items: controller.availableYears,
                   onChanged: (val) {
@@ -75,13 +92,14 @@ class ResultsView extends GetView<ResultsController> {
               ),
             ],
           ),
-          const SizedBox(height: RCSpacing.md),
+          const SizedBox(height: 15),
           Row(
             children: [
               Expanded(
                 flex: 1,
-                child: Obx(() => _customDropdownOnOrange(
+                child: Obx(() => _buildProfileStyleDropdown(
                   label: "Categoría",
+                  icon: Icons.directions_car_outlined,
                   value: controller.selectedCategory.value.isEmpty ? null : controller.selectedCategory.value,
                   items: controller.availableCategories,
                   onChanged: (val) {
@@ -95,13 +113,14 @@ class ResultsView extends GetView<ResultsController> {
                   },
                 )),
               ),
-              const SizedBox(width: RCSpacing.sm),
+              const SizedBox(width: 15),
               Expanded(
                 flex: 1,
                 child: Obx(() {
                   if (controller.selectedCategory.value == "Tamiya GT") {
-                    return _customDropdownOnOrange(
+                    return _buildProfileStyleDropdown(
                       label: "Nivel",
+                      icon: Icons.speed_outlined,
                       value: controller.selectedSubFilter.value,
                       items: ["General", "Stock", "Superstock", "Junior"],
                       onChanged: (val) {
@@ -123,42 +142,60 @@ class ResultsView extends GetView<ResultsController> {
     );
   }
 
-  Widget _customDropdownOnOrange({
+  // --- COMBOBOX CLONADO DE TU _buildInputField ---
+  Widget _buildProfileStyleDropdown({
     required String label,
+    required IconData icon,
     String? value,
     required List<String> items,
     required Function(String?) onChanged
   }) {
     final safeValue = (value != null && items.contains(value)) ? value : null;
 
-    return DropdownButtonFormField<String>(
-      value: safeValue,
-      dropdownColor: RCColors.cardDark,
-      iconEnabledColor: RCColors.backgroundShine,
-      style: const TextStyle(color: RCColors.white, fontSize: 13),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(color: RCColors.background, fontSize: 12, fontWeight: FontWeight.bold),
-        filled: true,
-        fillColor: RCColors.white.withOpacity(0.2),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: RCColors.white.withOpacity(0.3)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Etiqueta por encima del campo (Estilo Profile)
+        Row(
+          children: [
+            Icon(icon, size: 14, color: Colors.white70),
+            const SizedBox(width: 6),
+            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+          ],
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: RCColors.background, width: 2),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: safeValue,
+          dropdownColor: RCColors.background, // Fondo del menú desplegado (negro)
+          icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
+          style: const TextStyle(color: Colors.white, fontSize: 14),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: RCColors.background.withAlpha(128), // Fondo interior del combobox
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: BorderSide(color: Colors.white.withAlpha(13), width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(15),
+              borderSide: const BorderSide(color: RCColors.orange, width: 1),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+          items: items.isEmpty
+              ? null
+              : items.map((e) => DropdownMenuItem<String>(
+              value: e,
+              child: Text(e, style: const TextStyle(color: Colors.white))
+          )).toList(),
+          onChanged: items.isEmpty ? null : onChanged,
+          hint: items.isEmpty ? const Text("Cargando...", style: TextStyle(color: Colors.white24, fontSize: 13)) : null,
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      ),
-      items: items.isEmpty
-          ? null
-          : items.map((e) => DropdownMenuItem<String>(
-          value: e,
-          child: Text(e, style: const TextStyle(color: RCColors.white))
-      )).toList(),
-      onChanged: items.isEmpty ? null : onChanged,
-      hint: items.isEmpty ? const Text("Cargando...", style: TextStyle(color: Colors.white54)) : null,
+      ],
     );
   }
 
@@ -166,9 +203,14 @@ class ResultsView extends GetView<ResultsController> {
     return Obx(() {
       final isActive = controller.isChampionshipActive.value;
       return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 8),
-        color: isActive ? RCColors.orange.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+        decoration: BoxDecoration(
+          color: isActive ? RCColors.orange.withOpacity(0.15) : Colors.green.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: isActive ? RCColors.orange.withOpacity(0.3) : Colors.greenAccent.withOpacity(0.3)),
+        ),
         child: Text(
           isActive ? "🏎️ CAMPEONATO EN CURSO (Suma total)" : "🏆 FINALIZADO (Suma 4 mejores)",
           textAlign: TextAlign.center,
@@ -176,6 +218,7 @@ class ResultsView extends GetView<ResultsController> {
             fontWeight: FontWeight.bold,
             color: isActive ? RCColors.orange : Colors.greenAccent,
             fontSize: 11,
+            letterSpacing: 0.5,
           ),
         ),
       );
@@ -229,7 +272,6 @@ class ResultsView extends GetView<ResultsController> {
                 leading: Stack(
                   alignment: Alignment.bottomRight,
                   children: [
-                    // A. Contenedor circular recortado con ClipOval (Soluciona el error)
                     Container(
                       width: 48,
                       height: 48,
@@ -256,7 +298,6 @@ class ResultsView extends GetView<ResultsController> {
                         ),
                       ),
                     ),
-                    // B. Medallita superpuesta con el número de ranking
                     Positioned(
                       right: -2,
                       bottom: -2,

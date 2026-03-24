@@ -86,7 +86,6 @@ class ResultsController extends GetxController {
     if (selectedChampionshipName.value.isEmpty || selectedYear.value.isEmpty) return;
 
     try {
-      // 1. Obtenemos el ID del Campeonato
       final champData = await _supabase
           .from('championships')
           .select('id_championship, is_active')
@@ -98,7 +97,6 @@ class ResultsController extends GetxController {
         isChampionshipActive.value = champData['is_active'] ?? true;
         final champId = champData['id_championship'];
 
-        // 2. Buscamos a través de la tabla N:M (championship_categories)
         final catResponse = await _supabase
             .from('championship_categories')
             .select('categories(name)')
@@ -135,7 +133,6 @@ class ResultsController extends GetxController {
   }
 
   Future<void> fetchRanking() async {
-    // PROTECCIÓN: Comprobamos que los 3 filtros principales estén seleccionados
     if (selectedYear.value.isEmpty || selectedCategory.value.isEmpty || selectedChampionshipName.value.isEmpty) {
       allEntries.clear();
       filteredEntries.clear();
@@ -143,7 +140,6 @@ class ResultsController extends GetxController {
     }
 
     try {
-      // 1. Llamamos al RPC de siempre (la base de datos y la vista ya tienen la lógica de bonus que arreglamos)
       final response = await _supabase.rpc('get_championship_ranking', params: {
         'p_championship_name': selectedChampionshipName.value.trim(),
         'p_year': int.parse(selectedYear.value),
@@ -151,24 +147,24 @@ class ResultsController extends GetxController {
       });
 
       if (response != null) {
-        // 2. NUEVO MAPEO: Ahora extraemos también image_profile del JSON que devuelve el RPC
-        final List<RankingEntry> loaded = (response as List)
-            .map((data) => RankingEntry(
-          idProfile: data['id_profile']?.toString() ?? '',
-          fullName: data['full_name']?.toString() ?? '',
-          isJunior: data['is_junior'] ?? false,
-          calculatedLevel: data['calculated_level']?.toString() ?? 'STOCK',
-          imageProfile: data['image_profile']?.toString(), // ⬅️ CAMBIO: Leemos la URL de la imagen
-          points: data['points'] != null ? List<int>.from(data['points']) : [],
-          positions: data['positions'] != null ? List<int>.from(data['positions']) : [],
-        ))
-            .toList();
+        final List<RankingEntry> loaded = (response as List).map((data) {
+          return RankingEntry(
+            idProfile: data['id_profile']?.toString() ?? '',
+            fullName: data['full_name']?.toString() ?? '',
+            isJunior: data['is_junior'] ?? false,
+            calculatedLevel: data['calculated_level']?.toString() ?? 'STOCK',
+            imageProfile: data['image_profile']?.toString(),
+            // BLINDAJE ANDROID: Usamos la función extractora segura
+            points: _parseToIntList(data['points']),
+            positions: _parseToIntList(data['positions']),
+          );
+        }).toList();
 
         allEntries.assignAll(loaded);
         applyFilters();
       }
     } catch (e) {
-      print("❌ Error fetching ranking (RPC): $e");
+      print("❌ Error en fetchRanking: $e");
     }
   }
 
@@ -197,5 +193,16 @@ class ResultsController extends GetxController {
     selectedCategory.value = "";
     allEntries.clear();
     filteredEntries.clear();
+  }
+
+  // --- FUNCIÓN SALVAVIDAS PARA EL PARSEO EN ANDROID/IOS ---
+  List<int> _parseToIntList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) {
+      // Extrae cada elemento, lo pasa a texto y luego a entero,
+      // ignorando cualquier error estricto de tipos de Android.
+      return value.map((e) => int.tryParse(e.toString()) ?? 0).toList();
+    }
+    return [];
   }
 }
