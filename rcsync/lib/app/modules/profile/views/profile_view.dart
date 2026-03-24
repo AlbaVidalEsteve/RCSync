@@ -30,7 +30,7 @@ class ProfileView extends GetView<ProfileController> {
               child: const Column(
                 children: [
                   Text(
-                    "MI PERFIL",
+                    "Mi Perfil",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 22,
@@ -297,31 +297,54 @@ class ProfileView extends GetView<ProfileController> {
         ),
         const SizedBox(height: 10),
 
-        // Input para añadir nuevo
+        // Input para añadir nuevo (AQUÍ ESTÁ LA CORRECCIÓN)
         Obx(() {
           if (!controller.isEditMode.value) return const SizedBox();
           return Padding(
             padding: const EdgeInsets.only(bottom: 12.0),
             child: Row(
               children: [
+                // CAMPO PARA EL NÚMERO
                 Expanded(
+                  flex: 1,
                   child: TextField(
-                    controller: controller.newTransponderC,
+                    controller: controller.newTransponderNumberC, // <-- Corregido
+                    keyboardType: TextInputType.number,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      hintText: "Número de transponder...",
-                      hintStyle: const TextStyle(color: Colors.white24),
+                      hintText: "Número...",
+                      hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
                       filled: true,
                       fillColor: RCColors.background.withAlpha(128),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
+                // CAMPO PARA EL NOMBRE/LABEL
+                Expanded(
+                  flex: 1,
+                  child: TextField(
+                    controller: controller.newTransponderLabelC, // <-- Agregado para cumplir con el Controller
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: "Nombre...",
+                      hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
+                      filled: true,
+                      fillColor: RCColors.background.withAlpha(128),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 5),
                 IconButton(
                   onPressed: () => controller.addTransponder(),
                   icon: const Icon(Icons.add_circle, color: RCColors.orange, size: 35),
@@ -335,6 +358,7 @@ class ProfileView extends GetView<ProfileController> {
         Obx(() => Column(
           children: controller.transponders.map((transponder) {
             String val = transponder['number'].toString();
+            String label = transponder['label'] ?? ''; // Obtenemos el label también
             String id = transponder['id_transponder'];
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
@@ -351,7 +375,10 @@ class ProfileView extends GetView<ProfileController> {
                     children: [
                       const Icon(Icons.tag, color: RCColors.orange, size: 18),
                       const SizedBox(width: 10),
-                      Text(val, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16)),
+                      Text(
+                          label.isNotEmpty ? "$val - $label" : val, // Mostramos número y nombre
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16)
+                      ),
                     ],
                   ),
                   if (controller.isEditMode.value)

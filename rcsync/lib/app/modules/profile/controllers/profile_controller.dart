@@ -17,7 +17,8 @@ class ProfileController extends GetxController {
   // Controllers para los campos editables
   late TextEditingController nameC;
   late TextEditingController emailC;
-  late TextEditingController newTransponderC;
+  late TextEditingController newTransponderNumberC;
+  late TextEditingController newTransponderLabelC;
 
   // Lista de transponders reactiva
   RxList<Map<String, dynamic>> transponders = <Map<String, dynamic>>[].obs;
@@ -30,7 +31,8 @@ class ProfileController extends GetxController {
     super.onInit();
     nameC = TextEditingController();
     emailC = TextEditingController();
-    newTransponderC = TextEditingController();
+    newTransponderNumberC = TextEditingController();
+    newTransponderLabelC = TextEditingController();
     getProfile();
     getTransponders();
   }
@@ -39,7 +41,8 @@ class ProfileController extends GetxController {
   void onClose() {
     nameC.dispose();
     emailC.dispose();
-    newTransponderC.dispose();
+    newTransponderNumberC.dispose();
+    newTransponderLabelC.dispose();
     super.onClose();
   }
 
@@ -150,24 +153,27 @@ class ProfileController extends GetxController {
   }
 
   Future<void> addTransponder() async {
-    final number = int.tryParse(newTransponderC.text.trim());
-    if (number != null) {
+    final number = int.tryParse(newTransponderNumberC.text.trim());
+    final label = newTransponderLabelC.text.trim();
+
+    if (number != null && label.isNotEmpty) {
       try {
         final userId = client.auth.currentUser!.id;
         final res = await client.from("transponders").insert({
           "number": number,
           "id_profile": userId,
-          "label": "Transponder ${transponders.length + 1}",
+          "label": label,
         }).select().single();
         
         transponders.insert(0, res);
-        newTransponderC.clear();
+        newTransponderNumberC.clear();
+        newTransponderLabelC.clear();
         _showSnackbar("Éxito", "Transponder añadido");
       } catch (e) {
         _showSnackbar("Error", "No se pudo añadir el transponder", isError: true);
       }
     } else {
-      _showSnackbar("Error", "El número de transponder debe ser válido", isError: true);
+      _showSnackbar("Error", "Debes introducir un número válido y un nombre", isError: true);
     }
   }
 
