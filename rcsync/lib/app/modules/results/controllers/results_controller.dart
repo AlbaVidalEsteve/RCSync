@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../data/models/ranking_model.dart';
@@ -6,13 +5,17 @@ import '../../../data/models/ranking_model.dart';
 class ResultsController extends GetxController {
   final _supabase = Supabase.instance.client;
 
+  // Selecciones del usuario
+  RxString selectedChampionshipName = "".obs;
   RxString selectedYear = "".obs;
-  RxString selectedMainCategory = "".obs;
+  RxString selectedCategory = "".obs;
   RxString selectedSubFilter = "General".obs;
-  RxBool isChampionshipActive = true.obs;
-  RxList<String> availableYears = <String>[].obs;
 
-  // Lista dinamica de categorías desde la base de datos
+  RxBool isChampionshipActive = true.obs;
+
+  // Opciones disponibles para los combos
+  RxList<String> availableChampionships = <String>[].obs;
+  RxList<String> availableYears = <String>[].obs;
   RxList<String> availableCategories = <String>[].obs;
 
   RxList<RankingEntry> allEntries = <RankingEntry>[].obs;
@@ -21,155 +24,185 @@ class ResultsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchAvailableYears();
+    fetchChampionshipNames();
   }
 
-  // Carga las categorias vinculadas al año seleccionado
-  Future<void> fetchCategoriesAndRanking() async {
+  Future<void> fetchChampionshipNames() async {
     try {
-      final champResponse = await _supabase
-          .from('championships')
-          .select('id_championship, is_active')
-          .eq('year', int.parse(selectedYear.value))
-          .limit(1);
+      final response = await _supabase.from('championships').select('name');
 
-      if (champResponse.isNotEmpty) {
-        final champData = champResponse.first;
-        isChampionshipActive.value = champData['is_active'] ?? true;
-        int champId = champData['id_championship'];
-
-        final catData = await _supabase
-            .from('championship_categories')
-            .select('''
-              categories (
-                name
-              )
-            ''')
-            .eq('id_championship', champId);
-
-        List<String> fetchedCats = (catData as List)
-            .map((c) => c['categories']['name'].toString())
+      if (response != null) {
+        final List<String> champs = (response as List)
+            .map((row) => row['name']?.toString() ?? '')
+            .where((name) => name.isNotEmpty)
+            .toSet()
             .toList();
 
-        availableCategories.assignAll(fetchedCats);
-      } else {
-        availableCategories.clear();
-      }
+        availableChampionships.assignAll(champs);
 
-      if (availableCategories.isNotEmpty) {
-        if (selectedMainCategory.value.isEmpty || !availableCategories.contains(selectedMainCategory.value)) {
-          selectedMainCategory.value = availableCategories.first;
+        if (champs.isNotEmpty && !champs.contains(selectedChampionshipName.value)) {
+          selectedChampionshipName.value = champs.first;
         }
-        await fetchRanking();
-      } else {
-        selectedMainCategory.value = "";
-        allEntries.clear();
-        filteredEntries.clear();
+        fetchAvailableYears();
       }
     } catch (e) {
-      print("❌ Error cargando categorías: $e");
+      print("❌ Error fetching championship names: $e");
     }
   }
 
-  // Obtiene los datos de la vista v_ranking_general
-  Future<void> fetchRanking() async {
-    if (selectedMainCategory.value.isEmpty) return;
+  Future<void> fetchAvailableYears() async {
+    if (selectedChampionshipName.value.isEmpty) return;
 
     try {
       final response = await _supabase
-          .from('v_ranking_general')
-          .select()
-          .eq('year', int.parse(selectedYear.value))
-          .eq('category_name', selectedMainCategory.value);
+          .from('championships')
+          .select('year')
+          .eq('name', selectedChampionshipName.value.trim())
+          .order('year', ascending: false);
 
-      Map<String, RankingEntry> grouped = {};
-      final List<dynamic> data = response;
+      if (response != null) {
+        final List<String> years = (response as List)
+            .map((row) => row['year']?.toString() ?? '')
+            .where((year) => year.isNotEmpty)
+            .toSet()
+            .toList();
 
-      for (var row in data) {
-        final String id = row['id_profile'];
-        final int pos = row['position_final'] ?? 0;
-        final int pts = row['points'] ?? 0;
+        availableYears.assignAll(years);
 
-        // Leemos el nivel de ESA carrera específica.
-        final String currentRaceLevel = row['calculated_level'] ?? "STOCK";
-
-        if (!grouped.containsKey(id)) {
-          // Si es la primera vez que vemos al piloto, lo creamos
-          grouped[id] = RankingEntry(
-            idProfile: id,
-            fullName: row['full_name'],
-            isJunior: row['is_junior'] ?? false,
-            calculatedLevel: currentRaceLevel,
-            points: [],
-            positions: [],
-          );
-        } else {
-          // Si ya existe y en esta carrera era SUPERSTOCK, actualizamos su nivel final
-          if (currentRaceLevel == 'SUPERSTOCK' && grouped[id]!.calculatedLevel != 'SUPERSTOCK') {
-            grouped[id] = RankingEntry(
-              idProfile: id,
-              fullName: grouped[id]!.fullName,
-              isJunior: grouped[id]!.isJunior,
-              calculatedLevel: 'SUPERSTOCK',
-              points: grouped[id]!.points,
-              positions: grouped[id]!.positions,
-            );
-          }
+        if (years.isNotEmpty && !years.contains(selectedYear.value)) {
+          selectedYear.value = years.first;
+        } else if (years.isEmpty) {
+          selectedYear.value = "";
         }
 
-        // Añadimos los puntos y posiciones de esta carrera
-        if (pos > 0) {
-          grouped[id]!.points.add(pts);
-          grouped[id]!.positions.add(pos);
-        }
+        fetchCategoriesForChampionship();
       }
+    } catch (e) {
+      print("❌ Error fetching available years: $e");
+    }
+  }
 
-      allEntries.assignAll(grouped.values.toList());
-      applyFilters();
+  Future<void> fetchCategoriesForChampionship() async {
+    if (selectedChampionshipName.value.isEmpty || selectedYear.value.isEmpty) return;
+
+    try {
+      final champData = await _supabase
+          .from('championships')
+          .select('id_championship, is_active')
+          .eq('name', selectedChampionshipName.value.trim())
+          .eq('year', int.parse(selectedYear.value))
+          .maybeSingle();
+
+      if (champData != null) {
+        isChampionshipActive.value = champData['is_active'] ?? true;
+        final champId = champData['id_championship'];
+
+        final catResponse = await _supabase
+            .from('championship_categories')
+            .select('categories(name)')
+            .eq('id_championship', champId);
+
+        if (catResponse != null && (catResponse as List).isNotEmpty) {
+          final List<String> cats = (catResponse as List)
+              .map((c) {
+            final categoryMap = c['categories'] as Map<String, dynamic>?;
+            return categoryMap?['name']?.toString() ?? '';
+          })
+              .where((name) => name.isNotEmpty)
+              .toList();
+
+          availableCategories.assignAll(cats);
+
+          if (cats.isNotEmpty && !cats.contains(selectedCategory.value)) {
+            selectedCategory.value = cats.first;
+          } else if (cats.isEmpty) {
+            selectedCategory.value = "";
+          }
+
+          fetchRanking();
+        } else {
+          _limpiarDatos();
+        }
+      } else {
+        _limpiarDatos();
+      }
+    } catch (e) {
+      print("❌ Error fetching categories via N:M: $e");
+      _limpiarDatos();
+    }
+  }
+
+  Future<void> fetchRanking() async {
+    if (selectedYear.value.isEmpty || selectedCategory.value.isEmpty || selectedChampionshipName.value.isEmpty) {
+      allEntries.clear();
+      filteredEntries.clear();
+      return;
+    }
+
+    try {
+      final response = await _supabase.rpc('get_championship_ranking', params: {
+        'p_championship_name': selectedChampionshipName.value.trim(),
+        'p_year': int.parse(selectedYear.value),
+        'p_category_name': selectedCategory.value,
+      });
+
+      if (response != null) {
+        final List<RankingEntry> loaded = (response as List).map((data) {
+          return RankingEntry(
+            idProfile: data['id_profile']?.toString() ?? '',
+            fullName: data['full_name']?.toString() ?? '',
+            isJunior: data['is_junior'] ?? false,
+            calculatedLevel: data['calculated_level']?.toString() ?? 'STOCK',
+            imageProfile: data['image_profile']?.toString(),
+            // BLINDAJE ANDROID: Usamos la función extractora segura
+            points: _parseToIntList(data['points']),
+            positions: _parseToIntList(data['positions']),
+          );
+        }).toList();
+
+        allEntries.assignAll(loaded);
+        applyFilters();
+      }
     } catch (e) {
       print("❌ Error en fetchRanking: $e");
     }
   }
 
-  // Aplica los filtros de la interfaz (General, Stock, Superstock, Junior)
   void applyFilters() {
-    List<RankingEntry> temp = List.from(allEntries);
+    Iterable<RankingEntry> temp = allEntries;
 
     if (selectedSubFilter.value == "Junior") {
-      temp = temp.where((p) => p.isJunior).toList();
+      temp = temp.where((p) => p.isJunior);
     } else if (selectedSubFilter.value == "Stock") {
-      temp = temp.where((p) => p.calculatedLevel == "STOCK").toList();
+      temp = temp.where((p) => p.calculatedLevel == "STOCK");
     } else if (selectedSubFilter.value == "Superstock") {
-      temp = temp.where((p) => p.calculatedLevel == "SUPERSTOCK").toList();
+      temp = temp.where((p) => p.calculatedLevel == "SUPERSTOCK");
     }
 
-    temp.sort((a, b) => !isChampionshipActive.value
+    final sortedList = temp.toList();
+
+    sortedList.sort((a, b) => !isChampionshipActive.value
         ? b.totalNet.compareTo(a.totalNet)
         : b.totalGross.compareTo(a.totalGross));
 
-    filteredEntries.assignAll(temp);
+    filteredEntries.assignAll(sortedList);
   }
 
-  // Busca los años disponibles con campeonato
-  Future<void> fetchAvailableYears() async {
-    try {
-      final response = await _supabase
-          .from('championships')
-          .select('year')
-          .order('year', ascending: false);
+  void _limpiarDatos() {
+    availableCategories.clear();
+    selectedCategory.value = "";
+    allEntries.clear();
+    filteredEntries.clear();
+  }
 
-      if (response.isNotEmpty) {
-        final Set<String> yearsSet = {};
-        for (var row in response) {
-          yearsSet.add(row['year'].toString());
-        }
-
-        availableYears.assignAll(yearsSet.toList());
-        selectedYear.value = availableYears.first;
-        await fetchCategoriesAndRanking();
-      }
-    } catch (e) {
-      print("❌ Error cargando años: $e");
+  // --- FUNCIÓN SALVAVIDAS PARA EL PARSEO EN ANDROID/IOS ---
+  List<int> _parseToIntList(dynamic value) {
+    if (value == null) return [];
+    if (value is List) {
+      // Extrae cada elemento, lo pasa a texto y luego a entero,
+      // ignorando cualquier error estricto de tipos de Android.
+      return value.map((e) => int.tryParse(e.toString()) ?? 0).toList();
     }
+    return [];
   }
 }
