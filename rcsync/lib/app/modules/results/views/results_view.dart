@@ -10,29 +10,46 @@ class ResultsView extends GetView<ResultsController> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: RCColors.background,
-      appBar: AppBar(
-        title: const Text(
-          "RESULTADOS",
-          style: TextStyle(color: RCColors.white, fontWeight: FontWeight.bold, letterSpacing: 1.2),
-        ),
-        backgroundColor: RCColors.orange,
-        iconTheme: const IconThemeData(color: RCColors.white),
-        centerTitle: true,
-        elevation: 0,
-      ),
       body: Column(
         children: [
-          // Fondo naranja detrás de la tarjeta superior para suavizar la transición
+          // --- HEADER CON GRADIENTE Y TARJETA SOLAPADA
           Stack(
             children: [
+              // FONDO GRADIENTE
               Container(
-                height: 40,
-                color: RCColors.orange,
+                width: double.infinity,
+                height: 180, // Altura ajustada para dar aire y permitir el solapamiento
+                padding: const EdgeInsets.only(top: 60),
+                alignment: Alignment.topCenter,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [RCColors.orange, Color(0xFFF68B28)],
+                  ),
+                ),
+                child: const Text(
+                  "Resultados",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.2,
+                  ),
+                ),
               ),
-              _buildFiltersCard(),
+
+              // TARJETA DE FILTROS FLOTANTE
+              Container(
+                margin: const EdgeInsets.only(top: 110), // Empuja la tarjeta para que solape el header
+                child: _buildFiltersCard(),
+              ),
             ],
           ),
+
           _buildStatusBanner(),
+
+          // LISTA DE RESULTADOS
           Expanded(child: _buildList()),
         ],
       ),
