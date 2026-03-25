@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 import 'package:rcsync/app/modules/create_event/bindings/create_event_binding.dart';
 import 'package:rcsync/app/modules/create_event/views/create_event_view.dart';
 import 'package:rcsync/app/modules/event_detail/views/event_details_view.dart';
+import 'package:rcsync/app/modules/event_detail/bindings/event_details_binding.dart';
+import 'package:rcsync/app/modules/event_detail/controllers/event_details_controller.dart';
 import 'package:rcsync/app/modules/home/bindings/home_binding.dart';
 import 'package:rcsync/app/modules/home/views/home_screen.dart';
 import 'package:rcsync/app/modules/login/bindings/login_binding.dart';
@@ -12,6 +14,8 @@ import 'package:rcsync/app/modules/profile/bindings/profile_binding.dart';
 import 'package:rcsync/app/modules/profile/views/profile_view.dart';
 import 'package:rcsync/app/modules/register/bindings/register_binding.dart';
 import 'package:rcsync/app/modules/register/views/register_view.dart';
+import 'package:rcsync/app/modules/event_registration/bindings/event_registration_binding.dart';
+import 'package:rcsync/app/modules/event_registration/views/event_registration_view.dart';
 
 part 'app_routes.dart';
 
@@ -43,12 +47,18 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.EVENT_DETAIL,
-      page: () => const EventDetailScreen(),
+      page: () => const EventDetailsView(),
+      binding: EventDetailsBinding(),
     ),
     GetPage(
       name: _Paths.CREATE_EVENT,
       page: () => const CreateEventView(),
       binding: CreateEventBinding(),
+    ),
+    GetPage(
+      name: _Paths.EVENT_REGISTRATION,
+      page: () => const EventRegistrationView(),
+      binding: EventRegistrationBinding(),
     ),
   ];
 }
