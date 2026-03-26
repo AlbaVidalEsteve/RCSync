@@ -10,6 +10,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class ProfileController extends GetxController {
   RxBool isLoading = false.obs;
   RxBool isEditMode = false.obs;
+  RxBool isTranspondersExpanded = false.obs;
   
   // Perfil del usuario
   var profileData = <String, dynamic>{}.obs;
@@ -20,8 +21,13 @@ class ProfileController extends GetxController {
   late TextEditingController newTransponderNumberC;
   late TextEditingController newTransponderLabelC;
 
-  // Lista de transponders reactiva
+  // Lista de transponders reactiva (datos locales temporales)
   RxList<Map<String, dynamic>> transponders = <Map<String, dynamic>>[].obs;
+  // Copia para deshacer cambios
+  List<Map<String, dynamic>> originalTransponders = [];
+  
+  // Mapa para guardar controllers de transponders existentes (id -> controllers)
+  var transponderControllers = <String, Map<String, TextEditingController>>{}.obs;
 
   SupabaseClient client = Supabase.instance.client;
   final ImagePicker _picker = ImagePicker();
@@ -43,7 +49,16 @@ class ProfileController extends GetxController {
     emailC.dispose();
     newTransponderNumberC.dispose();
     newTransponderLabelC.dispose();
+    _disposeTransponderControllers();
     super.onClose();
+  }
+
+  void _disposeTransponderControllers() {
+    for (var controllers in transponderControllers.values) {
+      controllers["number"]?.dispose();
+      controllers["label"]?.dispose();
+    }
+    transponderControllers.clear();
   }
 
   void _showSnackbar(String title, String message, {bool isError = false}) {
@@ -62,7 +77,7 @@ class ProfileController extends GetxController {
       ),
       boxShadows: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.3),
+          color: Colors.black.withValues(alpha: 0.3),
           blurRadius: 10,
           offset: const Offset(0, 5),
         )
@@ -86,7 +101,7 @@ class ProfileController extends GetxController {
       emailC.text = client.auth.currentUser!.email ?? "";
 
     } catch (e) {
-      print("Error fetching profile: $e");
+      debugPrint("Error fetching profile: $e");
       _showSnackbar("Error", "No se pudo cargar el perfil", isError: true);
     } finally {
       isLoading.value = false;
@@ -102,18 +117,42 @@ class ProfileController extends GetxController {
           .eq("id_profile", userId)
           .order("created_at", ascending: false);
       
-      transponders.assignAll(List<Map<String, dynamic>>.from(res));
+      var list = List<Map<String, dynamic>>.from(res);
+      transponders.assignAll(list);
+      originalTransponders = list.map((e) => Map<String, dynamic>.from(e)).toList();
+
+      _initTransponderControllers();
     } catch (e) {
-      print("Error fetching transponders: $e");
+      debugPrint("Error fetching transponders: $e");
+    }
+  }
+
+  void _initTransponderControllers() {
+    _disposeTransponderControllers();
+    for (var t in transponders) {
+      String id = t["id_transponder"].toString();
+      transponderControllers[id] = {
+        "number": TextEditingController(text: t["number"].toString()),
+        "label": TextEditingController(text: t["label"] ?? ""),
+      };
     }
   }
 
   void toggleEdit() {
-    isEditMode.value = !isEditMode.value;
-    if (!isEditMode.value) {
-      getProfile();
-      getTransponders();
-    }
+    isEditMode.value = true;
+    // Guardar estado original al entrar en edición
+    originalTransponders = transponders.map((e) => Map<String, dynamic>.from(e)).toList();
+    _initTransponderControllers();
+  }
+
+  void cancelEdit() {
+    isEditMode.value = false;
+    // Revertir cambios locales
+    getProfile();
+    transponders.assignAll(originalTransponders.map((e) => Map<String, dynamic>.from(e)).toList());
+    _initTransponderControllers();
+    newTransponderNumberC.clear();
+    newTransponderLabelC.clear();
   }
 
   Future<void> pickImage() async {
@@ -144,7 +183,7 @@ class ProfileController extends GetxController {
         
         _showSnackbar("Éxito", "Foto de perfil actualizada correctamente");
       } catch (e) {
-        print("Error uploading image: $e");
+        debugPrint("Error uploading image: $e");
         _showSnackbar("Error", "No se encontró el bucket 'imagenes' o no tienes permisos", isError: true);
       } finally {
         isLoading.value = false;
@@ -152,39 +191,38 @@ class ProfileController extends GetxController {
     }
   }
 
-  Future<void> addTransponder() async {
-    final number = int.tryParse(newTransponderNumberC.text.trim());
+  void addTransponder() {
+    final numberStr = newTransponderNumberC.text.trim();
     final label = newTransponderLabelC.text.trim();
+    final number = int.tryParse(numberStr);
 
     if (number != null && label.isNotEmpty) {
-      try {
-        final userId = client.auth.currentUser!.id;
-        final res = await client.from("transponders").insert({
-          "number": number,
-          "id_profile": userId,
-          "label": label,
-        }).select().single();
-        
-        transponders.insert(0, res);
-        newTransponderNumberC.clear();
-        newTransponderLabelC.clear();
-        _showSnackbar("Éxito", "Transponder añadido");
-      } catch (e) {
-        _showSnackbar("Error", "No se pudo añadir el transponder", isError: true);
-      }
+      // Añadir localmente con una ID temporal
+      final tempId = "temp_${DateTime.now().millisecondsSinceEpoch}";
+      var newT = {
+        "id_transponder": tempId,
+        "number": number,
+        "label": label,
+      };
+      
+      transponders.insert(0, newT);
+      transponderControllers[tempId] = {
+        "number": TextEditingController(text: numberStr),
+        "label": TextEditingController(text: label),
+      };
+
+      newTransponderNumberC.clear();
+      newTransponderLabelC.clear();
     } else {
       _showSnackbar("Error", "Debes introducir un número válido y un nombre", isError: true);
     }
   }
 
-  Future<void> removeTransponder(String idTransponder) async {
-    try {
-      await client.from("transponders").delete().eq("id_transponder", idTransponder);
-      transponders.removeWhere((t) => t["id_transponder"] == idTransponder);
-      _showSnackbar("Eliminado", "Transponder eliminado correctamente");
-    } catch (e) {
-      _showSnackbar("Error", "No se pudo eliminar el transponder", isError: true);
-    }
+  void removeTransponder(String idTransponder) {
+    transponders.removeWhere((t) => t["id_transponder"].toString() == idTransponder);
+    transponderControllers[idTransponder]?["number"]?.dispose();
+    transponderControllers[idTransponder]?["label"]?.dispose();
+    transponderControllers.remove(idTransponder);
   }
 
   Future<void> updateProfile() async {
@@ -192,13 +230,65 @@ class ProfileController extends GetxController {
       isLoading.value = true;
       final userId = client.auth.currentUser!.id;
 
+      // 1. Actualizar perfil
       await client.from("profiles").update({
         "full_name": nameC.text,
       }).eq("id_profile", userId);
 
+      // 2. Gestionar Transponders
+      
+      // IDs actuales en la UI (no temporales)
+      List<String> currentExistingIds = transponders
+          .where((t) => !t["id_transponder"].toString().startsWith("temp_"))
+          .map((t) => t["id_transponder"].toString())
+          .toList();
+      
+      // IDs originales que ya no están -> BORRAR
+      List<String> originalIds = originalTransponders.map((t) => t["id_transponder"].toString()).toList();
+      List<String> toDelete = originalIds.where((id) => !currentExistingIds.contains(id)).toList();
+      
+      if (toDelete.isNotEmpty) {
+        await client.from("transponders").delete().filter("id_transponder", "in", toDelete);
+      }
+
+      // Procesar cada transponder de la lista actual
+      for (var t in transponders) {
+        String id = t["id_transponder"].toString();
+        var controllers = transponderControllers[id];
+        if (controllers == null) continue;
+
+        String lab = controllers["label"]!.text.trim();
+        
+        if (id.startsWith("temp_")) {
+          // INSERTAR NUEVO
+          String numStr = controllers["number"]!.text.trim();
+          int? numValue = int.tryParse(numStr);
+          if (numValue == null) continue;
+
+          await client.from("transponders").insert({
+            "number": numValue,
+            "label": lab,
+            "id_profile": userId,
+          });
+        } else {
+          // ACTUALIZAR EXISTENTE (solo el label, el número no es editable)
+          var original = originalTransponders.firstWhere((ot) => ot["id_transponder"].toString() == id);
+          
+          bool hasChanged = lab != (original["label"] ?? "");
+
+          if (hasChanged) {
+             await client.from("transponders").update({
+              "label": lab,
+            }).eq("id_transponder", id);
+          }
+        }
+      }
+
       isEditMode.value = false;
       _showSnackbar("Éxito", "Perfil actualizado correctamente");
+      await getTransponders(); // Recargar para sincronizar IDs reales y estado
     } catch (e) {
+      debugPrint("Error updating profile: $e");
       _showSnackbar("Error", "No se pudo actualizar el perfil", isError: true);
     } finally {
       isLoading.value = false;

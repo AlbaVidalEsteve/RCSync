@@ -17,8 +17,8 @@ class ProfileView extends GetView<ProfileController> {
             // HEADER CON GRADIENTE
             Container(
               width: double.infinity,
-              height: 200, // Aumentado para dar más aire
-              padding: const EdgeInsets.only(top: 60), // Bajamos el texto desde arriba
+              height: 200,
+              padding: const EdgeInsets.only(top: 60),
               alignment: Alignment.topCenter,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
@@ -38,17 +38,16 @@ class ProfileView extends GetView<ProfileController> {
                       letterSpacing: 1.2,
                     ),
                   ),
-                  SizedBox(height: 20), // <--- ESTE ES EL PADDING EXTRA DEBAJO DEL TEXTO
+                  SizedBox(height: 20),
                 ],
               ),
             ),
 
-            // AGRUPAMOS LA TARJETA Y EL BOTÓN DE CERRAR SESIÓN PARA QUE SUBAN JUNTOS
+            // CUERPO DEL PERFIL
             Transform.translate(
-              offset: const Offset(0, -70), // Ajustado para que encaje con el nuevo header
+              offset: const Offset(0, -70),
               child: Column(
                 children: [
-                  // CARD DE PERFIL (Estilo Oscuro)
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     padding: const EdgeInsets.all(20),
@@ -103,80 +102,57 @@ class ProfileView extends GetView<ProfileController> {
                         ),
                         const SizedBox(height: 20),
 
-                        // CAMPO: NOMBRE
+                        // CAMPOS DE TEXTO
                         _buildInputField(
                           label: "Nombre Completo",
                           controller: controller.nameC,
                           icon: Icons.person_outline,
                         ),
-
-                        // CAMPO: EMAIL
                         _buildInputField(
                           label: "Correo Electrónico",
                           controller: controller.emailC,
                           icon: Icons.email_outlined,
                         ),
-
-                        // CAMPO: ROL (BLOQUEADO)
                         _buildRoleField(),
 
                         const Divider(color: Colors.white10, height: 25),
 
-                        // SECCIÓN: TRANSPONDERS
-                        _buildTranspondersSection(),
+                        // SECCIÓN TRANSPONDERS DESPLEGABLE
+                        _buildTranspondersCollapsible(),
 
                         const SizedBox(height: 25),
 
-                        // BOTÓN EDITAR / GUARDAR
-                        Obx(() => SizedBox(
-                          width: double.infinity,
-                          height: 55,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              gradient: const LinearGradient(
-                                colors: [RCColors.orange, Color(0xFFF68B28)],
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: RCColors.orange.withAlpha(76),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 6),
-                                )
-                              ],
-                            ),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (controller.isEditMode.value) {
-                                  controller.updateProfile();
-                                } else {
-                                  controller.toggleEdit();
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.transparent,
-                                shadowColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                              ),
-                              child: Text(
-                                controller.isEditMode.value ? "GUARDAR CAMBIOS" : "EDITAR PERFIL",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  letterSpacing: 1.1,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )),
+                        // BOTONES DE ACCIÓN (EDITAR / GUARDAR-CANCELAR)
+                        Obx(() => controller.isEditMode.value
+                            ? Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildActionButton(
+                                      text: "CANCELAR",
+                                      onPressed: () => controller.cancelEdit(),
+                                      isSecondary: true,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 15),
+                                  Expanded(
+                                    child: _buildActionButton(
+                                      text: "GUARDAR",
+                                      onPressed: () => controller.updateProfile(),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : _buildActionButton(
+                                text: "EDITAR PERFIL",
+                                onPressed: () => controller.toggleEdit(),
+                              )),
                       ],
                     ),
                   ),
 
                   const SizedBox(height: 15),
 
-                  // BOTÓN CERRAR SESIÓN
+                  // CERRAR SESIÓN
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: SizedBox(
@@ -206,6 +182,46 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
+  Widget _buildActionButton({required String text, required VoidCallback onPressed, bool isSecondary = false}) {
+    return SizedBox(
+      width: double.infinity,
+      height: 55,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          gradient: isSecondary 
+            ? null 
+            : const LinearGradient(colors: [RCColors.orange, Color(0xFFF68B28)]),
+          color: isSecondary ? Colors.white10 : null,
+          boxShadow: isSecondary ? null : [
+            BoxShadow(
+              color: RCColors.orange.withAlpha(76),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            )
+          ],
+        ),
+        child: ElevatedButton(
+          onPressed: onPressed,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          ),
+          child: Text(
+            text,
+            style: TextStyle(
+              color: isSecondary ? Colors.white70 : Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              letterSpacing: 1.1,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildInputField({required String label, required TextEditingController controller, IconData? icon}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,14 +244,6 @@ class ProfileView extends GetView<ProfileController> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.white.withAlpha(13), width: 1),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: RCColors.orange, width: 1),
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           ),
@@ -265,7 +273,6 @@ class ProfileView extends GetView<ProfileController> {
             decoration: BoxDecoration(
               color: Colors.blueAccent.withAlpha(50),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: RCColors.darkBlue.withAlpha(100)),
             ),
             child: Row(
               children: [
@@ -284,121 +291,127 @@ class ProfileView extends GetView<ProfileController> {
     );
   }
 
-  Widget _buildTranspondersSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildTranspondersCollapsible() {
+    return Obx(() => Column(
       children: [
-        const Row(
-          children: [
-            Icon(Icons.sensors, size: 16, color: Colors.white70),
-            SizedBox(width: 8),
-            Text("Mis Transponders", style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
-          ],
-        ),
-        const SizedBox(height: 10),
-
-        // Input para añadir nuevo (AQUÍ ESTÁ LA CORRECCIÓN)
-        Obx(() {
-          if (!controller.isEditMode.value) return const SizedBox();
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 12.0),
+        GestureDetector(
+          onTap: () => controller.isTranspondersExpanded.value = !controller.isTranspondersExpanded.value,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            color: Colors.transparent,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // CAMPO PARA EL NÚMERO
+                const Row(
+                  children: [
+                    Icon(Icons.sensors, size: 16, color: Colors.white70),
+                    SizedBox(width: 8),
+                    Text("Mis Transponders", style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+                  ],
+                ),
+                Icon(
+                  controller.isTranspondersExpanded.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: Colors.white70,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (controller.isTranspondersExpanded.value) ...[
+          const SizedBox(height: 10),
+          // Input nuevo
+          if (controller.isEditMode.value) ...[
+            Row(
+              children: [
                 Expanded(
-                  flex: 1,
                   child: TextField(
-                    controller: controller.newTransponderNumberC, // <-- Corregido
+                    controller: controller.newTransponderNumberC,
                     keyboardType: TextInputType.number,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
                     decoration: InputDecoration(
-                      hintText: "Número...",
-                      hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
+                      hintText: "Número",
+                      hintStyle: const TextStyle(color: Colors.white24),
                       filled: true,
                       fillColor: RCColors.background.withAlpha(128),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                // CAMPO PARA EL NOMBRE/LABEL
+                const SizedBox(width: 8),
                 Expanded(
-                  flex: 1,
                   child: TextField(
-                    controller: controller.newTransponderLabelC, // <-- Agregado para cumplir con el Controller
-                    style: const TextStyle(color: Colors.white),
+                    controller: controller.newTransponderLabelC,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
                     decoration: InputDecoration(
-                      hintText: "Nombre...",
-                      hintStyle: const TextStyle(color: Colors.white24, fontSize: 13),
+                      hintText: "Nombre",
+                      hintStyle: const TextStyle(color: Colors.white24),
                       filled: true,
                       fillColor: RCColors.background.withAlpha(128),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     ),
                   ),
                 ),
-                const SizedBox(width: 5),
                 IconButton(
                   onPressed: () => controller.addTransponder(),
-                  icon: const Icon(Icons.add_circle, color: RCColors.orange, size: 35),
+                  icon: const Icon(Icons.add_circle, color: RCColors.orange),
                 )
               ],
             ),
-          );
-        }),
-
-        // Listado de transponders
-        Obx(() => Column(
-          children: controller.transponders.map((transponder) {
-            String val = transponder['number'].toString();
-            String label = transponder['label'] ?? ''; // Obtenemos el label también
-            String id = transponder['id_transponder'];
-            return Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-              decoration: BoxDecoration(
-                color: RCColors.background.withAlpha(100),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withAlpha(13)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.tag, color: RCColors.orange, size: 18),
-                      const SizedBox(width: 10),
-                      Text(
-                          label.isNotEmpty ? "$val - $label" : val, // Mostramos número y nombre
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16)
-                      ),
-                    ],
-                  ),
-                  if (controller.isEditMode.value)
-                    GestureDetector(
-                      onTap: () => controller.removeTransponder(id),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent.withAlpha(40),
-                          shape: BoxShape.circle,
+            const SizedBox(height: 15),
+          ],
+          // Lista
+          Column(
+            children: controller.transponders.map((t) {
+              String id = t["id_transponder"].toString();
+              var controllers = controller.transponderControllers[id];
+              bool isNewLocal = id.startsWith("temp_");
+              
+              return Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: RCColors.background.withAlpha(100),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: controller.isEditMode.value && controllers != null
+                  ? Row(
+                      children: [
+                        Expanded(child: TextField(
+                          controller: controllers["number"],
+                          enabled: isNewLocal, // SOLO EDITABLE SI ES NUEVO (NO GUARDADO EN DB AÚN)
+                          keyboardType: TextInputType.number,
+                          style: TextStyle(
+                            color: isNewLocal ? Colors.white : Colors.white38, 
+                            fontSize: 14
+                          ),
+                          decoration: const InputDecoration(border: InputBorder.none, isDense: true),
+                        )),
+                        const VerticalDivider(color: Colors.white24),
+                        Expanded(child: TextField(
+                          controller: controllers["label"],
+                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          decoration: const InputDecoration(border: InputBorder.none, isDense: true),
+                        )),
+                        GestureDetector(
+                          onTap: () => controller.removeTransponder(id),
+                          child: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
                         ),
-                        child: const Icon(Icons.close, color: Colors.redAccent, size: 16),
-                      ),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("${t['number']} - ${t['label']}", style: const TextStyle(color: Colors.white, fontSize: 15)),
+                        const Icon(Icons.tag, color: RCColors.orange, size: 16),
+                      ],
                     ),
-                ],
-              ),
-            );
-          }).toList(),
-        )),
+              );
+            }).toList(),
+          ),
+        ]
       ],
-    );
+    ));
   }
 }
