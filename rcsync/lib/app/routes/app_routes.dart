@@ -13,6 +13,7 @@ abstract class Routes {
   static const PROFILE = _Paths.PROFILE;
   static const EVENT_DETAIL = _Paths.EVENT_DETAIL;
   static const CREATE_EVENT = _Paths.CREATE_EVENT;
+  static const EVENT_REGISTRATION = _Paths.EVENT_REGISTRATION;
 }
 
 abstract class _Paths {
@@ -23,4 +24,5 @@ abstract class _Paths {
   static const PROFILE = '/profile';
   static const EVENT_DETAIL = '/event-detail';
   static const CREATE_EVENT = '/create-event';
+  static const EVENT_REGISTRATION = '/event-registration';
 }
