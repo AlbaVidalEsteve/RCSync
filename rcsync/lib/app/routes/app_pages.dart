@@ -15,6 +15,7 @@ import 'package:rcsync/app/modules/event_registration/bindings/event_registratio
 import 'package:rcsync/app/modules/event_registration/views/event_registration_view.dart';
 import 'package:rcsync/app/modules/create_event/bindings/create_event_binding.dart';
 import 'package:rcsync/app/modules/create_event/views/create_event_view.dart';
+import 'package:rcsync/app/modules/championship_form/bindings/championship_form_binding.dart';
 import 'package:rcsync/app/modules/championship_form/views/championship_form_view.dart';
 
 part 'app_routes.dart';
@@ -65,6 +66,7 @@ class AppPages {
     GetPage(
       name: Routes.CREATE_CHAMPIONSHIP,
       page: () => const ChampionshipFormView(),
+      binding: ChampionshipFormBinding(),
     ),
   ];
 }

@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:file_picker/file_picker.dart';
@@ -10,9 +10,12 @@ class ChampionshipFormController extends GetxController {
   final nameController = TextEditingController();
   var selectedYear = DateTime.now().year.obs;
   var isActive = true.obs;
-  var selectedFile = Rxn<PlatformFile>();
+
   final categoryController = TextEditingController();
-  var categoriesList = <String>[].obs;
+
+  // Ahora manejamos mapas para almacenar el nombre, el id, la URL y el archivo PDF seleccionado
+  var categoriesList = <Map<String, dynamic>>[].obs;
+
   var isLoading = false.obs;
   var isEditing = false.obs;
   int? editingChampionshipId;
@@ -26,70 +29,151 @@ class ChampionshipFormController extends GetxController {
       editingChampionshipId = champ['id_championship'];
       nameController.text = champ['name'] ?? '';
       isActive.value = champ['is_active'] ?? true;
-      if (champ['year'] != null) selectedYear.value = int.tryParse(champ['year'].toString()) ?? DateTime.now().year;
+      if (champ['year'] != null) {
+        selectedYear.value = int.tryParse(champ['year'].toString()) ?? DateTime.now().year;
+      }
+      _loadCategories();
+    }
+  }
+
+  // Carga las categorías asociadas si estamos editando
+  Future<void> _loadCategories() async {
+    if (editingChampionshipId == null) return;
+    try {
+      final response = await supabase
+          .from('championship_categories')
+          .select('rulebook_url, categories(id_category, name)')
+          .eq('id_championship', editingChampionshipId!);
+
+      categoriesList.clear();
+      for (var item in response) {
+        final catData = item['categories'];
+        if (catData != null) {
+          categoriesList.add({
+            'id_category': catData['id_category'],
+            'name': catData['name'],
+            'rulebook_url': item['rulebook_url'],
+            'pdf_file': null, // Inicialmente null, a menos que el usuario suba uno nuevo
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Error cargando categorías: $e");
     }
   }
 
   void addCategory() {
-    String cat = categoryController.text.trim().toUpperCase();
-    if (cat.isNotEmpty && !categoriesList.contains(cat)) {
-      categoriesList.add(cat);
+    String catName = categoryController.text.trim().toUpperCase();
+    if (catName.isNotEmpty && !categoriesList.any((c) => c['name'] == catName)) {
+      categoriesList.add({
+        'name': catName,
+        'rulebook_url': null,
+        'pdf_file': null
+      });
       categoryController.clear();
+    } else if (catName.isNotEmpty) {
+      Get.snackbar('Atención', 'La categoría ya está en la lista', colorText: Colors.white);
     }
   }
 
-  void removeCategory(String cat) => categoriesList.remove(cat);
+  void removeCategory(int index) {
+    categoriesList.removeAt(index);
+  }
 
-  Future<void> pickPdf() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-    if (result != null) selectedFile.value = result.files.first;
+  // Permite seleccionar un PDF para una categoría específica
+  Future<void> pickPdfForCategory(int index) async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      var updatedCat = Map<String, dynamic>.from(categoriesList[index]);
+      updatedCat['pdf_file'] = result.files.single;
+      categoriesList[index] = updatedCat;
+      categoriesList.refresh(); // Refresca la vista de Obx
+    }
   }
 
   Future<void> saveChampionship() async {
-    // Evitar múltiples ejecuciones
-    if (isLoading.value) return;
-
-    FocusManager.instance.primaryFocus?.unfocus();
-
     if (!formKey.currentState!.validate()) return;
-    
-    if (categoriesList.isEmpty && !isEditing.value) {
-      Get.snackbar('Error', 'Debes añadir al menos una categoría');
+    if (categoriesList.isEmpty) {
+      Get.snackbar('Error', 'Debes añadir al menos una categoría', backgroundColor: Colors.red, colorText: Colors.white);
       return;
     }
 
     isLoading.value = true;
     try {
-      String? pdfUrl;
-      if (selectedFile.value != null) {
-        final bytes = selectedFile.value!.bytes;
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${selectedFile.value!.name}';
-        await supabase.storage.from('reglamentos').uploadBinary('public/$fileName', bytes!);
-        pdfUrl = supabase.storage.from('reglamentos').getPublicUrl('public/$fileName');
-      }
+      final champData = {
+        'name': nameController.text.trim(),
+        'year': selectedYear.value,
+        'is_active': isActive.value,
+      };
 
       int champId;
+
       if (isEditing.value && editingChampionshipId != null) {
-        final updateData = <String, dynamic>{'name': nameController.text, 'year': selectedYear.value.toString(), 'is_active': isActive.value};
-        if (pdfUrl != null) updateData['reglamento_url'] = pdfUrl;
-        await supabase.from('championships').update(updateData).eq('id_championship', editingChampionshipId!);
+        await supabase.from('championships').update(champData).eq('id_championship', editingChampionshipId!);
         champId = editingChampionshipId!;
+        // Eliminamos las asociaciones antiguas para crear las nuevas (evita duplicados)
+        // NOTA: Esto eliminará las asociaciones temporales, pero como tenemos guardada la 'rulebook_url'
+        // en 'categoriesList', las volveremos a insertar intactas.
+        await supabase.from('championship_categories').delete().eq('id_championship', champId);
       } else {
-        final champResponse = await supabase.from('championships').insert({'name': nameController.text, 'year': selectedYear.value.toString(), 'is_active': isActive.value, 'id_organizer': supabase.auth.currentUser!.id, 'reglamento_url': pdfUrl}).select().single();
-        champId = champResponse['id_championship'];
+        final Map<String, dynamic> insertData = Map.from(champData);
+        insertData['id_profile_org'] = supabase.auth.currentUser!.id;
+        final response = await supabase.from('championships').insert(insertData).select().single();
+        champId = response['id_championship'];
       }
 
-      for (String catName in categoriesList) {
-        var catResponse = await supabase.from('categories').select('id_category').eq('name', catName).maybeSingle();
-        int categoryId = catResponse != null ? catResponse['id_category'] : (await supabase.from('categories').insert({'name': catName}).select().single())['id_category'];
-        try { await supabase.from('championships_categories').insert({'id_championship': champId, 'id_category': categoryId}); } catch (_) {}
+      // Procesar cada categoría
+      for (var cat in categoriesList) {
+        String catName = cat['name'];
+        int categoryId;
+
+        // Verificar si la categoría base existe
+        var catRes = await supabase.from('categories').select('id_category').eq('name', catName).maybeSingle();
+        if (catRes != null) {
+          categoryId = catRes['id_category'];
+        } else {
+          final newCat = await supabase.from('categories').insert({'name': catName}).select().single();
+          categoryId = newCat['id_category'];
+        }
+
+        String? finalRulebookUrl = cat['rulebook_url'];
+        PlatformFile? pdfFile = cat['pdf_file'];
+
+        // Si se seleccionó un nuevo PDF, lo subimos a Supabase Storage
+        if (pdfFile != null && pdfFile.path != null) {
+          final file = File(pdfFile.path!);
+          // El nombre base del archivo
+          final fileName = 'reglamento_${champId}_${categoryId}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+          // La ruta completa incluyendo la carpeta dentro del bucket
+          final fullPath = 'reglamentos/$fileName';
+
+          try {
+            // 1. Apuntamos al bucket 'imagenes' y subimos a la ruta 'reglamentos/...'
+            await supabase.storage.from('imagenes').upload(fullPath, file);
+
+            // 2. Pedimos la URL pública apuntando al mismo bucket y ruta
+            finalRulebookUrl = supabase.storage.from('imagenes').getPublicUrl(fullPath);
+          } catch (e) {
+            debugPrint('Error subiendo PDF para $catName: $e');
+            Get.snackbar('Error de subida', 'No se pudo subir el PDF de $catName', backgroundColor: Colors.red, colorText: Colors.white);
+          }
+        }
+
+        // Crear la relación campeonato <-> categoría con la URL del PDF (nueva o la que ya existía)
+        await supabase.from('championship_categories').insert({
+          'id_championship': champId,
+          'id_category': categoryId,
+          'rulebook_url': finalRulebookUrl
+        });
       }
 
-      // Solución técnica al error de MouseTracker: esperar al siguiente frame para navegar
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (Get.isOverlaysOpen) Get.back(); // Cerrar posibles snacks o diálogos
-        Get.back(result: true);
-      });
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (Get.isOverlaysOpen) Get.back();
+      Get.back(result: true);
 
     } catch (e) {
       isLoading.value = false;

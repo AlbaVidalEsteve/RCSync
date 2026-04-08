@@ -3,13 +3,11 @@ import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import '../controllers/championship_form_controller.dart';
 
-class ChampionshipFormView extends StatelessWidget {
+class ChampionshipFormView extends GetView<ChampionshipFormController> {
   const ChampionshipFormView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ChampionshipFormController());
-
     return Scaffold(
       backgroundColor: RCColors.background,
       appBar: AppBar(
@@ -20,55 +18,129 @@ class ChampionshipFormView extends StatelessWidget {
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         )),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [RCColors.orange, Color(0xFFF68B28)])),
+          decoration: const BoxDecoration(
+              gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [RCColors.orange, Color(0xFFF68B28)])
+          ),
         ),
       ),
-      body: Form( // <-- YA NO ESTÁ ENVUELTO EN OBX
+      body: Form(
         key: controller.formKey,
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
             TextFormField(
-              controller: controller.nameController, style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(labelText: 'Nombre del Campeonato', labelStyle: const TextStyle(color: Colors.white70), enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.3))), focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: RCColors.orange))),
-              validator: (val) => val == null || val.isEmpty ? 'Requerido' : null,
+              controller: controller.nameController,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Nombre del Campeonato',
+                labelStyle: const TextStyle(color: Colors.white70),
+                filled: true, fillColor: const Color(0xFF1A222D),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+              ),
+              validator: (v) => v!.isEmpty ? 'Requerido' : null,
             ),
             const SizedBox(height: 20),
-            Obx(() => Row(
-              children: [
-                const Text('Año:', style: TextStyle(color: Colors.white, fontSize: 16)), const SizedBox(width: 20),
-                DropdownButton<int>(
-                  value: controller.selectedYear.value, dropdownColor: const Color(0xFF1A222D), style: const TextStyle(color: Colors.white, fontSize: 16),
-                  underline: Container(height: 1, color: Colors.white.withOpacity(0.3)),
-                  items: List.generate(5, (i) => DateTime.now().year + i).map((year) => DropdownMenuItem(value: year, child: Text(year.toString()))).toList(),
-                  onChanged: (val) { if (val != null) controller.selectedYear.value = val; },
-                ),
-              ],
-            )),
-            const SizedBox(height: 10),
-            Obx(() => SwitchListTile(
-              contentPadding: EdgeInsets.zero, title: const Text('Activo', style: TextStyle(color: Colors.white)), subtitle: const Text('Se mostrará a los pilotos para inscribirse', style: TextStyle(color: Colors.white54, fontSize: 12)),
-              activeThumbColor: RCColors.orange, value: controller.isActive.value, onChanged: (val) => controller.isActive.value = val,
-            )),
-            const SizedBox(height: 20),
-            Obx(() => ElevatedButton.icon(
-              onPressed: controller.pickPdf, icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-              label: Text(controller.selectedFile.value == null ? 'Subir Reglamento PDF (Opcional)' : controller.selectedFile.value!.name, style: const TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[800], padding: const EdgeInsets.symmetric(vertical: 12), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-            )),
-            const SizedBox(height: 30),
-            const Text('Categorías', style: TextStyle(color: RCColors.orange, fontSize: 16, fontWeight: FontWeight.bold)),
             Row(
               children: [
-                Expanded(child: TextField(controller: controller.categoryController, style: const TextStyle(color: Colors.white), decoration: InputDecoration(hintText: 'Ej: GT SUPERSTOCK', hintStyle: const TextStyle(color: Colors.white30), enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.3))), focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: RCColors.orange))))),
-                IconButton(icon: const Icon(Icons.add_box, color: RCColors.orange, size: 40), onPressed: controller.addCategory)
+                Expanded(
+                  child: Obx(() => DropdownButtonFormField<int>(
+                    value: controller.selectedYear.value,
+                    dropdownColor: const Color(0xFF1A222D),
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Año',
+                      labelStyle: const TextStyle(color: Colors.white70),
+                      filled: true, fillColor: const Color(0xFF1A222D),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                    ),
+                    items: List.generate(5, (index) => DateTime.now().year + index).map((year) {
+                      return DropdownMenuItem(value: year, child: Text(year.toString()));
+                    }).toList(),
+                    onChanged: (v) => controller.selectedYear.value = v!,
+                  )),
+                ),
+                const SizedBox(width: 20),
+                Obx(() => Row(
+                  children: [
+                    const Text('Activo', style: TextStyle(color: Colors.white70, fontSize: 16)),
+                    Switch(
+                        value: controller.isActive.value,
+                        onChanged: (v) => controller.isActive.value = v,
+                        activeColor: RCColors.orange
+                    ),
+                  ],
+                ))
+              ],
+            ),
+            const SizedBox(height: 30),
+            const Text('Categorías', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: controller.categoryController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      hintText: 'Añadir categoría (ej. GT)',
+                      hintStyle: const TextStyle(color: Colors.white54),
+                      filled: true, fillColor: const Color(0xFF1A222D),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                    icon: const Icon(Icons.add_circle, color: RCColors.orange, size: 40),
+                    onPressed: controller.addCategory
+                )
               ],
             ),
             const SizedBox(height: 20),
-            Obx(() => Wrap(spacing: 10, runSpacing: 10, children: controller.categoriesList.map((cat) => Chip(label: Text(cat, style: const TextStyle(color: Colors.white)), backgroundColor: RCColors.orange.withOpacity(0.8), deleteIcon: const Icon(Icons.close, color: Colors.white, size: 18), onDeleted: () => controller.removeCategory(cat), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide.none))).toList())),
-            const SizedBox(height: 40),
 
-            // --- EL BOTÓN REACTIVO DE GUARDAR ---
+            // Nueva vista de la lista de categorías con soporte para PDFs
+            Obx(() => Column(
+              children: controller.categoriesList.asMap().entries.map((entry) {
+                int index = entry.key;
+                var cat = entry.value;
+
+                bool hasNewPdf = cat['pdf_file'] != null;
+                bool hasExistingUrl = cat['rulebook_url'] != null;
+
+                return Card(
+                  color: const Color(0xFF1A222D),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  margin: const EdgeInsets.only(bottom: 10),
+                  child: ListTile(
+                    title: Text(cat['name'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    subtitle: Text(
+                      hasNewPdf ? '📄 PDF listo para subir'
+                          : (hasExistingUrl ? '✅ Reglamento subido' : '⚠️ Sin reglamento adjunto'),
+                      style: TextStyle(
+                          color: hasNewPdf ? RCColors.orange : (hasExistingUrl ? Colors.green : Colors.white54),
+                          fontSize: 12
+                      ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          tooltip: 'Adjuntar Reglamento (PDF)',
+                          icon: Icon(hasExistingUrl && !hasNewPdf ? Icons.edit_document : Icons.picture_as_pdf, color: RCColors.orange),
+                          onPressed: () => controller.pickPdfForCategory(index),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                          onPressed: () => controller.removeCategory(index),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            )),
+
+            const SizedBox(height: 40),
             Obx(() => ElevatedButton(
               onPressed: controller.isLoading.value ? null : controller.saveChampionship,
               style: ElevatedButton.styleFrom(
