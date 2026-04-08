@@ -10,7 +10,7 @@ class RCScaffold extends StatelessWidget {
   final Widget body;
   final Widget? floatingActionButton;
 
-  const RCScaffold({required this.title, required this.body, this.floatingActionButton});
+  const RCScaffold({super.key, required this.title, required this.body, this.floatingActionButton});
 
   @override
   Widget build(BuildContext context) {

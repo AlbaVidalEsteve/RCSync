@@ -7,7 +7,7 @@ class RCPilotCard extends StatelessWidget {
   final String name;
   final String category; // Stock / Superstock
 
-  const RCPilotCard({required this.name, required this.category});
+  const RCPilotCard({super.key, required this.name, required this.category});
 
   @override
   Widget build(BuildContext context) {

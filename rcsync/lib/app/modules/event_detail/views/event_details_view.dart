@@ -91,7 +91,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
                       child: Text("Cargando lista...", style: TextStyle(color: Colors.white38)),
                     )
                   else
-                    ...controller.registeredPilots.entries.map((entry) => _buildCategoryTable(entry.key, entry.value)).toList(),
+                    ...controller.registeredPilots.entries.map((entry) => _buildCategoryTable(entry.key, entry.value)),
 
                   const SizedBox(height: 25),
 

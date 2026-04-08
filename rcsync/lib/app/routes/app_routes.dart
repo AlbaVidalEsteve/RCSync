@@ -14,6 +14,8 @@ abstract class Routes {
   static const EVENT_DETAIL = _Paths.EVENT_DETAIL;
   static const CREATE_EVENT = _Paths.CREATE_EVENT;
   static const EVENT_REGISTRATION = _Paths.EVENT_REGISTRATION;
+  static const CREATE_CHAMPIONSHIP = _Paths.CREATE_CHAMPIONSHIP;
+
 }
 
 abstract class _Paths {
@@ -25,4 +27,5 @@ abstract class _Paths {
   static const EVENT_DETAIL = '/event-detail';
   static const CREATE_EVENT = '/create-event';
   static const EVENT_REGISTRATION = '/event-registration';
+  static const CREATE_CHAMPIONSHIP = '/create-championship';
 }
