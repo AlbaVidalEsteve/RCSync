@@ -8,7 +8,7 @@ class RCButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isSecondary;
 
-  const RCButton({required this.text, required this.onPressed, this.isSecondary = false});
+  const RCButton({super.key, required this.text, required this.onPressed, this.isSecondary = false});
 
   @override
   Widget build(BuildContext context) {

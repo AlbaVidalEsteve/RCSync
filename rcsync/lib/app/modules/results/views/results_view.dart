@@ -182,7 +182,7 @@ class ResultsView extends GetView<ResultsController> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: safeValue,
+          initialValue: safeValue,
           dropdownColor: RCColors.background, // Fondo del menú desplegado (negro)
           icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
           style: const TextStyle(color: Colors.white, fontSize: 14),
