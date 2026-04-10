@@ -9,7 +9,7 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Obx(() => Scaffold(
       backgroundColor: RCColors.background,
       body: SingleChildScrollView(
         child: Column(
@@ -48,15 +48,16 @@ class ProfileView extends GetView<ProfileController> {
               offset: const Offset(0, -70),
               child: Column(
                 children: [
+                  // TARJETA DE DATOS DE PERFIL
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: RCColors.cardDark,
+                      color: RCColors.card,
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withAlpha(50),
+                          color: RCColors.black.withOpacity(0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 10),
                         )
@@ -67,7 +68,7 @@ class ProfileView extends GetView<ProfileController> {
                         // FOTO DE PERFIL
                         Stack(
                           children: [
-                            Obx(() => Container(
+                            Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(color: RCColors.orange, width: 3),
@@ -79,10 +80,10 @@ class ProfileView extends GetView<ProfileController> {
                                     ? NetworkImage(controller.profileData['image_profile'])
                                     : null,
                                 child: controller.profileData['image_profile'] == null
-                                    ? const Icon(Icons.person, size: 55, color: Colors.white24)
+                                    ? Icon(Icons.person, size: 55, color: RCColors.iconSecondary)
                                     : null,
                               ),
-                            )),
+                            ),
                             Positioned(
                               bottom: 0,
                               right: 0,
@@ -115,7 +116,7 @@ class ProfileView extends GetView<ProfileController> {
                         ),
                         _buildRoleField(),
 
-                        const Divider(color: Colors.white10, height: 25),
+                        Divider(color: RCColors.divider, height: 25),
 
                         // SECCIÓN TRANSPONDERS DESPLEGABLE
                         _buildTranspondersCollapsible(),
@@ -123,7 +124,7 @@ class ProfileView extends GetView<ProfileController> {
                         const SizedBox(height: 25),
 
                         // BOTONES DE ACCIÓN (EDITAR / GUARDAR-CANCELAR)
-                        Obx(() => controller.isEditMode.value
+                        controller.isEditMode.value
                             ? Row(
                                 children: [
                                   Expanded(
@@ -145,12 +146,17 @@ class ProfileView extends GetView<ProfileController> {
                             : _buildActionButton(
                                 text: "EDITAR PERFIL",
                                 onPressed: () => controller.toggleEdit(),
-                              )),
+                              ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 20),
+
+                  // TARJETA DE SETTINGS
+                  _buildSettingsCard(),
+
+                  const SizedBox(height: 20),
 
                   // CERRAR SESIÓN
                   Padding(
@@ -166,7 +172,7 @@ class ProfileView extends GetView<ProfileController> {
                           style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         style: TextButton.styleFrom(
-                          backgroundColor: Colors.redAccent.withAlpha(50),
+                          backgroundColor: Colors.redAccent.withOpacity(0.1),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                         ),
                       ),
@@ -175,10 +181,113 @@ class ProfileView extends GetView<ProfileController> {
                 ],
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 100), // Espacio extra para el bottom bar
           ],
         ),
       ),
+    ));
+  }
+
+  Widget _buildSettingsCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: RCColors.card,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: RCColors.black.withOpacity(0.1),
+            blurRadius: 15,
+            offset: const Offset(0, 10),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.settings_outlined, color: RCColors.orange, size: 20),
+              const SizedBox(width: 10),
+              Text(
+                "Ajustes de la Aplicación",
+                style: TextStyle(
+                  color: RCColors.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // IDIOMA
+          _buildDropdownField(
+            label: "Idioma",
+            icon: Icons.language,
+            value: controller.selectedLanguage.value,
+            items: controller.languages,
+            onChanged: (val) => controller.changeLanguage(val),
+          ),
+          
+          const SizedBox(height: 20),
+
+          // TEMA
+          _buildDropdownField(
+            label: "Tema Visual",
+            icon: Icons.brightness_6_outlined,
+            value: controller.selectedThemeName.value,
+            items: controller.themeModes.keys.toList(),
+            onChanged: (val) => controller.changeTheme(val),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required IconData icon,
+    required String value,
+    required List<String> items,
+    required Function(String?) onChanged
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(icon, size: 16, color: RCColors.textSecondary),
+            const SizedBox(width: 8),
+            Text(label, style: TextStyle(color: RCColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: RCColors.background.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: value,
+              isExpanded: true,
+              dropdownColor: RCColors.card,
+              icon: Icon(Icons.keyboard_arrow_down, color: RCColors.textSecondary),
+              style: TextStyle(color: RCColors.textPrimary, fontSize: 15),
+              items: items.map((String item) {
+                return DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(item),
+                );
+              }).toList(),
+              onChanged: onChanged,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -192,10 +301,11 @@ class ProfileView extends GetView<ProfileController> {
           gradient: isSecondary 
             ? null 
             : const LinearGradient(colors: [RCColors.orange, Color(0xFFF68B28)]),
-          color: isSecondary ? Colors.white10 : null,
+          color: isSecondary ? RCColors.card : null,
+          border: isSecondary ? Border.all(color: RCColors.divider) : null,
           boxShadow: isSecondary ? null : [
             BoxShadow(
-              color: RCColors.orange.withAlpha(76),
+              color: RCColors.orange.withOpacity(0.3),
               blurRadius: 12,
               offset: const Offset(0, 6),
             )
@@ -211,7 +321,7 @@ class ProfileView extends GetView<ProfileController> {
           child: Text(
             text,
             style: TextStyle(
-              color: isSecondary ? Colors.white70 : Colors.white,
+              color: isSecondary ? RCColors.textSecondary : Colors.white,
               fontWeight: FontWeight.bold,
               fontSize: 14,
               letterSpacing: 1.1,
@@ -228,26 +338,26 @@ class ProfileView extends GetView<ProfileController> {
       children: [
         Row(
           children: [
-            if (icon != null) Icon(icon, size: 16, color: Colors.white70),
+            if (icon != null) Icon(icon, size: 16, color: RCColors.textSecondary),
             if (icon != null) const SizedBox(width: 8),
-            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+            Text(label, style: TextStyle(color: RCColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
           ],
         ),
         const SizedBox(height: 8),
-        Obx(() => TextField(
+        TextField(
           controller: controller,
           enabled: this.controller.isEditMode.value,
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: RCColors.textPrimary),
           decoration: InputDecoration(
             filled: true,
-            fillColor: RCColors.background.withAlpha(128),
+            fillColor: RCColors.background.withOpacity(0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           ),
-        )),
+        ),
         const SizedBox(height: 15),
       ],
     );
@@ -257,22 +367,23 @@ class ProfileView extends GetView<ProfileController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           children: [
-            Icon(Icons.stars_outlined, size: 16, color: Colors.white70),
-            SizedBox(width: 8),
-            Text("Rol de Usuario", style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+            Icon(Icons.stars_outlined, size: 16, color: RCColors.textSecondary),
+            const SizedBox(width: 8),
+            Text("Rol de Usuario", style: TextStyle(color: RCColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
           ],
         ),
         const SizedBox(height: 8),
-        Obx(() {
+        Builder(builder: (context) {
           String role = controller.profileData['rol'] ?? 'Piloto';
           return Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             decoration: BoxDecoration(
-              color: Colors.blueAccent.withAlpha(50),
+              color: Colors.blueAccent.withOpacity(0.1),
               borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
             ),
             child: Row(
               children: [
@@ -292,7 +403,7 @@ class ProfileView extends GetView<ProfileController> {
   }
 
   Widget _buildTranspondersCollapsible() {
-    return Obx(() => Column(
+    return Column(
       children: [
         GestureDetector(
           onTap: () => controller.isTranspondersExpanded.value = !controller.isTranspondersExpanded.value,
@@ -302,16 +413,16 @@ class ProfileView extends GetView<ProfileController> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.sensors, size: 16, color: Colors.white70),
-                    SizedBox(width: 8),
-                    Text("Mis Transponders", style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+                    Icon(Icons.sensors, size: 16, color: RCColors.textSecondary),
+                    const SizedBox(width: 8),
+                    Text("Mis Transponders", style: TextStyle(color: RCColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
                   ],
                 ),
                 Icon(
                   controller.isTranspondersExpanded.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                  color: Colors.white70,
+                  color: RCColors.textSecondary,
                 ),
               ],
             ),
@@ -327,12 +438,12 @@ class ProfileView extends GetView<ProfileController> {
                   child: TextField(
                     controller: controller.newTransponderNumberC,
                     keyboardType: TextInputType.number,
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    style: TextStyle(color: RCColors.textPrimary, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: "Número",
-                      hintStyle: const TextStyle(color: Colors.white24),
+                      hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.4)),
                       filled: true,
-                      fillColor: RCColors.background.withAlpha(128),
+                      fillColor: RCColors.background.withOpacity(0.5),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     ),
@@ -342,12 +453,12 @@ class ProfileView extends GetView<ProfileController> {
                 Expanded(
                   child: TextField(
                     controller: controller.newTransponderLabelC,
-                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                    style: TextStyle(color: RCColors.textPrimary, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: "Nombre",
-                      hintStyle: const TextStyle(color: Colors.white24),
+                      hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.4)),
                       filled: true,
-                      fillColor: RCColors.background.withAlpha(128),
+                      fillColor: RCColors.background.withOpacity(0.5),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     ),
@@ -372,26 +483,27 @@ class ProfileView extends GetView<ProfileController> {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: RCColors.background.withAlpha(100),
+                  color: RCColors.background.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: RCColors.divider),
                 ),
                 child: controller.isEditMode.value && controllers != null
                   ? Row(
                       children: [
                         Expanded(child: TextField(
                           controller: controllers["number"],
-                          enabled: isNewLocal, // SOLO EDITABLE SI ES NUEVO (NO GUARDADO EN DB AÚN)
+                          enabled: isNewLocal,
                           keyboardType: TextInputType.number,
                           style: TextStyle(
-                            color: isNewLocal ? Colors.white : Colors.white38, 
+                            color: isNewLocal ? RCColors.textPrimary : RCColors.textSecondary, 
                             fontSize: 14
                           ),
                           decoration: const InputDecoration(border: InputBorder.none, isDense: true),
                         )),
-                        const VerticalDivider(color: Colors.white24),
+                        const VerticalDivider(color: Colors.grey),
                         Expanded(child: TextField(
                           controller: controllers["label"],
-                          style: const TextStyle(color: Colors.white, fontSize: 14),
+                          style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
                           decoration: const InputDecoration(border: InputBorder.none, isDense: true),
                         )),
                         GestureDetector(
@@ -403,7 +515,10 @@ class ProfileView extends GetView<ProfileController> {
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("${t['number']} - ${t['label']}", style: const TextStyle(color: Colors.white, fontSize: 15)),
+                        Text(
+                          "${t['number']} - ${t['label']}", 
+                          style: TextStyle(color: RCColors.textPrimary, fontSize: 15)
+                        ),
                         const Icon(Icons.tag, color: RCColors.orange, size: 16),
                       ],
                     ),
@@ -412,6 +527,6 @@ class ProfileView extends GetView<ProfileController> {
           ),
         ]
       ],
-    ));
+    );
   }
 }

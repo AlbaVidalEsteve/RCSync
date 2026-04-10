@@ -11,10 +11,10 @@ class CreateEventView extends GetView<CreateEventController> {
     return Scaffold(
       backgroundColor: RCColors.background,
       appBar: AppBar(
-        title: const Text("Crear Nuevo Evento", style: TextStyle(color: Colors.white)),
+        title: Text("Crear Nuevo Evento", style: TextStyle(color: RCColors.white)),
         backgroundColor: RCColors.background,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: IconThemeData(color: RCColors.white),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -31,19 +31,19 @@ class CreateEventView extends GetView<CreateEventController> {
                 _buildTextField("Descripción", controller.descriptionController, Icons.description, maxLines: 3),
                 
                 const SizedBox(height: 10),
-                const Text("Imagen del Evento", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                Text("Imagen del Evento", style: TextStyle(color: RCColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 _buildImagePicker(),
                 
                 const SizedBox(height: 20),
-                const Text("Configuración", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text("Configuración", style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 
                 _buildDropdown("Seleccionar Circuito", controller.selectedCircuitId, controller.circuits, 'id_circuit'),
                 _buildDropdown("Seleccionar Campeonato", controller.selectedChampionshipId, controller.championships, 'id_championship'),
 
                 const SizedBox(height: 20),
-                const Text("Fechas", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text("Fechas", style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
 
                 _buildDatePicker("Fecha Inicio Evento", controller.startDate),
@@ -61,7 +61,7 @@ class CreateEventView extends GetView<CreateEventController> {
                       backgroundColor: RCColors.orange,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                     ),
-                    child: const Text("CREAR EVENTO", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                    child: Text("CREAR EVENTO", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
                 ),
                 const SizedBox(height: 50),
@@ -80,21 +80,21 @@ class CreateEventView extends GetView<CreateEventController> {
         width: double.infinity,
         height: 150,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: RCColors.card,
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: Colors.white10),
+          border: Border.all(color: RCColors.divider),
         ),
         child: controller.selectedImageBytes.value != null
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: Image.memory(controller.selectedImageBytes.value!, fit: BoxFit.cover),
               )
-            : const Column(
+            : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.add_a_photo, color: RCColors.orange, size: 40),
-                  SizedBox(height: 10),
-                  Text("Toca para subir una imagen", style: TextStyle(color: Colors.white70)),
+                  const Icon(Icons.add_a_photo, color: RCColors.orange, size: 40),
+                  const SizedBox(height: 10),
+                  Text("Toca para subir una imagen", style: TextStyle(color: RCColors.textSecondary)),
                 ],
               ),
       ),
@@ -108,14 +108,15 @@ class CreateEventView extends GetView<CreateEventController> {
         controller: textController,
         maxLines: maxLines,
         keyboardType: keyboardType,
-        style: const TextStyle(color: Colors.white),
+        style: TextStyle(color: RCColors.textPrimary),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.white70),
+          labelStyle: TextStyle(color: RCColors.textSecondary),
           prefixIcon: Icon(icon, color: RCColors.orange),
           filled: true,
-          fillColor: Colors.white.withOpacity(0.05),
+          fillColor: RCColors.card,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: RCColors.divider)),
         ),
         validator: (value) => value == null || value.isEmpty ? "Campo obligatorio" : null,
       ),
@@ -127,19 +128,20 @@ class CreateEventView extends GetView<CreateEventController> {
       padding: const EdgeInsets.only(bottom: 15),
       child: Obx(() => DropdownButtonFormField<int>(
         value: selectedValue.value,
-        dropdownColor: const Color(0xFF1A222D),
-        style: const TextStyle(color: Colors.white),
+        dropdownColor: RCColors.card,
+        style: TextStyle(color: RCColors.textPrimary),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.white70),
+          labelStyle: TextStyle(color: RCColors.textSecondary),
           filled: true,
-          fillColor: Colors.white.withOpacity(0.05),
+          fillColor: RCColors.card,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: RCColors.divider)),
         ),
         items: items.map((item) {
           return DropdownMenuItem<int>(
             value: item[idKey],
-            child: Text(item['name'] ?? ''),
+            child: Text(item['name'] ?? '', style: TextStyle(color: RCColors.textPrimary)),
           );
         }).toList(),
         onChanged: (val) => selectedValue.value = val,
@@ -152,12 +154,15 @@ class CreateEventView extends GetView<CreateEventController> {
       padding: const EdgeInsets.only(bottom: 10),
       child: Obx(() => ListTile(
         onTap: () => controller.selectDate(Get.context!, dateTarget),
-        tileColor: Colors.white.withOpacity(0.05),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Text(label, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+        tileColor: RCColors.card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+          side: BorderSide(color: RCColors.divider),
+        ),
+        title: Text(label, style: TextStyle(color: RCColors.textSecondary, fontSize: 14)),
         subtitle: Text(
           dateTarget.value == null ? "Seleccionar fecha" : "${dateTarget.value!.day}/${dateTarget.value!.month}/${dateTarget.value!.year}",
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold),
         ),
         trailing: const Icon(Icons.calendar_month, color: RCColors.orange),
       )),

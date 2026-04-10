@@ -12,15 +12,10 @@ class LoginView extends GetView<LoginController> {
       backgroundColor: RCColors.background,
       body: Stack(
         children: [
-          // --- CAPA DE FONDO: DOS TONOS SÓLIDOS ---
+          // --- CAPA DE FONDO ---
           Column(
             children: [
               Expanded(
-                flex: 3, // Parte superior (Oscura)
-                child: Container(color: RCColors.background),
-              ),
-              Expanded(
-                flex: 7, // Parte inferior (Azul marca)
                 child: Container(color: RCColors.background),
               ),
             ],
@@ -50,7 +45,7 @@ class LoginView extends GetView<LoginController> {
                   autocorrect: false,
                   controller: controller.emailC,
                   textInputAction: TextInputAction.next,
-                  style: const TextStyle(color: RCColors.white),
+                  style: TextStyle(color: RCColors.textPrimary),
                   decoration: _inputDecoration(
                     hint: "ejemplo@rcsync.com",
                     icon: Icons.alternate_email,
@@ -66,7 +61,7 @@ class LoginView extends GetView<LoginController> {
                   controller: controller.passwordC,
                   textInputAction: TextInputAction.done,
                   obscureText: controller.isHidden.value,
-                  style: const TextStyle(color: RCColors.white),
+                  style: TextStyle(color: RCColors.textPrimary),
                   decoration: _inputDecoration(
                     hint: "••••••••",
                     icon: Icons.lock_outline,
@@ -76,7 +71,7 @@ class LoginView extends GetView<LoginController> {
                         controller.isHidden.isTrue
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
-                        color: Colors.grey,
+                        color: RCColors.iconSecondary,
                       ),
                     ),
                   ),
@@ -119,8 +114,8 @@ class LoginView extends GetView<LoginController> {
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         text,
-        style: const TextStyle(
-          color: RCColors.white,
+        style: TextStyle(
+          color: RCColors.textPrimary,
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.1,
@@ -132,15 +127,15 @@ class LoginView extends GetView<LoginController> {
   InputDecoration _inputDecoration({required String hint, required IconData icon, Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: RCColors.white.withOpacity(0.3)),
+      hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.5)),
       prefixIcon: Icon(icon, color: RCColors.orange, size: 20),
       suffixIcon: suffix,
       filled: true,
-      fillColor: RCColors.background,
+      fillColor: RCColors.card,
       contentPadding: const EdgeInsets.symmetric(vertical: 18),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: RCColors.white.withOpacity(0.1)),
+        borderSide: BorderSide(color: RCColors.divider),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -162,11 +157,11 @@ class LoginView extends GetView<LoginController> {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: isOutline ? Colors.transparent : color,
-          foregroundColor: RCColors.white,
+          foregroundColor: isOutline ? RCColors.textPrimary : Colors.white,
           elevation: isOutline ? 0 : 4,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
-            side: isOutline ? const BorderSide(color: RCColors.white) : BorderSide.none,
+            side: isOutline ? BorderSide(color: RCColors.textPrimary) : BorderSide.none,
           ),
         ),
         child: Text(

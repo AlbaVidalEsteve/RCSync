@@ -27,8 +27,9 @@ class RCEventCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A222D),
+          color: RCColors.card,
           borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: RCColors.divider),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,13 +39,13 @@ class RCEventCard extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: imageUrl != null 
+                  child: (imageUrl != null && imageUrl!.isNotEmpty)
                     ? Image.network(imageUrl!, height: 160, width: double.infinity, fit: BoxFit.cover)
                     : Container(
                         height: 160,
                         width: double.infinity,
-                        color: RCColors.cardDark,
-                        child: const Icon(Icons.image, color: Colors.white24, size: 50),
+                        color: RCColors.background.withOpacity(0.1),
+                        child: Icon(Icons.image, color: RCColors.iconSecondary, size: 50),
                       ),
                 ),
                 if (isAccepted)
@@ -71,8 +72,8 @@ class RCEventCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: RCColors.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -80,7 +81,7 @@ class RCEventCard extends StatelessWidget {
                   const SizedBox(height: 5),
                   Text(
                     location,
-                    style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 14),
+                    style: TextStyle(color: RCColors.textSecondary, fontSize: 14),
                   ),
                   const SizedBox(height: 15),
                   Row(
@@ -92,7 +93,7 @@ class RCEventCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             DateFormat('dd MMM', 'es_ES').format(date),
-                            style: const TextStyle(color: Colors.white70, fontSize: 14),
+                            style: TextStyle(color: RCColors.textSecondary, fontSize: 14),
                           ),
                         ],
                       ),

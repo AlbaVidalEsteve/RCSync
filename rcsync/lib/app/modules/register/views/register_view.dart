@@ -57,7 +57,7 @@ class RegisterView extends GetView<RegisterController> {
                 _buildInputLabel("NOMBRE Y APELLIDO"),
                 TextField(
                   controller: controller.fullNameC,
-                  style: const TextStyle(color: RCColors.white),
+                  style: const TextStyle(color: RCColors.whiteRc),
                   decoration: _inputDecoration(hint: "Tu nombre completo", icon: Icons.person_outline),
                 ),
 
@@ -67,7 +67,7 @@ class RegisterView extends GetView<RegisterController> {
                 _buildInputLabel("CORREO ELECTRÓNICO"),
                 TextField(
                   controller: controller.emailC,
-                  style: const TextStyle(color: RCColors.white),
+                  style: const TextStyle(color: RCColors.whiteRc),
                   decoration: _inputDecoration(hint: "ejemplo@rcsync.com", icon: Icons.alternate_email),
                 ),
 
@@ -78,7 +78,7 @@ class RegisterView extends GetView<RegisterController> {
                 Obx(() => TextField(
                   controller: controller.passwordC,
                   obscureText: controller.isHidden.value,
-                  style: const TextStyle(color: RCColors.white),
+                  style: const TextStyle(color: RCColors.whiteRc),
                   decoration: _inputDecoration(
                     hint: "••••••••", 
                     icon: Icons.lock_outline,
@@ -96,7 +96,7 @@ class RegisterView extends GetView<RegisterController> {
                 Obx(() => TextField(
                   controller: controller.confirmPasswordC,
                   obscureText: controller.isHidden.value,
-                  style: const TextStyle(color: RCColors.white),
+                  style: const TextStyle(color: RCColors.whiteRc),
                   decoration: _inputDecoration(hint: "Repite tu contraseña", icon: Icons.lock_reset),
                 )),
 
@@ -130,7 +130,7 @@ class RegisterView extends GetView<RegisterController> {
   Widget _buildInputLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Text(text, style: const TextStyle(color: RCColors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+      child: Text(text, style: const TextStyle(color: RCColors.whiteRc, fontSize: 11, fontWeight: FontWeight.bold)),
     );
   }
 

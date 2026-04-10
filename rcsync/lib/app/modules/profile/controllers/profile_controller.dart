@@ -29,6 +29,17 @@ class ProfileController extends GetxController {
   // Mapa para guardar controllers de transponders existentes (id -> controllers)
   var transponderControllers = <String, Map<String, TextEditingController>>{}.obs;
 
+  // --- SETTINGS ---
+  RxString selectedLanguage = "Español".obs;
+  final List<String> languages = ["Español", "English", "Català"];
+
+  RxString selectedThemeName = "Sistema".obs;
+  final Map<String, ThemeMode> themeModes = {
+    "Claro": ThemeMode.light,
+    "Oscuro": ThemeMode.dark,
+    "Sistema": ThemeMode.system,
+  };
+
   SupabaseClient client = Supabase.instance.client;
   final ImagePicker _picker = ImagePicker();
 
@@ -39,8 +50,29 @@ class ProfileController extends GetxController {
     emailC = TextEditingController();
     newTransponderNumberC = TextEditingController();
     newTransponderLabelC = TextEditingController();
+    
+    _initThemeName();
     getProfile();
     getTransponders();
+  }
+
+  void _initThemeName() {
+    // GetX 4.x no tiene un getter público 'themeMode'. 
+    // Inicializamos en "Sistema" por defecto para evitar errores de compilación.
+    selectedThemeName.value = "Sistema";
+  }
+
+  void changeTheme(String? themeName) {
+    if (themeName != null && themeModes.containsKey(themeName)) {
+      selectedThemeName.value = themeName;
+      Get.changeThemeMode(themeModes[themeName]!);
+    }
+  }
+
+  void changeLanguage(String? lang) {
+    if (lang != null) {
+      selectedLanguage.value = lang;
+    }
   }
 
   @override
@@ -140,14 +172,12 @@ class ProfileController extends GetxController {
 
   void toggleEdit() {
     isEditMode.value = true;
-    // Guardar estado original al entrar en edición
     originalTransponders = transponders.map((e) => Map<String, dynamic>.from(e)).toList();
     _initTransponderControllers();
   }
 
   void cancelEdit() {
     isEditMode.value = false;
-    // Revertir cambios locales
     getProfile();
     transponders.assignAll(originalTransponders.map((e) => Map<String, dynamic>.from(e)).toList());
     _initTransponderControllers();
@@ -197,7 +227,6 @@ class ProfileController extends GetxController {
     final number = int.tryParse(numberStr);
 
     if (number != null && label.isNotEmpty) {
-      // Añadir localmente con una ID temporal
       final tempId = "temp_${DateTime.now().millisecondsSinceEpoch}";
       var newT = {
         "id_transponder": tempId,
@@ -230,20 +259,15 @@ class ProfileController extends GetxController {
       isLoading.value = true;
       final userId = client.auth.currentUser!.id;
 
-      // 1. Actualizar perfil
       await client.from("profiles").update({
         "full_name": nameC.text,
       }).eq("id_profile", userId);
 
-      // 2. Gestionar Transponders
-      
-      // IDs actuales en la UI (no temporales)
       List<String> currentExistingIds = transponders
           .where((t) => !t["id_transponder"].toString().startsWith("temp_"))
           .map((t) => t["id_transponder"].toString())
           .toList();
       
-      // IDs originales que ya no están -> BORRAR
       List<String> originalIds = originalTransponders.map((t) => t["id_transponder"].toString()).toList();
       List<String> toDelete = originalIds.where((id) => !currentExistingIds.contains(id)).toList();
       
@@ -251,7 +275,6 @@ class ProfileController extends GetxController {
         await client.from("transponders").delete().filter("id_transponder", "in", toDelete);
       }
 
-      // Procesar cada transponder de la lista actual
       for (var t in transponders) {
         String id = t["id_transponder"].toString();
         var controllers = transponderControllers[id];
@@ -260,7 +283,6 @@ class ProfileController extends GetxController {
         String lab = controllers["label"]!.text.trim();
         
         if (id.startsWith("temp_")) {
-          // INSERTAR NUEVO
           String numStr = controllers["number"]!.text.trim();
           int? numValue = int.tryParse(numStr);
           if (numValue == null) continue;
@@ -271,11 +293,8 @@ class ProfileController extends GetxController {
             "id_profile": userId,
           });
         } else {
-          // ACTUALIZAR EXISTENTE (solo el label, el número no es editable)
           var original = originalTransponders.firstWhere((ot) => ot["id_transponder"].toString() == id);
-          
           bool hasChanged = lab != (original["label"] ?? "");
-
           if (hasChanged) {
              await client.from("transponders").update({
               "label": lab,
@@ -286,7 +305,7 @@ class ProfileController extends GetxController {
 
       isEditMode.value = false;
       _showSnackbar("Éxito", "Perfil actualizado correctamente");
-      await getTransponders(); // Recargar para sincronizar IDs reales y estado
+      await getTransponders();
     } catch (e) {
       debugPrint("Error updating profile: $e");
       _showSnackbar("Error", "No se pudo actualizar el perfil", isError: true);

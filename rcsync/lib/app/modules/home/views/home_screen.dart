@@ -18,59 +18,74 @@ class HomeScreen extends GetView<HomeController> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      body: Obx(() => IndexedStack(
-            index: controller.selectedIndex.value,
-            children: [
-              // --- TAB 0: CALENDARIO Y EVENTOS ---
-              _buildCalendarTab(context),
+      body: Obx(() {
+        // Al acceder a Theme.of(context) dentro del Obx, este se reconstruirá 
+        // automáticamente cuando el sistema o GetX cambien el tema.
+        Theme.of(context); 
+        return IndexedStack(
+          index: controller.selectedIndex.value,
+          children: [
+            // --- TAB 0: CALENDARIO Y EVENTOS ---
+            _buildCalendarTab(context),
 
-              // --- TAB 1: Map ---
-              const EventLocationMap(
-                lat: 41.4833,
-                lng: 2.1500,
-                title: "Circuito AMSA",
-              ),
-
-              // --- TAB 2: Ranking/Results ---
-              const ResultsView(),
-
-              // --- TAB 3: Profile ---
-              const ProfileView(),
-            ],
-          )),
-      bottomNavigationBar: Obx(() => StylishBottomBar(
-            backgroundColor: RCColors.background,
-            currentIndex: controller.selectedIndex.value,
-            onTap: (index) => controller.changeIndex(index),
-            option: DotBarOptions(
-              dotStyle: DotStyle.circle,
-              gradient: const LinearGradient(
-                colors: [RCColors.orange, Color(0xFFF68B28)],
-              ),
+            // --- TAB 1: Map (Gestión) ---
+            EventLocationMap(
+              lat: 41.4833,
+              lng: 2.1500,
+              title: "Circuito AMSA",
             ),
-            items: [
-              BottomBarItem(
-                icon: const Icon(Icons.calendar_today_outlined, color: Colors.white54),
-                selectedIcon: const Icon(Icons.calendar_today, color: RCColors.orange),
-                title: const Icon(Icons.calendar_today, color: RCColors.orange),
-              ),
-              BottomBarItem(
-                icon: const Icon(Icons.map_outlined, color: Colors.white54),
-                selectedIcon: const Icon(Icons.map, color: RCColors.orange),
-                title: const Icon(Icons.map, color: RCColors.orange),
-              ),
-              BottomBarItem(
-                icon: const Icon(Icons.satellite_alt_outlined, color: Colors.white54),
-                selectedIcon: const Icon(Icons.satellite_alt, color: RCColors.orange),
-                title: const Icon(Icons.satellite_alt, color: RCColors.orange),
-              ),
-              BottomBarItem(
-                icon: const Icon(Icons.person_outline, color: Colors.white54),
-                selectedIcon: const Icon(Icons.person, color: RCColors.orange),
-                title: const Icon(Icons.person, color: RCColors.orange),
-              ),
-            ],
-          )),
+
+            // --- TAB 2: Ranking/Results ---
+            ResultsView(),
+
+            // --- TAB 3: Profile ---
+            ProfileView(),
+          ],
+        );
+      }),
+      bottomNavigationBar: Obx(() {
+        Theme.of(context); // Fuerza la actualización del BottomBar al cambiar el tema
+        return StylishBottomBar(
+          backgroundColor: RCColors.background,
+          currentIndex: controller.selectedIndex.value,
+          onTap: (index) => controller.changeIndex(index),
+          option: AnimatedBarOptions(
+            iconSize: 24,
+            barAnimation: BarAnimation.fade,
+            iconStyle: IconStyle.simple,
+          ),
+          items: [
+            BottomBarItem(
+              icon: const Icon(Icons.calendar_today_outlined),
+              selectedIcon: const Icon(Icons.calendar_today),
+              selectedColor: RCColors.orange,
+              unSelectedColor: RCColors.iconSecondary,
+              title: const Text("Eventos"), 
+            ),
+            BottomBarItem(
+              icon: const Icon(Icons.shield_outlined),
+              selectedIcon: const Icon(Icons.shield),
+              selectedColor: RCColors.orange,
+              unSelectedColor: RCColors.iconSecondary,
+              title: const Text("Gestión"),
+            ),
+            BottomBarItem(
+              icon: const Icon(Icons.emoji_events_outlined),
+              selectedIcon: const Icon(Icons.emoji_events),
+              selectedColor: RCColors.orange,
+              unSelectedColor: RCColors.iconSecondary,
+              title: const Text("Resultados"),
+            ),
+            BottomBarItem(
+              icon: const Icon(Icons.person_outline),
+              selectedIcon: const Icon(Icons.person),
+              selectedColor: RCColors.orange,
+              unSelectedColor: RCColors.iconSecondary,
+              title: const Text("Perfil"),
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -143,6 +158,8 @@ class HomeScreen extends GetView<HomeController> {
           child: Container(
             color: RCColors.background,
             child: Obx(() {
+              // También aquí para el calendario interno
+              Theme.of(context);
               return Calendar(
                 startOnMonday: true,
                 weekDays: const ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
@@ -155,13 +172,13 @@ class HomeScreen extends GetView<HomeController> {
                 locale: 'es_ES',
                 isExpanded: true,
                 expandableDateFormat: 'EEEE, dd MMMM yyyy',
-                dayOfWeekStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 11),
-                defaultDayColor: Colors.white,
-                displayMonthTextStyle: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                dayOfWeekStyle: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.w800, fontSize: 11),
+                defaultDayColor: RCColors.textPrimary,
+                displayMonthTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold),
                 todayButtonText: "Hoy",
-                bottomBarColor: const Color(0xFF1A222D), 
-                bottomBarTextStyle: const TextStyle(color: Colors.white, fontSize: 14),
-                bottomBarArrowColor: Colors.white, 
+                bottomBarColor: RCColors.surface, 
+                bottomBarTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 14),
+                bottomBarArrowColor: RCColors.textPrimary, 
                 showEventListViewIcon: true,
                 
                 onDateSelected: (date) => controller.handleDateSelected(date),
@@ -169,7 +186,6 @@ class HomeScreen extends GetView<HomeController> {
                 onListViewStateChanged: (state) => controller.toggleAllFutureEvents(),
 
                 eventListBuilder: (context, events) {
-                  // Determinamos qué lista de eventos mostrar basada en el estado del controlador
                   final displayEvents = controller.showAllFutureEvents.value 
                       ? controller.futureEvents 
                       : (controller.isDaySelected.value 
@@ -185,16 +201,16 @@ class HomeScreen extends GetView<HomeController> {
                           children: [
                             Text(
                               controller.listTitle,
-                              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
-                            const Icon(Icons.filter_list, color: Colors.white70),
+                            Icon(Icons.filter_list, color: RCColors.textSecondary),
                           ],
                         ),
                         const SizedBox(height: 20),
                         if (displayEvents.isEmpty)
-                           const Center(child: Padding(
-                             padding: EdgeInsets.all(20.0),
-                             child: Text("No hay carreras programadas", style: TextStyle(color: Colors.white54)),
+                           Center(child: Padding(
+                             padding: const EdgeInsets.all(20.0),
+                             child: Text("No hay carreras programadas", style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
                            )),
                         
                         ...displayEvents.map((event) => RCEventCard(

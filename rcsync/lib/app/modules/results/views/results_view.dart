@@ -18,7 +18,7 @@ class ResultsView extends GetView<ResultsController> {
               // FONDO GRADIENTE
               Container(
                 width: double.infinity,
-                height: 180, // Altura ajustada para dar aire y permitir el solapamiento
+                height: 180, 
                 padding: const EdgeInsets.only(top: 60),
                 alignment: Alignment.topCenter,
                 decoration: const BoxDecoration(
@@ -41,7 +41,7 @@ class ResultsView extends GetView<ResultsController> {
 
               // TARJETA DE FILTROS FLOTANTE
               Container(
-                margin: const EdgeInsets.only(top: 110), // Empuja la tarjeta para que solape el header
+                margin: const EdgeInsets.only(top: 110), 
                 child: _buildFiltersCard(),
               ),
             ],
@@ -56,13 +56,13 @@ class ResultsView extends GetView<ResultsController> {
     );
   }
 
-  // --- TARJETA DE FILTROS (ESTILO PROFILE VIEW) ---
+  // --- TARJETA DE FILTROS ---
   Widget _buildFiltersCard() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: RCColors.cardDark, // El grisáceo elegante
+        color: RCColors.card, 
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -159,7 +159,6 @@ class ResultsView extends GetView<ResultsController> {
     );
   }
 
-  // --- COMBOBOX CLONADO DE TU _buildInputField ---
   Widget _buildProfileStyleDropdown({
     required String label,
     required IconData icon,
@@ -172,30 +171,29 @@ class ResultsView extends GetView<ResultsController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Etiqueta por encima del campo (Estilo Profile)
         Row(
           children: [
-            Icon(icon, size: 14, color: Colors.white70),
+            Icon(icon, size: 14, color: RCColors.textSecondary),
             const SizedBox(width: 6),
-            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13, fontWeight: FontWeight.w500)),
+            Text(label, style: TextStyle(color: RCColors.textSecondary, fontSize: 13, fontWeight: FontWeight.w500)),
           ],
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: safeValue,
-          dropdownColor: RCColors.background, // Fondo del menú desplegado (negro)
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          dropdownColor: RCColors.background, 
+          icon: Icon(Icons.arrow_drop_down, color: RCColors.textSecondary),
+          style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
-            fillColor: RCColors.background.withAlpha(128), // Fondo interior del combobox
+            fillColor: RCColors.background.withAlpha(128), 
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: Colors.white.withAlpha(13), width: 1),
+              borderSide: BorderSide(color: RCColors.textSecondary.withAlpha(13), width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
@@ -207,10 +205,10 @@ class ResultsView extends GetView<ResultsController> {
               ? null
               : items.map((e) => DropdownMenuItem<String>(
               value: e,
-              child: Text(e, style: const TextStyle(color: Colors.white))
+              child: Text(e, style: TextStyle(color: RCColors.textPrimary))
           )).toList(),
           onChanged: items.isEmpty ? null : onChanged,
-          hint: items.isEmpty ? const Text("Cargando...", style: TextStyle(color: Colors.white24, fontSize: 13)) : null,
+          hint: items.isEmpty ? Text("Cargando...", style: TextStyle(color: RCColors.textSecondary.withAlpha(50), fontSize: 13)) : null,
         ),
       ],
     );
@@ -245,15 +243,15 @@ class ResultsView extends GetView<ResultsController> {
   Widget _buildList() {
     return Obx(() {
       if (controller.filteredEntries.isEmpty) {
-        return const Center(
+        return Center(
           child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Text("Selecciona los filtros superiores", style: TextStyle(color: Colors.white54)),
+            padding: const EdgeInsets.all(20.0),
+            child: Text("Selecciona los filtros superiores", style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
           ),
         );
       }
       return ListView.builder(
-        padding: const EdgeInsets.only(top: RCSpacing.sm, left: RCSpacing.md, right: RCSpacing.md, bottom: 80),
+        padding: const EdgeInsets.only(top: RCSpacing.sm, left: RCSpacing.md, right: RCSpacing.md, bottom: 100),
         itemCount: controller.filteredEntries.length,
         itemBuilder: (context, index) {
           final entry = controller.filteredEntries[index];
@@ -269,14 +267,14 @@ class ResultsView extends GetView<ResultsController> {
           } else if (index == 2) {
             badgeColor = const Color(0xFFCD7F32); // Bronce
           } else {
-            badgeColor = RCColors.backgroundShine; // Gris oscuro
-            badgeTextColor = RCColors.white;
+            badgeColor = RCColors.surface; 
+            badgeTextColor = RCColors.textPrimary;
           }
 
           const String genericHelmetUrl = "https://llprsnjobjwtcwwpsqwy.supabase.co/storage/v1/object/public/imagenes/perfilfoto/imagen%20perfil%20generica.png";
 
           return Card(
-            color: RCColors.cardDark,
+            color: RCColors.card,
             margin: const EdgeInsets.only(bottom: RCSpacing.sm),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -294,9 +292,9 @@ class ResultsView extends GetView<ResultsController> {
                       height: 48,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: RCColors.backgroundShine,
+                        color: RCColors.surface,
                         border: Border.all(
-                          color: index < 3 ? badgeColor : Colors.white10,
+                          color: index < 3 ? badgeColor : RCColors.divider,
                           width: index < 3 ? 2 : 1,
                         ),
                       ),
@@ -323,7 +321,7 @@ class ResultsView extends GetView<ResultsController> {
                         decoration: BoxDecoration(
                           color: badgeColor,
                           shape: BoxShape.circle,
-                          border: Border.all(color: RCColors.cardDark, width: 2),
+                          border: Border.all(color: RCColors.card, width: 2),
                         ),
                         child: Text(
                           "${index + 1}",
@@ -339,7 +337,7 @@ class ResultsView extends GetView<ResultsController> {
                 ),
                 title: Text(
                   entry.fullName,
-                  style: const TextStyle(color: RCColors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                  style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 subtitle: Padding(
                   padding: const EdgeInsets.only(top: 6.0),
@@ -393,9 +391,9 @@ class ResultsView extends GetView<ResultsController> {
                       "$pts",
                       style: const TextStyle(color: RCColors.orange, fontWeight: FontWeight.bold, fontSize: 18),
                     ),
-                    const Text(
+                    Text(
                       "pts",
-                      style: TextStyle(color: Colors.white54, fontSize: 11, fontWeight: FontWeight.w600),
+                      style: TextStyle(color: RCColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
