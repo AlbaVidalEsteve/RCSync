@@ -7,9 +7,9 @@ import '../../../routes/app_pages.dart';
 import '../controllers/home_controller.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'package:rcsync/app/modules/results/views/results_view.dart';
-import 'package:rcsync/app/modules/map/views/map_view.dart';
 import 'package:rcsync/app/modules/profile/views/profile_view.dart';
-
+import 'package:rcsync/app/modules/admin_dashboard/views/admin_dashboard_view.dart';
+import 'package:rcsync/app/modules/map/views/map_view.dart';
 
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});
@@ -19,71 +19,69 @@ class HomeScreen extends GetView<HomeController> {
     return Scaffold(
       extendBody: true,
       body: Obx(() {
-        // Al acceder a Theme.of(context) dentro del Obx, este se reconstruirá 
-        // automáticamente cuando el sistema o GetX cambien el tema.
+        // Tu mejora: Escuchamos el tema para que reaccione al modo oscuro/claro
         Theme.of(context); 
+
+        // Lógica de Master: Construcción dinámica según rol
+        List<Widget> views = [
+          _buildCalendarTab(context),
+          if (controller.isAdminOrOrganizer) const AdminDashboardView(), 
+          const ResultsView(),
+          const ProfileView(),
+        ];
+
         return IndexedStack(
           index: controller.selectedIndex.value,
-          children: [
-            // --- TAB 0: CALENDARIO Y EVENTOS ---
-            _buildCalendarTab(context),
-
-            // --- TAB 1: Map (Gestión) ---
-            EventLocationMap(
-              lat: 41.4833,
-              lng: 2.1500,
-              title: "Circuito AMSA",
-            ),
-
-            // --- TAB 2: Ranking/Results ---
-            ResultsView(),
-
-            // --- TAB 3: Profile ---
-            ProfileView(),
-          ],
+          children: views,
         );
       }),
       bottomNavigationBar: Obx(() {
-        Theme.of(context); // Fuerza la actualización del BottomBar al cambiar el tema
+        Theme.of(context); // Refresco de colores del tema
+
+        // Lógica de Master: Items dinámicos
+        List<BottomBarItem> navItems = [
+          BottomBarItem(
+            icon: const Icon(Icons.calendar_today_outlined),
+            selectedIcon: const Icon(Icons.calendar_today),
+            title: const Text('Eventos'),
+            selectedColor: RCColors.orange,
+            unSelectedColor: RCColors.iconSecondary,
+          ),
+          if (controller.isAdminOrOrganizer)
+            BottomBarItem(
+              icon: const Icon(Icons.shield_outlined),
+              selectedIcon: const Icon(Icons.shield),
+              title: const Text('Gestión'),
+              selectedColor: RCColors.orange,
+              unSelectedColor: RCColors.iconSecondary,
+            ),
+          BottomBarItem(
+            icon: const Icon(Icons.emoji_events_outlined),
+            selectedIcon: const Icon(Icons.emoji_events),
+            title: const Text('Resultados'),
+            selectedColor: RCColors.orange,
+            unSelectedColor: RCColors.iconSecondary,
+          ),
+          BottomBarItem(
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
+            title: const Text('Perfil'),
+            selectedColor: RCColors.orange,
+            unSelectedColor: RCColors.iconSecondary,
+          ),
+        ];
+
         return StylishBottomBar(
-          backgroundColor: RCColors.background,
-          currentIndex: controller.selectedIndex.value,
-          onTap: (index) => controller.changeIndex(index),
+          backgroundColor: RCColors.background, // Tu variable de tema
           option: AnimatedBarOptions(
             iconSize: 24,
             barAnimation: BarAnimation.fade,
             iconStyle: IconStyle.simple,
           ),
-          items: [
-            BottomBarItem(
-              icon: const Icon(Icons.calendar_today_outlined),
-              selectedIcon: const Icon(Icons.calendar_today),
-              selectedColor: RCColors.orange,
-              unSelectedColor: RCColors.iconSecondary,
-              title: const Text("Eventos"), 
-            ),
-            BottomBarItem(
-              icon: const Icon(Icons.shield_outlined),
-              selectedIcon: const Icon(Icons.shield),
-              selectedColor: RCColors.orange,
-              unSelectedColor: RCColors.iconSecondary,
-              title: const Text("Gestión"),
-            ),
-            BottomBarItem(
-              icon: const Icon(Icons.emoji_events_outlined),
-              selectedIcon: const Icon(Icons.emoji_events),
-              selectedColor: RCColors.orange,
-              unSelectedColor: RCColors.iconSecondary,
-              title: const Text("Resultados"),
-            ),
-            BottomBarItem(
-              icon: const Icon(Icons.person_outline),
-              selectedIcon: const Icon(Icons.person),
-              selectedColor: RCColors.orange,
-              unSelectedColor: RCColors.iconSecondary,
-              title: const Text("Perfil"),
-            ),
-          ],
+          items: navItems,
+          hasNotch: true,
+          currentIndex: controller.selectedIndex.value,
+          onTap: (index) => controller.changeIndex(index),
         );
       }),
     );
@@ -92,7 +90,7 @@ class HomeScreen extends GetView<HomeController> {
   Widget _buildCalendarTab(BuildContext context) {
     return Column(
       children: [
-        // Header con degradado
+        // Header con degradado (Se mantiene igual, es parte de tu estilo)
         Container(
           padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
           decoration: const BoxDecoration(
@@ -106,13 +104,13 @@ class HomeScreen extends GetView<HomeController> {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Icon(Icons.menu, color: Colors.white),
-                  const Text(
+                children: const [
+                  Icon(Icons.menu, color: Colors.white),
+                  Text(
                     "Calendario",
                     style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  const Icon(Icons.settings_outlined, color: Colors.white),
+                  Icon(Icons.settings_outlined, color: Colors.white),
                 ],
               ),
               const SizedBox(height: 20),
@@ -153,13 +151,12 @@ class HomeScreen extends GetView<HomeController> {
           ),
         ),
 
-        // Calendario
+        // Calendario con soporte multitema (Tu rama)
         Expanded(
           child: Container(
             color: RCColors.background,
             child: Obx(() {
-              // También aquí para el calendario interno
-              Theme.of(context);
+              Theme.of(context); // Vital para que el calendario cambie de color
               return Calendar(
                 startOnMonday: true,
                 weekDays: const ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
@@ -176,15 +173,14 @@ class HomeScreen extends GetView<HomeController> {
                 defaultDayColor: RCColors.textPrimary,
                 displayMonthTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold),
                 todayButtonText: "Hoy",
+                // Usamos tus variables de tema en lugar de colores fijos de Master
                 bottomBarColor: RCColors.surface, 
                 bottomBarTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 14),
                 bottomBarArrowColor: RCColors.textPrimary, 
                 showEventListViewIcon: true,
-                
                 onDateSelected: (date) => controller.handleDateSelected(date),
                 onMonthChanged: (date) => controller.handleMonthChanged(date),
                 onListViewStateChanged: (state) => controller.toggleAllFutureEvents(),
-
                 eventListBuilder: (context, events) {
                   final displayEvents = controller.showAllFutureEvents.value 
                       ? controller.futureEvents 
