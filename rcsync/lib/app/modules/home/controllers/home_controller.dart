@@ -32,7 +32,7 @@ class HomeController extends GetxController {
     getCurrentUserProfile();
   }
 
-  // En home_controller.dart (añadir este getter)
+  // Comprueba si el usuario tiene permisos
   bool get isAdminOrOrganizer {
     final role = userProfile.value?.rol.toLowerCase() ?? 'piloto';
     return role == 'admin' || role == 'organizador';
@@ -42,6 +42,7 @@ class HomeController extends GetxController {
     selectedIndex.value = index;
   }
 
+  // Consulta a supabase el rol que tienes
   Future<void> getCurrentUserProfile() async {
     try {
       final user = client.auth.currentUser;
@@ -57,7 +58,7 @@ class HomeController extends GetxController {
       print("Error fetching user profile: $e");
     }
   }
-
+  // Lógica que decide si abrir la pantalla de creación de evento o mostrar error
   void goToCreateEvent() {
     if (userProfile.value == null) {
       Get.snackbar("Error", "No se pudo cargar tu perfil");
