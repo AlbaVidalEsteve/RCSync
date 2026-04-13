@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
-import 'package:rcsync/core/theme/rc_spacing.dart';
 import '../controllers/results_controller.dart';
 
 class ResultsView extends GetView<ResultsController> {
@@ -13,10 +12,10 @@ class ResultsView extends GetView<ResultsController> {
       backgroundColor: RCColors.background,
       body: Column(
         children: [
-          // --- HEADER CON GRADIENTE Y TARJETA SOLAPADA ---
+          // --- HEADER CON GRADIENTE Y TARJETA SOLAPADA
           Stack(
             children: [
-              // FONDO GRADIENTE (Tu diseño)
+              // FONDO GRADIENTE
               Container(
                 width: double.infinity,
                 height: 180, 
@@ -167,7 +166,6 @@ class ResultsView extends GetView<ResultsController> {
     required List<String> items,
     required Function(String?) onChanged
   }) {
-    // Verificación de seguridad para evitar errores de Dropdown si el valor no está en la lista
     final safeValue = (value != null && items.contains(value)) ? value : null;
 
     return Column(
@@ -182,10 +180,10 @@ class ResultsView extends GetView<ResultsController> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: safeValue, // Se prefiere value sobre initialValue en widgets reactivos de GetX
+          value: safeValue,
           dropdownColor: RCColors.background, 
-          icon: const Icon(Icons.arrow_drop_down, color: RCColors.textSecondary),
-          style: const TextStyle(color: RCColors.textPrimary, fontSize: 14),
+          icon: Icon(Icons.arrow_drop_down, color: RCColors.textSecondary),
+          style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
             fillColor: RCColors.background.withAlpha(128), 
@@ -207,10 +205,10 @@ class ResultsView extends GetView<ResultsController> {
               ? null
               : items.map((e) => DropdownMenuItem<String>(
               value: e,
-              child: Text(e, style: const TextStyle(color: RCColors.textPrimary))
+              child: Text(e, style: TextStyle(color: RCColors.textPrimary))
           )).toList(),
           onChanged: items.isEmpty ? null : onChanged,
-          hint: items.isEmpty ? const Text("Cargando...", style: TextStyle(color: Colors.white24, fontSize: 13)) : null,
+          hint: items.isEmpty ? Text("Cargando...", style: TextStyle(color: RCColors.textSecondary.withAlpha(50), fontSize: 13)) : null,
         ),
       ],
     );
@@ -262,7 +260,6 @@ class ResultsView extends GetView<ResultsController> {
           Color badgeColor;
           Color badgeTextColor = Colors.black87;
 
-          // Sistema de medallas para el podio
           if (index == 0) {
             badgeColor = const Color(0xFFFFD700); // Oro
           } else if (index == 1) {
@@ -307,7 +304,12 @@ class ResultsView extends GetView<ResultsController> {
                               ? entry.imageProfile!
                               : genericHelmetUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Image.network(genericHelmetUrl, fit: BoxFit.cover),
+                          errorBuilder: (context, error, stackTrace) {
+                            return Image.network(
+                              genericHelmetUrl,
+                              fit: BoxFit.cover,
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -335,7 +337,7 @@ class ResultsView extends GetView<ResultsController> {
                 ),
                 title: Text(
                   entry.fullName,
-                  style: const TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15),
+                  style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15),
                 ),
                 subtitle: Padding(
                   padding: const EdgeInsets.only(top: 6.0),
@@ -389,7 +391,7 @@ class ResultsView extends GetView<ResultsController> {
                       "$pts",
                       style: const TextStyle(color: RCColors.orange, fontWeight: FontWeight.bold, fontSize: 18),
                     ),
-                    const Text(
+                    Text(
                       "pts",
                       style: TextStyle(color: RCColors.textSecondary, fontSize: 11, fontWeight: FontWeight.w600),
                     ),

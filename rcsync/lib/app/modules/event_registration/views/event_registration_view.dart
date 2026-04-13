@@ -146,7 +146,7 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
         Row(children: [Icon(icon, size: 14, color: Colors.white70), const SizedBox(width: 6), Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13))]),
         const SizedBox(height: 8),
         DropdownButtonFormField<T>(
-          initialValue: safeValue,
+          value: safeValue,
           dropdownColor: RCColors.background,
           style: const TextStyle(color: Colors.white, fontSize: 14),
           decoration: InputDecoration(filled: true, fillColor: RCColors.background.withOpacity(0.5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),

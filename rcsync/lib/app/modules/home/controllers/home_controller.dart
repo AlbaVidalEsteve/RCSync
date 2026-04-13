@@ -32,12 +32,6 @@ class HomeController extends GetxController {
     getCurrentUserProfile();
   }
 
-  // En home_controller.dart (añadir este getter)
-  bool get isAdminOrOrganizer {
-    final role = userProfile.value?.rol.toLowerCase() ?? 'piloto';
-    return role == 'admin' || role == 'organizador';
-  }
-
   void changeIndex(int index) {
     selectedIndex.value = index;
   }

@@ -31,19 +31,21 @@ class ResultsController extends GetxController {
     try {
       final response = await _supabase.from('championships').select('name');
 
-      final List<String> champs = (response as List)
-          .map((row) => row['name']?.toString() ?? '')
-          .where((name) => name.isNotEmpty)
-          .toSet()
-          .toList();
+      if (response != null) {
+        final List<String> champs = (response as List)
+            .map((row) => row['name']?.toString() ?? '')
+            .where((name) => name.isNotEmpty)
+            .toSet()
+            .toList();
 
-      availableChampionships.assignAll(champs);
+        availableChampionships.assignAll(champs);
 
-      if (champs.isNotEmpty && !champs.contains(selectedChampionshipName.value)) {
-        selectedChampionshipName.value = champs.first;
+        if (champs.isNotEmpty && !champs.contains(selectedChampionshipName.value)) {
+          selectedChampionshipName.value = champs.first;
+        }
+        fetchAvailableYears();
       }
-      fetchAvailableYears();
-        } catch (e) {
+    } catch (e) {
       print("❌ Error fetching championship names: $e");
     }
   }
@@ -58,22 +60,24 @@ class ResultsController extends GetxController {
           .eq('name', selectedChampionshipName.value.trim())
           .order('year', ascending: false);
 
-      final List<String> years = (response as List)
-          .map((row) => row['year']?.toString() ?? '')
-          .where((year) => year.isNotEmpty)
-          .toSet()
-          .toList();
+      if (response != null) {
+        final List<String> years = (response as List)
+            .map((row) => row['year']?.toString() ?? '')
+            .where((year) => year.isNotEmpty)
+            .toSet()
+            .toList();
 
-      availableYears.assignAll(years);
+        availableYears.assignAll(years);
 
-      if (years.isNotEmpty && !years.contains(selectedYear.value)) {
-        selectedYear.value = years.first;
-      } else if (years.isEmpty) {
-        selectedYear.value = "";
+        if (years.isNotEmpty && !years.contains(selectedYear.value)) {
+          selectedYear.value = years.first;
+        } else if (years.isEmpty) {
+          selectedYear.value = "";
+        }
+
+        fetchCategoriesForChampionship();
       }
-
-      fetchCategoriesForChampionship();
-        } catch (e) {
+    } catch (e) {
       print("❌ Error fetching available years: $e");
     }
   }
@@ -98,7 +102,7 @@ class ResultsController extends GetxController {
             .select('categories(name)')
             .eq('id_championship', champId);
 
-        if ((catResponse as List).isNotEmpty) {
+        if (catResponse != null && (catResponse as List).isNotEmpty) {
           final List<String> cats = (catResponse as List)
               .map((c) {
             final categoryMap = c['categories'] as Map<String, dynamic>?;
