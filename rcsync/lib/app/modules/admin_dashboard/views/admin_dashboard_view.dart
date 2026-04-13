@@ -10,6 +10,8 @@ class AdminDashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Escuchar el tema para cambios reactivos
+    Theme.of(context);
     final controller = Get.put(AdminDashboardController());
 
     return Scaffold(
@@ -54,7 +56,7 @@ class AdminDashboardView extends StatelessWidget {
   Widget _buildEventosList(AdminDashboardController controller) {
     return Obx(() {
       if (controller.isLoadingEvents.value) return const Center(child: CircularProgressIndicator(color: RCColors.orange));
-      if (controller.groupedEvents.isEmpty) return const Center(child: Text("No hay eventos activos", style: TextStyle(color: Colors.white54)));
+      if (controller.groupedEvents.isEmpty) return Center(child: Text("No hay eventos activos", style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5))));
       final groups = controller.groupedEvents.entries.toList();
 
       return ListView.builder(
@@ -68,7 +70,15 @@ class AdminDashboardView extends StatelessWidget {
               Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Text(champName.toUpperCase(), style: const TextStyle(color: RCColors.orange, fontWeight: FontWeight.bold, fontSize: 16))),
               ...events.map((event) {
                 final dateStr = event.eventDateIni != null ? DateFormat('dd MMM yyyy', 'es_ES').format(event.eventDateIni!) : 'Sin fecha';
-                return Card(color: const Color(0xFF1A222D), margin: const EdgeInsets.only(bottom: 10), child: ListTile(title: Text(event.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), subtitle: Text(dateStr, style: const TextStyle(color: Colors.white70)), trailing: IconButton(icon: const Icon(Icons.edit, color: RCColors.orange), onPressed: () => controller.editEvent(event))));
+                return Card(
+                  color: RCColors.card, 
+                  margin: const EdgeInsets.only(bottom: 10), 
+                  child: ListTile(
+                    title: Text(event.name, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)), 
+                    subtitle: Text(dateStr, style: TextStyle(color: RCColors.textSecondary)), 
+                    trailing: IconButton(icon: const Icon(Icons.edit, color: RCColors.orange), onPressed: () => controller.editEvent(event))
+                  )
+                );
               }),
             ],
           );
@@ -80,13 +90,21 @@ class AdminDashboardView extends StatelessWidget {
   Widget _buildCampeonatosList(AdminDashboardController controller) {
     return Obx(() {
       if (controller.isLoadingChamps.value) return const Center(child: CircularProgressIndicator(color: RCColors.orange));
-      if (controller.activeChampionshipsList.isEmpty) return const Center(child: Text("No hay campeonatos activos para editar", style: TextStyle(color: Colors.white54)));
+      if (controller.activeChampionshipsList.isEmpty) return Center(child: Text("No hay campeonatos activos para editar", style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5))));
 
       return ListView.builder(
         padding: const EdgeInsets.all(15), itemCount: controller.activeChampionshipsList.length,
         itemBuilder: (context, index) {
           final champ = controller.activeChampionshipsList[index];
-          return Card(color: const Color(0xFF1A222D), margin: const EdgeInsets.only(bottom: 10), child: ListTile(title: Text(champ['name'] ?? 'Sin nombre', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), subtitle: Text('Año: ${champ['year']}', style: const TextStyle(color: Colors.white70)), trailing: IconButton(icon: const Icon(Icons.edit, color: RCColors.orange), onPressed: () => controller.editChampionship(champ))));
+          return Card(
+            color: RCColors.card, 
+            margin: const EdgeInsets.only(bottom: 10), 
+            child: ListTile(
+              title: Text(champ['name'] ?? 'Sin nombre', style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)), 
+              subtitle: Text('Año: ${champ['year']}', style: TextStyle(color: RCColors.textSecondary)), 
+              trailing: IconButton(icon: const Icon(Icons.edit, color: RCColors.orange), onPressed: () => controller.editChampionship(champ))
+            )
+          );
         },
       );
     });
@@ -95,7 +113,7 @@ class AdminDashboardView extends StatelessWidget {
   Widget _buildInscripcionesList(AdminDashboardController controller) {
     return Obx(() {
       if (controller.isLoadingRegs.value) return const Center(child: CircularProgressIndicator(color: RCColors.orange));
-      if (controller.pendingRegistrationsList.isEmpty) return const Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.check_circle_outline, color: Colors.green, size: 60), SizedBox(height: 10), Text("No hay inscripciones pendientes", style: TextStyle(color: Colors.white54, fontSize: 16))]));
+      if (controller.pendingRegistrationsList.isEmpty) return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.check_circle_outline, color: Colors.green, size: 60), const SizedBox(height: 10), Text("No hay inscripciones pendientes", style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5), fontSize: 16))]));
 
       return ListView.builder(
         padding: const EdgeInsets.all(15), itemCount: controller.pendingRegistrationsList.length,
@@ -104,7 +122,16 @@ class AdminDashboardView extends StatelessWidget {
           final pilotName = reg['profiles']?['full_name'] ?? 'Piloto Desconocido';
           final eventName = reg['events']?['name'] ?? 'Evento Desconocido';
           final categoryName = reg['categories']?['name'] ?? '';
-          return Card(color: const Color(0xFF1A222D), margin: const EdgeInsets.only(bottom: 10), child: ListTile(title: Text(pilotName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)), subtitle: Text('$eventName\nCategoría: $categoryName', style: const TextStyle(color: Colors.white70)), isThreeLine: true, trailing: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))), onPressed: () { final regId = reg['id_registration']; if (regId != null) controller.confirmRegistration(regId); }, child: const Text('Confirmar', style: TextStyle(color: Colors.white)))));
+          return Card(
+            color: RCColors.card, 
+            margin: const EdgeInsets.only(bottom: 10), 
+            child: ListTile(
+              title: Text(pilotName, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)), 
+              subtitle: Text('$eventName\nCategoría: $categoryName', style: TextStyle(color: RCColors.textSecondary)), 
+              isThreeLine: true, 
+              trailing: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.green, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))), onPressed: () { final regId = reg['id_registration']; if (regId != null) controller.confirmRegistration(regId); }, child: const Text('Confirmar', style: TextStyle(color: Colors.white)))
+            )
+          );
         },
       );
     });

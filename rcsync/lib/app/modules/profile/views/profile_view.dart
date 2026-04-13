@@ -9,6 +9,9 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
+    // Escuchar cambios de tema
+    Theme.of(context);
+
     return Obx(() => Scaffold(
       backgroundColor: RCColors.background,
       body: SingleChildScrollView(
@@ -57,7 +60,7 @@ class ProfileView extends GetView<ProfileController> {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                          color: RCColors.black.withOpacity(0.1),
+                          color: Colors.black.withOpacity(0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 10),
                         )
@@ -197,7 +200,7 @@ class ProfileView extends GetView<ProfileController> {
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: RCColors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 15,
             offset: const Offset(0, 10),
           )

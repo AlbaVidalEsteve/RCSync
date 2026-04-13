@@ -44,7 +44,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
               children: [
                 Expanded(
                   child: Obx(() => DropdownButtonFormField<int>(
-                    value: controller.selectedYear.value,
+                    initialValue: controller.selectedYear.value,
                     dropdownColor: const Color(0xFF1A222D),
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
@@ -66,7 +66,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                     Switch(
                         value: controller.isActive.value,
                         onChanged: (v) => controller.isActive.value = v,
-                        activeColor: RCColors.orange
+                        activeThumbColor: RCColors.orange
                     ),
                   ],
                 ))
