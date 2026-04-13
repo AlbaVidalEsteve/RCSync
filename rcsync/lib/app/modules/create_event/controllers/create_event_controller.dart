@@ -1,184 +1,135 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../home/controllers/home_controller.dart';
+import 'package:rcsync/app/data/models/race_event_model.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:rcsync/app/modules/home/controllers/home_controller.dart';
+import 'package:flutter/scheduler.dart';
 
 class CreateEventController extends GetxController {
-  final SupabaseClient client = Supabase.instance.client;
-  final isLoading = false.obs;
-
-  // Form keys and controllers
+  final supabase = Supabase.instance.client;
   final formKey = GlobalKey<FormState>();
+
   final nameController = TextEditingController();
+  final prizeController = TextEditingController(text: '0');
   final descriptionController = TextEditingController();
-  
-  // Image handling
-  final ImagePicker _picker = ImagePicker();
-  final Rxn<Uint8List> selectedImageBytes = Rxn<Uint8List>();
-  final RxString selectedImageExt = ''.obs;
 
-  // Selected values
-  final Rxn<DateTime> startDate = Rxn<DateTime>();
-  final Rxn<DateTime> endDate = Rxn<DateTime>();
-  final Rxn<DateTime> regStartDate = Rxn<DateTime>();
-  final Rxn<DateTime> regEndDate = Rxn<DateTime>();
+  var eventDateIni = Rxn<DateTime>();
+  var eventDateFin = Rxn<DateTime>();
+  var eventRegIni = Rxn<DateTime>();
+  var eventRegFin = Rxn<DateTime>();
 
-  final RxList<Map<String, dynamic>> circuits = <Map<String, dynamic>>[].obs;
-  final RxList<Map<String, dynamic>> championships = <Map<String, dynamic>>[].obs;
+  var championshipsList = <Map<String, dynamic>>[].obs;
+  var circuitsList = <Map<String, dynamic>>[].obs;
+  var selectedChampionshipId = Rxn<int>();
+  var selectedCircuitId = Rxn<int>();
 
-  final RxnInt selectedCircuitId = RxnInt();
-  final RxnInt selectedChampionshipId = RxnInt();
+  var selectedImage = Rxn<PlatformFile>();
+  var existingImageUrl = RxnString();
+
+  var isLoading = false.obs;
+  var isEditing = false.obs;
+  int? editingEventId;
 
   @override
   void onInit() {
     super.onInit();
-    fetchInitialData();
+    _loadDependencies().then((_) => _checkIfEditing());
   }
 
-  Future<void> fetchInitialData() async {
+  Future<void> _loadDependencies() async {
     try {
-      isLoading.value = true;
-      final circuitsData = await client.from('circuits').select('id_circuit, name');
-      final championshipsData = await client
-          .from('championships')
-          .select('id_championship, name')
-          .eq('is_active', true);
-      
-      circuits.assignAll(List<Map<String, dynamic>>.from(circuitsData));
-      championships.assignAll(List<Map<String, dynamic>>.from(championshipsData));
+      final champs = await supabase.from('championships').select('id_championship, name').eq('is_active', true).order('year', ascending: false);
+      championshipsList.value = champs;
+      final circs = await supabase.from('circuits').select('id_circuit, name');
+      circuitsList.value = circs;
     } catch (e) {
-      Get.snackbar("Error", "No se pudo cargar la información inicial: $e");
-    } finally {
-      isLoading.value = false;
+      debugPrint("Error dependencias: $e");
+    }
+  }
+
+  void _checkIfEditing() {
+    if (Get.arguments != null && Get.arguments is RaceEventModel) {
+      isEditing.value = true;
+      final event = Get.arguments as RaceEventModel;
+      editingEventId = event.idEvent;
+      nameController.text = event.name;
+      prizeController.text = event.prize.toString();
+      descriptionController.text = event.description ?? '';
+      eventDateIni.value = event.eventDateIni;
+      eventDateFin.value = event.eventDateFin;
+      eventRegIni.value = event.eventRegIni;
+      eventRegFin.value = event.eventRegFin;
+      existingImageUrl.value = event.imageEvent;
+      if (championshipsList.any((c) => c['id_championship'] == event.idChampionship)) selectedChampionshipId.value = event.idChampionship;
+      if (circuitsList.any((c) => c['id_circuit'] == event.idCircuit)) selectedCircuitId.value = event.idCircuit;
     }
   }
 
   Future<void> pickImage() async {
-    try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        selectedImageBytes.value = await image.readAsBytes();
-        selectedImageExt.value = image.path.split('.').last;
-      }
-    } catch (e) {
-      Get.snackbar("Error", "No se pudo seleccionar la imagen: $e");
-    }
+    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    if (result != null) selectedImage.value = result.files.first;
   }
 
-  Future<String?> _uploadImage() async {
-    try {
-      if (selectedImageBytes.value == null) return null;
-
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}.${selectedImageExt.value}';
-      final String filePath = 'eventosfoto/$fileName';
-
-      // Sube usando los bytes directamente (compatible con Web/Mobile)
-      await client.storage.from('imagenes').uploadBinary(
-        filePath,
-        selectedImageBytes.value!,
-        fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
-      );
-
-      final String publicUrl = client.storage.from('imagenes').getPublicUrl(filePath);
-      return publicUrl;
-    } catch (e) {
-      print("Error uploading image: $e");
-      return null;
-    }
-  }
-
-  Future<void> selectDate(BuildContext context, Rxn<DateTime> dateTarget) async {
-    final DateTime? picked = await showDatePicker(
+  Future<void> pickDate(BuildContext context, Rxn<DateTime> targetDate) async {
+    final picked = await showDatePicker(
       context: context,
-      initialDate: dateTarget.value ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      initialDate: targetDate.value ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
     );
-    if (picked != null) {
-      dateTarget.value = picked;
-    }
+    if (picked != null) targetDate.value = picked;
   }
 
-  Future<void> createEvent() async {
+  Future<void> saveEvent() async {
+    if (isLoading.value) return;
+    
     if (!formKey.currentState!.validate()) return;
     
-    if (selectedCircuitId.value == null) {
-      Get.snackbar("Campo incompleto", "Debes seleccionar un circuito");
-      return;
-    }
-
-    if (selectedChampionshipId.value == null) {
-      Get.snackbar("Campo incompleto", "Debes seleccionar un campeonato");
-      return;
-    }
-
-    if (startDate.value == null || endDate.value == null) {
-      Get.snackbar("Campo incompleto", "Debes seleccionar las fechas del evento");
-      return;
-    }
-
-    if (regStartDate.value == null || regEndDate.value == null) {
-      Get.snackbar("Campo incompleto", "Debes seleccionar las fechas de inscripción");
-      return;
-    }
-    
-    if (selectedImageBytes.value == null) {
-      Get.snackbar("Imagen faltante", "Debes subir una imagen para el evento");
-      return;
-    }
+    isLoading.value = true;
+    FocusManager.instance.primaryFocus?.unfocus();
 
     try {
-      isLoading.value = true;
-      
-      String? imageUrl = await _uploadImage();
-      if (imageUrl == null) {
-         Get.snackbar("Error", "No se pudo subir la imagen al servidor");
-         isLoading.value = false;
-         return;
+      String? finalImageUrl = existingImageUrl.value;
+      if (selectedImage.value != null && selectedImage.value!.bytes != null) {
+        final bytes = selectedImage.value!.bytes!;
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${selectedImage.value!.name}';
+        await supabase.storage.from('imagenes').uploadBinary('eventosfoto/$fileName', bytes);
+        finalImageUrl = supabase.storage.from('imagenes').getPublicUrl('eventosfoto/$fileName');
       }
 
       final eventData = {
-        'name': nameController.text.trim(),
-        'description': descriptionController.text.trim(),
-        'event_date_ini': startDate.value!.toIso8601String(),
-        'event_date_fin': endDate.value!.toIso8601String(),
-        'event_reg_ini': regStartDate.value!.toIso8601String(),
-        'event_reg_fin': regEndDate.value!.toIso8601String(),
-        'image_event': imageUrl,
-        'id_circuit': selectedCircuitId.value,
+        'name': nameController.text,
+        'prize': int.tryParse(prizeController.text) ?? 0,
+        'image_event': finalImageUrl,
+        'description': descriptionController.text,
         'id_championship': selectedChampionshipId.value,
-        'status': 'active',
+        'id_circuit': selectedCircuitId.value,
+        'event_date_ini': eventDateIni.value?.toIso8601String(),
+        'event_date_fin': eventDateFin.value?.toIso8601String(),
+        'event_reg_ini': eventRegIni.value?.toIso8601String(),
+        'event_reg_fin': eventRegFin.value?.toIso8601String(),
       };
 
-      await client.from('events').insert(eventData);
+      if (isEditing.value) {
+        await supabase.from('events').update(eventData).eq('id_event', editingEventId!);
+      } else {
+        await supabase.from('events').insert(eventData);
+      }
 
-      Get.back();
-      Get.snackbar("Éxito", "Evento creado correctamente", backgroundColor: Colors.green, colorText: Colors.white);
-      
+      // IMPORTANTE: Refrescar Home antes de volver
       if (Get.isRegistered<HomeController>()) {
-        Get.find<HomeController>().getEvents();
+        await Get.find<HomeController>().getEvents();
       }
-      
-    } on PostgrestException catch (e) {
-      print("DATABASE ERROR: ${e.message} (Code: ${e.code})");
-      String errorMsg = e.message;
-      if (e.code == '23505') {
-        errorMsg = "Ya existe un registro con estos datos. Verifica que el nombre sea único.";
-      }
-      Get.snackbar("Error de Base de Datos", errorMsg, backgroundColor: Colors.redAccent, colorText: Colors.white);
-    } catch (e) {
-      Get.snackbar("Error", "Ocurrió un error inesperado: $e");
-    } finally {
-      isLoading.value = false;
-    }
-  }
 
-  @override
-  void onClose() {
-    nameController.dispose();
-    descriptionController.dispose();
-    super.onClose();
+      // SOLUCIÓN AL BUCLE: Navegar en el siguiente frame para evitar conflicto de MouseTracker
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        Get.back(result: true);
+      });
+
+    } catch (e) {
+      isLoading.value = false;
+      Get.snackbar('Error', 'No se pudo guardar: $e', snackPosition: SnackPosition.BOTTOM);
+    }
   }
 }

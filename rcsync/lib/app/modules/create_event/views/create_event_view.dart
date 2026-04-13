@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
+import 'package:intl/intl.dart';
 import '../controllers/create_event_controller.dart';
 
 class CreateEventView extends GetView<CreateEventController> {
@@ -11,10 +12,22 @@ class CreateEventView extends GetView<CreateEventController> {
     return Scaffold(
       backgroundColor: RCColors.background,
       appBar: AppBar(
-        title: Text("Crear Nuevo Evento", style: TextStyle(color: RCColors.white)),
+        title: Obx(() => Text(
+          controller.isEditing.value ? "Modificar Evento" : "Crear Nuevo Evento", 
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+        )),
         backgroundColor: RCColors.background,
         elevation: 0,
-        iconTheme: IconThemeData(color: RCColors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [RCColors.orange, Color(0xFFF68B28)],
+            ),
+          ),
+        ),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -29,39 +42,48 @@ class CreateEventView extends GetView<CreateEventController> {
               children: [
                 _buildTextField("Nombre del Evento", controller.nameController, Icons.event),
                 _buildTextField("Descripción", controller.descriptionController, Icons.description, maxLines: 3),
+                _buildTextField("Precio de Inscripción (€)", controller.prizeController, Icons.monetization_on, keyboardType: TextInputType.number),
                 
                 const SizedBox(height: 10),
                 Text("Imagen del Evento", style: TextStyle(color: RCColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                _buildImagePicker(),
+                _buildImagePicker(), 
                 
                 const SizedBox(height: 20),
                 Text("Configuración", style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 
-                _buildDropdown("Seleccionar Circuito", controller.selectedCircuitId, controller.circuits, 'id_circuit'),
-                _buildDropdown("Seleccionar Campeonato", controller.selectedChampionshipId, controller.championships, 'id_championship'),
+                _buildDropdown("Seleccionar Circuito", controller.selectedCircuitId, controller.circuitsList, 'id_circuit'),
+                _buildDropdown("Seleccionar Campeonato (Opcional)", controller.selectedChampionshipId, controller.championshipsList, 'id_championship'),
 
                 const SizedBox(height: 20),
-                Text("Fechas", style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text("Fechas del Evento", style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
 
-                _buildDatePicker("Fecha Inicio Evento", controller.startDate),
-                _buildDatePicker("Fecha Fin Evento", controller.endDate),
-                _buildDatePicker("Inicio Inscripciones", controller.regStartDate),
-                _buildDatePicker("Fin Inscripciones", controller.regEndDate),
+                _buildDatePicker("Fecha Inicio Evento", controller.eventDateIni),
+                _buildDatePicker("Fecha Fin Evento", controller.eventDateFin),
+                
+                const SizedBox(height: 20),
+                Text("Fechas de Inscripción", style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                
+                _buildDatePicker("Inicio Inscripciones", controller.eventRegIni),
+                _buildDatePicker("Fin Inscripciones", controller.eventRegFin),
 
                 const SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
                   height: 55,
                   child: ElevatedButton(
-                    onPressed: () => controller.createEvent(),
+                    onPressed: () => controller.saveEvent(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: RCColors.orange,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                     ),
-                    child: Text("CREAR EVENTO", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                    child: Obx(() => Text(
+                      controller.isEditing.value ? "GUARDAR CAMBIOS" : "CREAR EVENTO", 
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)
+                    )),
                   ),
                 ),
                 const SizedBox(height: 50),
@@ -78,27 +100,35 @@ class CreateEventView extends GetView<CreateEventController> {
       onTap: () => controller.pickImage(),
       child: Container(
         width: double.infinity,
-        height: 150,
+        height: 200,
         decoration: BoxDecoration(
           color: RCColors.card,
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: RCColors.divider),
+          border: Border.all(color: controller.selectedImage.value != null || controller.existingImageUrl.value != null ? RCColors.orange : RCColors.divider),
         ),
-        child: controller.selectedImageBytes.value != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: Image.memory(controller.selectedImageBytes.value!, fit: BoxFit.cover),
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.add_a_photo, color: RCColors.orange, size: 40),
-                  const SizedBox(height: 10),
-                  Text("Toca para subir una imagen", style: TextStyle(color: RCColors.textSecondary)),
-                ],
-              ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: _buildImagePreviewLogic(),
+        ),
       ),
     ));
+  }
+
+  Widget _buildImagePreviewLogic() {
+    if (controller.selectedImage.value?.bytes != null) {
+      return Image.memory(controller.selectedImage.value!.bytes!, fit: BoxFit.cover);
+    } else if (controller.existingImageUrl.value != null && controller.existingImageUrl.value!.isNotEmpty) {
+      return Image.network(controller.existingImageUrl.value!, fit: BoxFit.cover);
+    } else {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.add_a_photo, color: RCColors.orange, size: 40),
+          const SizedBox(height: 10),
+          Text("Toca para subir una imagen", style: TextStyle(color: RCColors.textSecondary)),
+        ],
+      );
+    }
   }
 
   Widget _buildTextField(String label, TextEditingController textController, IconData icon, {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
@@ -118,12 +148,11 @@ class CreateEventView extends GetView<CreateEventController> {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: RCColors.divider)),
         ),
-        validator: (value) => value == null || value.isEmpty ? "Campo obligatorio" : null,
       ),
     );
   }
 
-  Widget _buildDropdown(String label, RxnInt selectedValue, RxList<Map<String, dynamic>> items, String idKey) {
+  Widget _buildDropdown(String label, Rxn<int> selectedValue, List<dynamic> items, String idKey) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Obx(() => DropdownButtonFormField<int>(
@@ -138,12 +167,13 @@ class CreateEventView extends GetView<CreateEventController> {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: RCColors.divider)),
         ),
-        items: items.map((item) {
-          return DropdownMenuItem<int>(
+        items: [
+          const DropdownMenuItem<int>(value: null, child: Text("Ninguno / General")),
+          ...items.map((item) => DropdownMenuItem<int>(
             value: item[idKey],
             child: Text(item['name'] ?? '', style: TextStyle(color: RCColors.textPrimary)),
-          );
-        }).toList(),
+          )),
+        ],
         onChanged: (val) => selectedValue.value = val,
       )),
     );
@@ -152,20 +182,22 @@ class CreateEventView extends GetView<CreateEventController> {
   Widget _buildDatePicker(String label, Rxn<DateTime> dateTarget) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Obx(() => ListTile(
-        onTap: () => controller.selectDate(Get.context!, dateTarget),
-        tileColor: RCColors.card,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-          side: BorderSide(color: RCColors.divider),
-        ),
-        title: Text(label, style: TextStyle(color: RCColors.textSecondary, fontSize: 14)),
-        subtitle: Text(
-          dateTarget.value == null ? "Seleccionar fecha" : "${dateTarget.value!.day}/${dateTarget.value!.month}/${dateTarget.value!.year}",
-          style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold),
-        ),
-        trailing: const Icon(Icons.calendar_month, color: RCColors.orange),
-      )),
+      child: Obx(() {
+        final dateStr = dateTarget.value == null 
+            ? "Seleccionar fecha" 
+            : DateFormat('dd/MM/yyyy', 'es_ES').format(dateTarget.value!);
+        return ListTile(
+          onTap: () => controller.pickDate(Get.context!, dateTarget),
+          tileColor: RCColors.card,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: BorderSide(color: RCColors.divider),
+          ),
+          title: Text(label, style: TextStyle(color: RCColors.textSecondary, fontSize: 14)),
+          subtitle: Text(dateStr, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
+          trailing: const Icon(Icons.calendar_month, color: RCColors.orange),
+        );
+      }),
     );
   }
 }

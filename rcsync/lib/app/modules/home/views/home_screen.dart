@@ -7,9 +7,8 @@ import '../../../routes/app_pages.dart';
 import '../controllers/home_controller.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'package:rcsync/app/modules/results/views/results_view.dart';
-import 'package:rcsync/app/modules/map/views/map_view.dart';
 import 'package:rcsync/app/modules/profile/views/profile_view.dart';
-
+import 'package:rcsync/app/modules/admin_dashboard/views/admin_dashboard_view.dart';
 
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});
@@ -19,32 +18,58 @@ class HomeScreen extends GetView<HomeController> {
     return Scaffold(
       extendBody: true,
       body: Obx(() {
-        // Al acceder a Theme.of(context) dentro del Obx, este se reconstruirá 
-        // automáticamente cuando el sistema o GetX cambien el tema.
+        // Soporte multitema
         Theme.of(context); 
+
+        // Lista de vistas dinámica según rol (Lógica de Master)
+        List<Widget> views = [
+          _buildCalendarTab(context),
+          if (controller.isAdminOrOrganizer) const AdminDashboardView(), 
+          const ResultsView(),
+          const ProfileView(),
+        ];
+
         return IndexedStack(
           index: controller.selectedIndex.value,
-          children: [
-            // --- TAB 0: CALENDARIO Y EVENTOS ---
-            _buildCalendarTab(context),
-
-            // --- TAB 1: Map (Gestión) ---
-            EventLocationMap(
-              lat: 41.4833,
-              lng: 2.1500,
-              title: "Circuito AMSA",
-            ),
-
-            // --- TAB 2: Ranking/Results ---
-            ResultsView(),
-
-            // --- TAB 3: Profile ---
-            ProfileView(),
-          ],
+          children: views,
         );
       }),
       bottomNavigationBar: Obx(() {
-        Theme.of(context); // Fuerza la actualización del BottomBar al cambiar el tema
+        Theme.of(context);
+
+        // Items de navegación dinámicos (Lógica de Master + Tu Diseño)
+        List<BottomBarItem> navItems = [
+          BottomBarItem(
+            icon: const Icon(Icons.calendar_today_outlined),
+            selectedIcon: const Icon(Icons.calendar_today),
+            selectedColor: RCColors.orange,
+            unSelectedColor: RCColors.iconSecondary,
+            title: const Text("Eventos"), 
+          ),
+          if (controller.isAdminOrOrganizer)
+            BottomBarItem(
+              icon: const Icon(Icons.shield_outlined),
+              selectedIcon: const Icon(Icons.shield),
+              selectedColor: RCColors.orange,
+              unSelectedColor: RCColors.iconSecondary,
+              title: const Text("Gestión"),
+            ),
+          BottomBarItem(
+            icon: const Icon(Icons.emoji_events_outlined),
+            selectedIcon: const Icon(Icons.emoji_events),
+            selectedColor: RCColors.orange,
+            unSelectedColor: RCColors.iconSecondary,
+            title: const Text("Resultados"),
+          ),
+          BottomBarItem(
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
+            selectedColor: RCColors.orange,
+            unSelectedColor: RCColors.iconSecondary,
+            title: const Text("Perfil"),
+          ),
+        ];
+
         return StylishBottomBar(
           backgroundColor: RCColors.background,
           currentIndex: controller.selectedIndex.value,
@@ -54,36 +79,7 @@ class HomeScreen extends GetView<HomeController> {
             barAnimation: BarAnimation.fade,
             iconStyle: IconStyle.simple,
           ),
-          items: [
-            BottomBarItem(
-              icon: const Icon(Icons.calendar_today_outlined),
-              selectedIcon: const Icon(Icons.calendar_today),
-              selectedColor: RCColors.orange,
-              unSelectedColor: RCColors.iconSecondary,
-              title: const Text("Eventos"), 
-            ),
-            BottomBarItem(
-              icon: const Icon(Icons.shield_outlined),
-              selectedIcon: const Icon(Icons.shield),
-              selectedColor: RCColors.orange,
-              unSelectedColor: RCColors.iconSecondary,
-              title: const Text("Gestión"),
-            ),
-            BottomBarItem(
-              icon: const Icon(Icons.emoji_events_outlined),
-              selectedIcon: const Icon(Icons.emoji_events),
-              selectedColor: RCColors.orange,
-              unSelectedColor: RCColors.iconSecondary,
-              title: const Text("Resultados"),
-            ),
-            BottomBarItem(
-              icon: const Icon(Icons.person_outline),
-              selectedIcon: const Icon(Icons.person),
-              selectedColor: RCColors.orange,
-              unSelectedColor: RCColors.iconSecondary,
-              title: const Text("Perfil"),
-            ),
-          ],
+          items: navItems,
         );
       }),
     );
@@ -106,13 +102,13 @@ class HomeScreen extends GetView<HomeController> {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Icon(Icons.menu, color: Colors.white),
-                  const Text(
+                children: const [
+                  Icon(Icons.menu, color: Colors.white),
+                  Text(
                     "Calendario",
                     style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  const Icon(Icons.settings_outlined, color: Colors.white),
+                  Icon(Icons.settings_outlined, color: Colors.white),
                 ],
               ),
               const SizedBox(height: 20),
@@ -153,12 +149,11 @@ class HomeScreen extends GetView<HomeController> {
           ),
         ),
 
-        // Calendario
+        // Calendario con soporte de tema
         Expanded(
           child: Container(
             color: RCColors.background,
             child: Obx(() {
-              // También aquí para el calendario interno
               Theme.of(context);
               return Calendar(
                 startOnMonday: true,
@@ -180,7 +175,7 @@ class HomeScreen extends GetView<HomeController> {
                 bottomBarTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 14),
                 bottomBarArrowColor: RCColors.textPrimary, 
                 showEventListViewIcon: true,
-                
+
                 onDateSelected: (date) => controller.handleDateSelected(date),
                 onMonthChanged: (date) => controller.handleMonthChanged(date),
                 onListViewStateChanged: (state) => controller.toggleAllFutureEvents(),
@@ -210,7 +205,7 @@ class HomeScreen extends GetView<HomeController> {
                         if (displayEvents.isEmpty)
                            Center(child: Padding(
                              padding: const EdgeInsets.all(20.0),
-                             child: Text("No hay carreras programadas", style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
+                             child: Text("No hay carreras programadas", style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5))),
                            )),
                         
                         ...displayEvents.map((event) => RCEventCard(
