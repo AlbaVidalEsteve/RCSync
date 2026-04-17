@@ -18,19 +18,19 @@ class HomeScreen extends GetView<HomeController> {
     return Scaffold(
       extendBody: true,
       body: Obx(() {
-        // Soporte multitema
-        Theme.of(context); 
+        // Lista de vistas dinámica según rol
+        final isAdmin = controller.isAdminOrOrganizer;
+        final index = controller.selectedIndex.value;
 
-        // Lista de vistas dinámica según rol (Lógica de Master)
         List<Widget> views = [
           _buildCalendarTab(context),
-          if (controller.isAdminOrOrganizer) const AdminDashboardView(), 
+          if (isAdmin) const AdminDashboardView(), 
           const ResultsView(),
           const ProfileView(),
         ];
 
         return IndexedStack(
-          index: controller.selectedIndex.value,
+          index: index,
           children: views,
         );
       }),
@@ -149,38 +149,37 @@ class HomeScreen extends GetView<HomeController> {
           ),
         ),
 
-        // Calendario con soporte de tema
+        // Calendario
         Expanded(
           child: Container(
             color: RCColors.background,
-            child: Obx(() {
-              Theme.of(context);
-              return Calendar(
-                startOnMonday: true,
-                weekDays: const ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
-                eventsList: controller.eventList.toList(),
-                isExpandable: true,
-                eventDoneColor: Colors.green,
-                selectedColor: RCColors.orange,
-                selectedTodayColor: RCColors.orange,
-                todayColor: Colors.blueAccent,
-                locale: 'es_ES',
-                isExpanded: true,
-                expandableDateFormat: 'EEEE, dd MMMM yyyy',
-                dayOfWeekStyle: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.w800, fontSize: 11),
-                defaultDayColor: RCColors.textPrimary,
-                displayMonthTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold),
-                todayButtonText: "Hoy",
-                bottomBarColor: RCColors.surface, 
-                bottomBarTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 14),
-                bottomBarArrowColor: RCColors.textPrimary, 
-                showEventListViewIcon: true,
+            child: Calendar(
+              startOnMonday: true,
+              weekDays: const ['L', 'M', 'X', 'J', 'V', 'S', 'D'],
+              eventsList: controller.eventList.toList(),
+              isExpandable: true,
+              eventDoneColor: Colors.green,
+              selectedColor: RCColors.orange,
+              selectedTodayColor: RCColors.orange,
+              todayColor: Colors.blueAccent,
+              locale: 'es_ES',
+              isExpanded: true,
+              expandableDateFormat: 'EEEE, dd MMMM yyyy',
+              dayOfWeekStyle: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.w800, fontSize: 11),
+              defaultDayColor: RCColors.textPrimary,
+              displayMonthTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold),
+              todayButtonText: "Hoy",
+              bottomBarColor: RCColors.surface, 
+              bottomBarTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 14),
+              bottomBarArrowColor: RCColors.textPrimary, 
+              showEventListViewIcon: true,
 
-                onDateSelected: (date) => controller.handleDateSelected(date),
-                onMonthChanged: (date) => controller.handleMonthChanged(date),
-                onListViewStateChanged: (state) => controller.toggleAllFutureEvents(),
+              onDateSelected: (date) => controller.handleDateSelected(date),
+              onMonthChanged: (date) => controller.handleMonthChanged(date),
+              onListViewStateChanged: (state) => controller.toggleAllFutureEvents(),
 
-                eventListBuilder: (context, events) {
+              eventListBuilder: (context, events) {
+                return Obx(() {
                   final displayEvents = controller.showAllFutureEvents.value 
                       ? controller.futureEvents 
                       : (controller.isDaySelected.value 
@@ -218,9 +217,9 @@ class HomeScreen extends GetView<HomeController> {
                       ],
                     ),
                   );
-                },
-              );
-            }),
+                });
+              },
+            ),
           ),
         ),
       ],

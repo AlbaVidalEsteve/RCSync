@@ -11,6 +11,9 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
 
   @override
   Widget build(BuildContext context) {
+    // Escuchar cambios de tema
+    Theme.of(context);
+
     final profileController = Get.find<ProfileController>();
     final eventDetailsController = Get.find<EventDetailsController>();
 
@@ -21,7 +24,6 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
 
     return Scaffold(
       backgroundColor: RCColors.background,
-      // BOTÓN VOLVER EN APPBAR
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -82,7 +84,7 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
                 // BOTÓN CANCELAR
                 TextButton(
                   onPressed: () => Get.back(),
-                  child: const Text("CANCELAR", style: TextStyle(color: Colors.white54, fontWeight: FontWeight.bold)),
+                  child: Text("CANCELAR", style: TextStyle(color: RCColors.textSecondary, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -98,9 +100,9 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: RCColors.cardDark,
+        color: RCColors.card,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black38, blurRadius: 15, offset: const Offset(0, 10))],
+        boxShadow: [BoxShadow(color: RCColors.black.withValues(alpha: 0.1), blurRadius: 15, offset: const Offset(0, 10))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +113,7 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
             label: "Transponder",
             icon: Icons.track_changes_outlined,
             value: controller.selectedTransponderId.value.isEmpty ? null : controller.selectedTransponderId.value,
-            items: userTransponders.map((t) => DropdownMenuItem<String>(value: t.id, child: Text("${t.number} - ${t.label}"))).toList(),
+            items: userTransponders.map((t) => DropdownMenuItem<String>(value: t.id, child: Text("${t.number} - ${t.label}", style: TextStyle(color: RCColors.textPrimary)))).toList(),
             onChanged: (val) => controller.setSelectedTransponder(val),
           )),
           const SizedBox(height: 20),
@@ -119,7 +121,7 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
             label: "Categoría",
             icon: Icons.directions_car_outlined,
             value: controller.selectedCategory.value.isEmpty ? null : controller.selectedCategory.value,
-            items: controller.availableCategories.map((c) => DropdownMenuItem<String>(value: c, child: Text(c))).toList(),
+            items: controller.availableCategories.map((c) => DropdownMenuItem<String>(value: c, child: Text(c, style: TextStyle(color: RCColors.textPrimary)))).toList(),
             onChanged: (val) => controller.setSelectedCategory(val),
           )),
         ],
@@ -131,9 +133,9 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: [Icon(icon, size: 14, color: enabled ? Colors.white70 : Colors.white38), const SizedBox(width: 6), Text(label, style: TextStyle(color: enabled ? Colors.white70 : Colors.white38, fontSize: 13))]),
+        Row(children: [Icon(icon, size: 14, color: enabled ? RCColors.textSecondary : RCColors.textSecondary.withValues(alpha: 0.5)), const SizedBox(width: 6), Text(label, style: TextStyle(color: enabled ? RCColors.textSecondary : RCColors.textSecondary.withValues(alpha: 0.5), fontSize: 13))]),
         const SizedBox(height: 8),
-        TextField(controller: controller, enabled: enabled, style: const TextStyle(color: Colors.white, fontSize: 14), decoration: InputDecoration(filled: true, fillColor: RCColors.background.withOpacity(0.5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12))),
+        TextField(controller: controller, enabled: enabled, style: TextStyle(color: RCColors.textPrimary, fontSize: 14), decoration: InputDecoration(filled: true, fillColor: RCColors.background.withValues(alpha: 0.5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12))),
       ],
     );
   }
@@ -143,16 +145,16 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: [Icon(icon, size: 14, color: Colors.white70), const SizedBox(width: 6), Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13))]),
+        Row(children: [Icon(icon, size: 14, color: RCColors.textSecondary), const SizedBox(width: 6), Text(label, style: TextStyle(color: RCColors.textSecondary, fontSize: 13))]),
         const SizedBox(height: 8),
         DropdownButtonFormField<T>(
-          initialValue: safeValue,
-          dropdownColor: RCColors.background,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
-          decoration: InputDecoration(filled: true, fillColor: RCColors.background.withOpacity(0.5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
+          value: safeValue,
+          dropdownColor: RCColors.card,
+          style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
+          decoration: InputDecoration(filled: true, fillColor: RCColors.background.withValues(alpha: 0.5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
           items: items,
           onChanged: onChanged,
-          hint: const Text("Selecciona...", style: TextStyle(color: Colors.white24, fontSize: 13)),
+          hint: Text("Selecciona...", style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5), fontSize: 13)),
         ),
       ],
     );

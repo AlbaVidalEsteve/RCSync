@@ -29,19 +29,7 @@ void main() async {
     // Inject AuthController
     Get.put(AuthController(), permanent: true);
 
-    runApp(
-      GetMaterialApp(
-        title: "RCSync",
-        initialRoute: Supabase.instance.client.auth.currentUser == null
-            ? Routes.LOGIN
-            : Routes.HOME,
-        getPages: AppPages.routes,
-        debugShowCheckedModeBanner: false,
-        theme: RCTheme.lightTheme,
-        darkTheme: RCTheme.darkTheme,
-        themeMode: ThemeMode.system,
-      ),
-    );
+    runApp(const MyApp());
   } catch (e) {
     debugPrint("CRITICAL ERROR DURING INITIALIZATION: $e");
     runApp(MaterialApp(
@@ -54,5 +42,24 @@ void main() async {
         ),
       ),
     ));
+  }
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      title: "RCSync",
+      initialRoute: Supabase.instance.client.auth.currentUser == null
+          ? Routes.LOGIN
+          : Routes.HOME,
+      getPages: AppPages.routes,
+      debugShowCheckedModeBanner: false,
+      theme: RCTheme.lightTheme,
+      darkTheme: RCTheme.darkTheme,
+      themeMode: ThemeMode.system,
+    );
   }
 }
