@@ -31,9 +31,9 @@ class ResultsView extends GetView<ResultsController> {
                     colors: [RCColors.orange, Color(0xFFF68B28)],
                   ),
                 ),
-                child: const Text(
-                  "Resultados",
-                  style: TextStyle(
+                child: Text(
+                  "res_title".tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -82,7 +82,7 @@ class ResultsView extends GetView<ResultsController> {
               Expanded(
                 flex: 5,
                 child: Obx(() => _buildProfileStyleDropdown(
-                  label: "Campeonato",
+                  label: "res_championship".tr,
                   icon: Icons.emoji_events_outlined,
                   value: controller.selectedChampionshipName.value.isEmpty ? null : controller.selectedChampionshipName.value,
                   items: controller.availableChampionships,
@@ -98,7 +98,7 @@ class ResultsView extends GetView<ResultsController> {
               Expanded(
                 flex: 3,
                 child: Obx(() => _buildProfileStyleDropdown(
-                  label: "Año",
+                  label: "res_year".tr,
                   icon: Icons.calendar_today_outlined,
                   value: controller.selectedYear.value.isEmpty ? null : controller.selectedYear.value,
                   items: controller.availableYears,
@@ -118,7 +118,7 @@ class ResultsView extends GetView<ResultsController> {
               Expanded(
                 flex: 1,
                 child: Obx(() => _buildProfileStyleDropdown(
-                  label: "Categoría",
+                  label: "res_category".tr,
                   icon: Icons.directions_car_outlined,
                   value: controller.selectedCategory.value.isEmpty ? null : controller.selectedCategory.value,
                   items: controller.availableCategories,
@@ -139,7 +139,7 @@ class ResultsView extends GetView<ResultsController> {
                 child: Obx(() {
                   if (controller.selectedCategory.value == "Tamiya GT") {
                     return _buildProfileStyleDropdown(
-                      label: "Nivel",
+                      label: "res_level".tr,
                       icon: Icons.speed_outlined,
                       value: controller.selectedSubFilter.value,
                       items: ["General", "Stock", "Superstock", "Junior"],
@@ -211,7 +211,7 @@ class ResultsView extends GetView<ResultsController> {
               child: Text(e, style: TextStyle(color: RCColors.textPrimary))
           )).toList(),
           onChanged: items.isEmpty ? null : onChanged,
-          hint: items.isEmpty ? Text("Cargando...", style: TextStyle(color: RCColors.textSecondary.withOpacity(0.3), fontSize: 13)) : null,
+          hint: items.isEmpty ? Text("res_loading".tr, style: TextStyle(color: RCColors.textSecondary.withOpacity(0.3), fontSize: 13)) : null,
         ),
       ],
     );
@@ -231,7 +231,7 @@ class ResultsView extends GetView<ResultsController> {
           border: Border.all(color: statusColor.withOpacity(0.3)),
         ),
         child: Text(
-          isActive ? "🏎️ CAMPEONATO EN CURSO (Suma total)" : "🏆 FINALIZADO (Suma 4 mejores)",
+          isActive ? "res_active".tr : "res_finished".tr,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -250,7 +250,7 @@ class ResultsView extends GetView<ResultsController> {
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Text("Selecciona los filtros superiores", style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
+            child: Text("res_select_filters".tr, style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
           ),
         );
       }

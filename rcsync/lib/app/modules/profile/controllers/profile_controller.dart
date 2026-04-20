@@ -57,8 +57,6 @@ class ProfileController extends GetxController {
   }
 
   void _initThemeName() {
-    // GetX 4.x no tiene un getter público 'themeMode'. 
-    // Inicializamos en "Sistema" por defecto para evitar errores de compilación.
     selectedThemeName.value = "Sistema";
   }
 
@@ -72,6 +70,13 @@ class ProfileController extends GetxController {
   void changeLanguage(String? lang) {
     if (lang != null) {
       selectedLanguage.value = lang;
+      if (lang == "Español") {
+        Get.updateLocale(const Locale('es'));
+      } else if (lang == "English") {
+        Get.updateLocale(const Locale('en'));
+      } else if (lang == "Català") {
+        Get.updateLocale(const Locale('ca'));
+      }
     }
   }
 
@@ -243,7 +248,7 @@ class ProfileController extends GetxController {
       newTransponderNumberC.clear();
       newTransponderLabelC.clear();
     } else {
-      _showSnackbar("Error", "Debes introducir un número válido y un nombre", isError: true);
+      _showSnackbar("Error", "ts_error".tr, isError: true);
     }
   }
 
@@ -304,7 +309,7 @@ class ProfileController extends GetxController {
       }
 
       isEditMode.value = false;
-      _showSnackbar("Éxito", "Perfil actualizado correctamente");
+      _showSnackbar("Éxito", "ts_success".tr);
       await getTransponders();
     } catch (e) {
       debugPrint("Error updating profile: $e");

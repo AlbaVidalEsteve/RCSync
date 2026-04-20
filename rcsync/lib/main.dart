@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:rcsync/app/controllers/auth_controller.dart';
 import 'package:rcsync/core/theme/rc_theme.dart';
+import 'package:rcsync/core/values/languages.dart';
 import 'app/routes/app_pages.dart';
 
 void main() async {
@@ -52,6 +53,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: "RCSync",
+      translations: Languages(),
+      locale: const Locale('es'),
+      fallbackLocale: const Locale('en'),
       initialRoute: Supabase.instance.client.auth.currentUser == null
           ? Routes.LOGIN
           : Routes.HOME,

@@ -31,14 +31,14 @@ class LoginView extends GetView<LoginController> {
             const SizedBox(height: 40),
 
             // --- INPUT EMAIL ---
-            _buildInputLabel("CORREO ELECTRÓNICO"),
+            _buildInputLabel("login_email_label".tr),
             TextField(
               autocorrect: false,
               controller: controller.emailC,
               textInputAction: TextInputAction.next,
               style: TextStyle(color: RCColors.textPrimary),
               decoration: _inputDecoration(
-                hint: "ejemplo@rcsync.com",
+                hint: "hint_email".tr,
                 icon: Icons.alternate_email,
               ),
             ),
@@ -46,7 +46,7 @@ class LoginView extends GetView<LoginController> {
             const SizedBox(height: 20),
 
             // --- INPUT PASSWORD ---
-            _buildInputLabel("CONTRASEÑA"),
+            _buildInputLabel("login_password_label".tr),
             Obx(() => TextField(
               autocorrect: false,
               controller: controller.passwordC,
@@ -72,7 +72,7 @@ class LoginView extends GetView<LoginController> {
 
             // --- BOTÓN ACCEDER ---
             Obx(() => _buildMainButton(
-              label: controller.isLoading.isFalse ? "INICIAR SESIÓN" : "CARGANDO...",
+              label: controller.isLoading.isFalse ? "login_btn".tr : "loading".tr,
               onPressed: () {
                 if (controller.isLoading.isFalse) {
                   controller.login();
@@ -84,7 +84,7 @@ class LoginView extends GetView<LoginController> {
 
             // --- BOTÓN REGISTRARSE ---
             _buildMainButton(
-              label: "CREAR CUENTA NUEVA",
+              label: "create_account_btn".tr,
               isSecondary: true,
               onPressed: () => Get.toNamed('/register'),
             ),

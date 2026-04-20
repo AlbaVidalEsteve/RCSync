@@ -37,14 +37,14 @@ class HomeScreen extends GetView<HomeController> {
       bottomNavigationBar: Obx(() {
         Theme.of(context);
 
-        // Items de navegación dinámicos (Lógica de Master + Tu Diseño)
+        // Items de navegación dinámicos
         List<BottomBarItem> navItems = [
           BottomBarItem(
             icon: const Icon(Icons.calendar_today_outlined),
             selectedIcon: const Icon(Icons.calendar_today),
             selectedColor: RCColors.orange,
             unSelectedColor: RCColors.iconSecondary,
-            title: const Text("Eventos"), 
+            title: Text("nav_events".tr), 
           ),
           if (controller.isAdminOrOrganizer)
             BottomBarItem(
@@ -52,21 +52,21 @@ class HomeScreen extends GetView<HomeController> {
               selectedIcon: const Icon(Icons.shield),
               selectedColor: RCColors.orange,
               unSelectedColor: RCColors.iconSecondary,
-              title: const Text("Gestión"),
+              title: Text("nav_mgmt".tr),
             ),
           BottomBarItem(
             icon: const Icon(Icons.emoji_events_outlined),
             selectedIcon: const Icon(Icons.emoji_events),
             selectedColor: RCColors.orange,
             unSelectedColor: RCColors.iconSecondary,
-            title: const Text("Resultados"),
+            title: Text("nav_results".tr),
           ),
           BottomBarItem(
             icon: const Icon(Icons.person_outline),
             selectedIcon: const Icon(Icons.person),
             selectedColor: RCColors.orange,
             unSelectedColor: RCColors.iconSecondary,
-            title: const Text("Perfil"),
+            title: Text("nav_profile".tr),
           ),
         ];
 
@@ -102,13 +102,13 @@ class HomeScreen extends GetView<HomeController> {
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Icon(Icons.menu, color: Colors.white),
+                children: [
+                  const Icon(Icons.menu, color: Colors.white),
                   Text(
-                    "Calendario",
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    "cal_title".tr,
+                    style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  Icon(Icons.settings_outlined, color: Colors.white),
+                  const Icon(Icons.settings_outlined, color: Colors.white),
                 ],
               ),
               const SizedBox(height: 20),
@@ -121,13 +121,13 @@ class HomeScreen extends GetView<HomeController> {
                         color: Colors.white.withAlpha((0.2 * 255).toInt()),
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: const TextField(
-                        style: TextStyle(color: Colors.white),
+                      child: TextField(
+                        style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          hintText: "Buscar eventos...",
-                          hintStyle: TextStyle(color: Colors.white70),
+                          hintText: "search_events".tr,
+                          hintStyle: const TextStyle(color: Colors.white70),
                           border: InputBorder.none,
-                          icon: Icon(Icons.search, color: Colors.white70),
+                          icon: const Icon(Icons.search, color: Colors.white70),
                         ),
                       ),
                     ),
@@ -162,13 +162,13 @@ class HomeScreen extends GetView<HomeController> {
               selectedColor: RCColors.orange,
               selectedTodayColor: RCColors.orange,
               todayColor: Colors.blueAccent,
-              locale: 'es_ES',
+              locale: Get.locale?.languageCode == 'en' ? 'en_US' : (Get.locale?.languageCode == 'ca' ? 'ca_ES' : 'es_ES'),
               isExpanded: true,
               expandableDateFormat: 'EEEE, dd MMMM yyyy',
               dayOfWeekStyle: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.w800, fontSize: 11),
               defaultDayColor: RCColors.textPrimary,
               displayMonthTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 20, fontWeight: FontWeight.bold),
-              todayButtonText: "Hoy",
+              todayButtonText: "today".tr,
               bottomBarColor: RCColors.surface, 
               bottomBarTextStyle: TextStyle(color: RCColors.textPrimary, fontSize: 14),
               bottomBarArrowColor: RCColors.textPrimary, 
@@ -186,6 +186,11 @@ class HomeScreen extends GetView<HomeController> {
                           ? controller.eventsOfDay(controller.selectedDate.value) 
                           : controller.eventsOfCurrentMonth);
 
+                  // Traducción dinámica del título de la lista
+                  String listTitleTranslated = controller.showAllFutureEvents.value 
+                      ? "future_events".tr 
+                      : (controller.isDaySelected.value ? "events_of_day".tr : "nav_events".tr);
+
                   return Expanded(
                     child: ListView(
                       padding: const EdgeInsets.all(20),
@@ -194,7 +199,7 @@ class HomeScreen extends GetView<HomeController> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              controller.listTitle,
+                              listTitleTranslated,
                               style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             Icon(Icons.filter_list, color: RCColors.textSecondary),
@@ -204,7 +209,7 @@ class HomeScreen extends GetView<HomeController> {
                         if (displayEvents.isEmpty)
                            Center(child: Padding(
                              padding: const EdgeInsets.all(20.0),
-                             child: Text("No hay carreras programadas", style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5))),
+                             child: Text("no_events".tr, style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5))),
                            )),
                         
                         ...displayEvents.map((event) => RCEventCard(

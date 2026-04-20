@@ -44,7 +44,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                           ),
                         ),
                         child: Obx(() => Text(
-                          controller.isEditing.value ? 'MODIFICAR CAMPEONATO' : 'NUEVO CAMPEONATO',
+                          controller.isEditing.value ? 'cha_edit'.tr : 'cha_new'.tr,
                           style: const TextStyle(
                             color: Colors.white, 
                             fontSize: 20, 
@@ -104,17 +104,17 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildInputField(
-              label: "Nombre del Campeonato",
+              label: "cha_name".tr,
               icon: Icons.emoji_events_outlined,
               controller: controller.nameController,
-              validator: (v) => (v == null || v.isEmpty) ? 'Requerido' : null,
+              validator: (v) => (v == null || v.isEmpty) ? 'required'.tr : null,
             ),
             const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
                   child: Obx(() => _buildProfileStyleDropdown<int>(
-                    label: "Año",
+                    label: "cha_year".tr,
                     icon: Icons.calendar_today_outlined,
                     value: controller.selectedYear.value,
                     items: List.generate(5, (index) => DateTime.now().year + index).map((year) {
@@ -134,7 +134,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                       children: [
                         Icon(Icons.power_settings_new, size: 14, color: RCColors.textSecondary),
                         const SizedBox(width: 6),
-                        Text("Activo", style: TextStyle(color: RCColors.textSecondary, fontSize: 13)),
+                        Text("cha_active".tr, style: TextStyle(color: RCColors.textSecondary, fontSize: 13)),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -149,7 +149,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
               ],
             ),
             const SizedBox(height: 20),
-            _buildInputLabel("Añadir Categoría", icon: Icons.directions_car_outlined),
+            _buildInputLabel("cha_add_cat".tr, icon: Icons.directions_car_outlined),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -158,7 +158,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                     controller: controller.categoryController,
                     style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
-                      hintText: 'Ej. Tamiya GT',
+                      hintText: 'cha_cat_hint'.tr,
                       hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.4)),
                       filled: true,
                       fillColor: RCColors.background.withOpacity(0.5),
@@ -215,8 +215,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
 
   Widget _buildProfileStyleDropdown<T>({
     required String label,
-    required IconData icon,
-    T? value,
+    required IconData icon, T? value,
     required List<DropdownMenuItem<T>> items,
     required Function(T?) onChanged
   }) {
@@ -270,7 +269,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
           Padding(
             padding: const EdgeInsets.only(left: 4, bottom: 12),
             child: Text(
-              "CATEGORÍAS CONFIGURADAS",
+              "cha_configured".tr,
               style: TextStyle(
                 color: RCColors.textSecondary,
                 fontSize: 12,
@@ -297,8 +296,8 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
               child: ListTile(
                 title: Text(cat['name'], style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 14)),
                 subtitle: Text(
-                  hasNewPdf ? '📄 PDF listo para subir'
-                      : (hasExistingUrl ? '✅ Reglamento subido' : '⚠️ Sin reglamento adjunto'),
+                  hasNewPdf ? 'cha_pdf_ready'.tr
+                      : (hasExistingUrl ? 'cha_pdf_ok'.tr : 'cha_pdf_no'.tr),
                   style: TextStyle(
                       color: hasNewPdf ? RCColors.orange : (hasExistingUrl ? Colors.green : RCColors.textSecondary.withOpacity(0.6)),
                       fontSize: 11
@@ -355,7 +354,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
           child: controller.isLoading.value
               ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
               : Text(
-                  controller.isEditing.value ? 'GUARDAR CAMBIOS' : 'CREAR CAMPEONATO', 
+                  controller.isEditing.value ? 'cha_btn_save'.tr : 'cha_btn_create'.tr,
                   style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.1)
                 ),
         ),

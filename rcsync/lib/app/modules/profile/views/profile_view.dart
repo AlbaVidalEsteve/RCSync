@@ -30,18 +30,18 @@ class ProfileView extends GetView<ProfileController> {
                   colors: [RCColors.orange, Color(0xFFF68B28)],
                 ),
               ),
-              child: const Column(
+              child: Column(
                 children: [
                   Text(
-                    "Mi Perfil",
-                    style: TextStyle(
+                    "profile_title".tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -108,12 +108,12 @@ class ProfileView extends GetView<ProfileController> {
 
                         // CAMPOS DE TEXTO
                         _buildInputField(
-                          label: "Nombre Completo",
+                          label: "full_name".tr,
                           controller: controller.nameC,
                           icon: Icons.person_outline,
                         ),
                         _buildInputField(
-                          label: "Correo Electrónico",
+                          label: "email".tr,
                           controller: controller.emailC,
                           icon: Icons.email_outlined,
                         ),
@@ -132,7 +132,7 @@ class ProfileView extends GetView<ProfileController> {
                                 children: [
                                   Expanded(
                                     child: _buildActionButton(
-                                      text: "CANCELAR",
+                                      text: "cancel".tr,
                                       onPressed: () => controller.cancelEdit(),
                                       isSecondary: true,
                                     ),
@@ -140,14 +140,14 @@ class ProfileView extends GetView<ProfileController> {
                                   const SizedBox(width: 15),
                                   Expanded(
                                     child: _buildActionButton(
-                                      text: "GUARDAR",
+                                      text: "save".tr,
                                       onPressed: () => controller.updateProfile(),
                                     ),
                                   ),
                                 ],
                               )
                             : _buildActionButton(
-                                text: "EDITAR PERFIL",
+                                text: "edit_profile".tr,
                                 onPressed: () => controller.toggleEdit(),
                               ),
                       ],
@@ -170,9 +170,9 @@ class ProfileView extends GetView<ProfileController> {
                       child: TextButton.icon(
                         onPressed: () => controller.logout(),
                         icon: const Icon(Icons.logout, color: Colors.redAccent),
-                        label: const Text(
-                          "Cerrar Sesión",
-                          style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16),
+                        label: Text(
+                          "logout".tr,
+                          style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         style: TextButton.styleFrom(
                           backgroundColor: Colors.redAccent.withOpacity(0.1),
@@ -214,7 +214,7 @@ class ProfileView extends GetView<ProfileController> {
               const Icon(Icons.settings_outlined, color: RCColors.orange, size: 20),
               const SizedBox(width: 10),
               Text(
-                "Ajustes de la Aplicación",
+                "settings".tr,
                 style: TextStyle(
                   color: RCColors.textPrimary,
                   fontSize: 16,
@@ -227,7 +227,7 @@ class ProfileView extends GetView<ProfileController> {
           
           // IDIOMA
           _buildDropdownField(
-            label: "Idioma",
+            label: "language".tr,
             icon: Icons.language,
             value: controller.selectedLanguage.value,
             items: controller.languages,
@@ -238,7 +238,7 @@ class ProfileView extends GetView<ProfileController> {
 
           // TEMA
           _buildDropdownField(
-            label: "Tema Visual",
+            label: "theme".tr,
             icon: Icons.brightness_6_outlined,
             value: controller.selectedThemeName.value,
             items: controller.themeModes.keys.toList(),
@@ -374,7 +374,7 @@ class ProfileView extends GetView<ProfileController> {
           children: [
             Icon(Icons.stars_outlined, size: 16, color: RCColors.textSecondary),
             const SizedBox(width: 8),
-            Text("Rol de Usuario", style: TextStyle(color: RCColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
+            Text("role".tr, style: TextStyle(color: RCColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
           ],
         ),
         const SizedBox(height: 8),
@@ -420,7 +420,7 @@ class ProfileView extends GetView<ProfileController> {
                   children: [
                     Icon(Icons.sensors, size: 16, color: RCColors.textSecondary),
                     const SizedBox(width: 8),
-                    Text("Mis Transponders", style: TextStyle(color: RCColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
+                    Text("transponders".tr, style: TextStyle(color: RCColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500)),
                   ],
                 ),
                 Icon(
@@ -443,7 +443,7 @@ class ProfileView extends GetView<ProfileController> {
                     keyboardType: TextInputType.number,
                     style: TextStyle(color: RCColors.textPrimary, fontSize: 13),
                     decoration: InputDecoration(
-                      hintText: "Número",
+                      hintText: "ts_number".tr,
                       hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.4)),
                       filled: true,
                       fillColor: RCColors.background.withOpacity(0.5),
@@ -458,7 +458,7 @@ class ProfileView extends GetView<ProfileController> {
                     controller: controller.newTransponderLabelC,
                     style: TextStyle(color: RCColors.textPrimary, fontSize: 13),
                     decoration: InputDecoration(
-                      hintText: "Nombre",
+                      hintText: "ts_name".tr,
                       hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.4)),
                       filled: true,
                       fillColor: RCColors.background.withOpacity(0.5),

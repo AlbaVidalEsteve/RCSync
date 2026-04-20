@@ -13,7 +13,7 @@ class CreateEventView extends GetView<CreateEventController> {
       backgroundColor: RCColors.background,
       appBar: AppBar(
         title: Obx(() => Text(
-          controller.isEditing.value ? "Modificar Evento" : "Crear Nuevo Evento", 
+          controller.isEditing.value ? "evt_edit_title".tr : "evt_create_title".tr, 
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
         )),
         backgroundColor: RCColors.background,
@@ -40,35 +40,35 @@ class CreateEventView extends GetView<CreateEventController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTextField("Nombre del Evento", controller.nameController, Icons.event),
-                _buildTextField("Descripción", controller.descriptionController, Icons.description, maxLines: 3),
-                _buildTextField("Precio de Inscripción (€)", controller.prizeController, Icons.monetization_on, keyboardType: TextInputType.number),
+                _buildTextField("evt_name".tr, controller.nameController, Icons.event),
+                _buildTextField("evt_desc".tr, controller.descriptionController, Icons.description, maxLines: 3),
+                _buildTextField("evt_price".tr, controller.prizeController, Icons.monetization_on, keyboardType: TextInputType.number),
                 
                 const SizedBox(height: 10),
-                Text("Imagen del Evento", style: TextStyle(color: RCColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
+                Text("evt_img".tr, style: TextStyle(color: RCColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 _buildImagePicker(), 
                 
                 const SizedBox(height: 20),
-                Text("Configuración", style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text("evt_config".tr, style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 
-                _buildDropdown("Seleccionar Circuito", controller.selectedCircuitId, controller.circuitsList, 'id_circuit'),
-                _buildDropdown("Seleccionar Campeonato (Opcional)", controller.selectedChampionshipId, controller.championshipsList, 'id_championship'),
+                _buildDropdown("evt_circuit".tr, controller.selectedCircuitId, controller.circuitsList, 'id_circuit'),
+                _buildDropdown("evt_champ_opt".tr, controller.selectedChampionshipId, controller.championshipsList, 'id_championship'),
 
                 const SizedBox(height: 20),
-                Text("Fechas del Evento", style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text("evt_dates".tr, style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
 
-                _buildDatePicker("Fecha Inicio Evento", controller.eventDateIni),
-                _buildDatePicker("Fecha Fin Evento", controller.eventDateFin),
+                _buildDatePicker("evt_start".tr, controller.eventDateIni),
+                _buildDatePicker("evt_end".tr, controller.eventDateFin),
                 
                 const SizedBox(height: 20),
-                Text("Fechas de Inscripción", style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+                Text("evt_reg_dates".tr, style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
                 
-                _buildDatePicker("Inicio Inscripciones", controller.eventRegIni),
-                _buildDatePicker("Fin Inscripciones", controller.eventRegFin),
+                _buildDatePicker("evt_reg_start".tr, controller.eventRegIni),
+                _buildDatePicker("evt_reg_end".tr, controller.eventRegFin),
 
                 const SizedBox(height: 30),
                 SizedBox(
@@ -81,7 +81,7 @@ class CreateEventView extends GetView<CreateEventController> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                     ),
                     child: Obx(() => Text(
-                      controller.isEditing.value ? "GUARDAR CAMBIOS" : "CREAR EVENTO", 
+                      controller.isEditing.value ? "evt_save".tr : "evt_create_btn".tr, 
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)
                     )),
                   ),
@@ -125,7 +125,7 @@ class CreateEventView extends GetView<CreateEventController> {
         children: [
           const Icon(Icons.add_a_photo, color: RCColors.orange, size: 40),
           const SizedBox(height: 10),
-          Text("Toca para subir una imagen", style: TextStyle(color: RCColors.textSecondary)),
+          Text("evt_touch_img".tr, style: TextStyle(color: RCColors.textSecondary)),
         ],
       );
     }
@@ -168,7 +168,7 @@ class CreateEventView extends GetView<CreateEventController> {
           enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: RCColors.divider)),
         ),
         items: [
-          const DropdownMenuItem<int>(value: null, child: Text("Ninguno / General")),
+          DropdownMenuItem<int>(value: null, child: Text("evt_none".tr)),
           ...items.map((item) => DropdownMenuItem<int>(
             value: item[idKey],
             child: Text(item['name'] ?? '', style: TextStyle(color: RCColors.textPrimary)),
@@ -183,9 +183,10 @@ class CreateEventView extends GetView<CreateEventController> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Obx(() {
+        final locale = Get.locale?.toLanguageTag() ?? 'es-ES';
         final dateStr = dateTarget.value == null 
-            ? "Seleccionar fecha" 
-            : DateFormat('dd/MM/yyyy', 'es_ES').format(dateTarget.value!);
+            ? "evt_sel_date".tr 
+            : DateFormat.yMd(locale).format(dateTarget.value!);
         return ListTile(
           onTap: () => controller.pickDate(Get.context!, dateTarget),
           tileColor: RCColors.card,
