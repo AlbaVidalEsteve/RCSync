@@ -8,11 +8,14 @@ class ResultsView extends GetView<ResultsController> {
 
   @override
   Widget build(BuildContext context) {
+    // Escuchar cambios de tema
+    Theme.of(context);
+
     return Scaffold(
       backgroundColor: RCColors.background,
       body: Column(
         children: [
-          // --- HEADER CON GRADIENTE Y TARJETA SOLAPADA
+          // --- HEADER CON GRADIENTE Y TARJETA SOLAPADA ---
           Stack(
             children: [
               // FONDO GRADIENTE
@@ -28,9 +31,9 @@ class ResultsView extends GetView<ResultsController> {
                     colors: [RCColors.orange, Color(0xFFF68B28)],
                   ),
                 ),
-                child: Text(
-                  "results_title".tr,
-                  style: const TextStyle(
+                child: const Text(
+                  "Resultados",
+                  style: TextStyle(
                     color: Colors.white,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -66,7 +69,7 @@ class ResultsView extends GetView<ResultsController> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(50),
+            color: Colors.black.withOpacity(Get.isDarkMode ? 0.3 : 0.1),
             blurRadius: 15,
             offset: const Offset(0, 10),
           )
@@ -79,7 +82,7 @@ class ResultsView extends GetView<ResultsController> {
               Expanded(
                 flex: 5,
                 child: Obx(() => _buildProfileStyleDropdown(
-                  label: "results_filter_champ".tr,
+                  label: "Campeonato",
                   icon: Icons.emoji_events_outlined,
                   value: controller.selectedChampionshipName.value.isEmpty ? null : controller.selectedChampionshipName.value,
                   items: controller.availableChampionships,
@@ -95,7 +98,7 @@ class ResultsView extends GetView<ResultsController> {
               Expanded(
                 flex: 3,
                 child: Obx(() => _buildProfileStyleDropdown(
-                  label: "results_filter_year".tr,
+                  label: "Año",
                   icon: Icons.calendar_today_outlined,
                   value: controller.selectedYear.value.isEmpty ? null : controller.selectedYear.value,
                   items: controller.availableYears,
@@ -115,7 +118,7 @@ class ResultsView extends GetView<ResultsController> {
               Expanded(
                 flex: 1,
                 child: Obx(() => _buildProfileStyleDropdown(
-                  label: "results_filter_cat".tr,
+                  label: "Categoría",
                   icon: Icons.directions_car_outlined,
                   value: controller.selectedCategory.value.isEmpty ? null : controller.selectedCategory.value,
                   items: controller.availableCategories,
@@ -136,7 +139,7 @@ class ResultsView extends GetView<ResultsController> {
                 child: Obx(() {
                   if (controller.selectedCategory.value == "Tamiya GT") {
                     return _buildProfileStyleDropdown(
-                      label: "results_filter_level".tr,
+                      label: "Nivel",
                       icon: Icons.speed_outlined,
                       value: controller.selectedSubFilter.value,
                       items: ["General", "Stock", "Superstock", "Junior"],
@@ -181,19 +184,19 @@ class ResultsView extends GetView<ResultsController> {
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: safeValue,
-          dropdownColor: RCColors.background, 
+          dropdownColor: RCColors.card, 
           icon: Icon(Icons.arrow_drop_down, color: RCColors.textSecondary),
           style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
-            fillColor: RCColors.background.withAlpha(128), 
+            fillColor: RCColors.background.withOpacity(0.5), 
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: RCColors.textSecondary.withAlpha(13), width: 1),
+              borderSide: BorderSide(color: RCColors.divider, width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
@@ -208,7 +211,7 @@ class ResultsView extends GetView<ResultsController> {
               child: Text(e, style: TextStyle(color: RCColors.textPrimary))
           )).toList(),
           onChanged: items.isEmpty ? null : onChanged,
-          hint: items.isEmpty ? Text("loading".tr, style: TextStyle(color: RCColors.textSecondary.withAlpha(50), fontSize: 13)) : null,
+          hint: items.isEmpty ? Text("Cargando...", style: TextStyle(color: RCColors.textSecondary.withOpacity(0.3), fontSize: 13)) : null,
         ),
       ],
     );
@@ -217,21 +220,22 @@ class ResultsView extends GetView<ResultsController> {
   Widget _buildStatusBanner() {
     return Obx(() {
       final isActive = controller.isChampionshipActive.value;
+      final statusColor = isActive ? RCColors.orange : Colors.green;
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? RCColors.orange.withOpacity(0.15) : Colors.green.withOpacity(0.15),
+          color: statusColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: isActive ? RCColors.orange.withOpacity(0.3) : Colors.greenAccent.withOpacity(0.3)),
+          border: Border.all(color: statusColor.withOpacity(0.3)),
         ),
         child: Text(
-          isActive ? "results_status_active".tr : "results_status_finished".tr,
+          isActive ? "🏎️ CAMPEONATO EN CURSO (Suma total)" : "🏆 FINALIZADO (Suma 4 mejores)",
           textAlign: TextAlign.center,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: isActive ? RCColors.orange : Colors.greenAccent,
+            color: statusColor,
             fontSize: 11,
             letterSpacing: 0.5,
           ),
@@ -246,12 +250,12 @@ class ResultsView extends GetView<ResultsController> {
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Text("results_select_filters".tr, style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
+            child: Text("Selecciona los filtros superiores", style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
           ),
         );
       }
       return ListView.builder(
-        padding: const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 100),
+        padding: const EdgeInsets.only(top: 8, left: 16, right: 16, bottom: 100),
         itemCount: controller.filteredEntries.length,
         itemBuilder: (context, index) {
           final entry = controller.filteredEntries[index];
@@ -261,13 +265,13 @@ class ResultsView extends GetView<ResultsController> {
           Color badgeTextColor = Colors.black87;
 
           if (index == 0) {
-            badgeColor = const Color(0xFFFFD700); // Oro
+            badgeColor = RCColors.gold;
           } else if (index == 1) {
-            badgeColor = const Color(0xFFC0C0C0); // Plata
+            badgeColor = RCColors.silver;
           } else if (index == 2) {
-            badgeColor = const Color(0xFFCD7F32); // Bronce
+            badgeColor = RCColors.bronze;
           } else {
-            badgeColor = RCColors.card; 
+            badgeColor = RCColors.surface; 
             badgeTextColor = RCColors.textPrimary;
           }
 
@@ -275,10 +279,10 @@ class ResultsView extends GetView<ResultsController> {
 
           return Card(
             color: RCColors.card,
-            margin: const EdgeInsets.only(bottom: 10),
+            margin: const EdgeInsets.only(bottom: 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
-              side: index == 0 ? const BorderSide(color: Color(0xFFFFD700), width: 1) : BorderSide.none,
+              side: index == 0 ? const BorderSide(color: RCColors.gold, width: 1) : BorderSide.none,
             ),
             elevation: index < 3 ? 4 : 1,
             child: Padding(
@@ -292,7 +296,7 @@ class ResultsView extends GetView<ResultsController> {
                       height: 48,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: RCColors.card,
+                        color: RCColors.surface,
                         border: Border.all(
                           color: index < 3 ? badgeColor : RCColors.divider,
                           width: index < 3 ? 2 : 1,

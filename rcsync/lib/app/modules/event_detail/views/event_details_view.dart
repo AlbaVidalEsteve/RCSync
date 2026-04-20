@@ -12,6 +12,9 @@ class EventDetailsView extends GetView<EventDetailsController> {
 
   @override
   Widget build(BuildContext context) {
+    // Escuchar cambios de tema
+    Theme.of(context);
+
     return Scaffold(
       backgroundColor: RCColors.background,
       body: Obx(() {
@@ -38,7 +41,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      // 1. Información del Evento (Fechas y Organizador)
+                      // 1. Información del Evento
                       _buildEventInfo(event),
                       const SizedBox(height: 20),
 
@@ -50,10 +53,10 @@ class EventDetailsView extends GetView<EventDetailsController> {
                       _buildPilotList(),
                       const SizedBox(height: 20),
 
-                      // 4. Mapa y Ubicación (Movido al final)
+                      // 4. Mapa y Ubicación
                       _buildLocation(event),
 
-                      const SizedBox(height: 100), // Espacio inferior para que no lo tape el botón
+                      const SizedBox(height: 100), 
                     ],
                   ),
                 ),
@@ -80,17 +83,17 @@ class EventDetailsView extends GetView<EventDetailsController> {
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: RCColors.background.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: ListTile(
                 leading: const Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: 28),
                 title: Text(
                   'Reglamento $catName',
-                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                  style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 14),
                 ),
-                subtitle: const Text('Toca para abrir PDF', style: TextStyle(color: Colors.white54, fontSize: 12)),
-                trailing: const Icon(Icons.arrow_forward_ios, color: Colors.white24, size: 16),
+                subtitle: Text('Toca para abrir PDF', style: TextStyle(color: RCColors.textSecondary, fontSize: 12)),
+                trailing: Icon(Icons.arrow_forward_ios, color: RCColors.iconSecondary, size: 16),
                 onTap: () => controller.openRulebook(url),
               ),
             );
@@ -107,7 +110,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
         Image.network(event.imageEvent!, fit: BoxFit.cover)
       else
         Container(
-            color: RCColors.orange.withOpacity(0.2),
+            color: RCColors.orange.withValues(alpha: 0.2),
             child: const Icon(Icons.image, size: 100, color: Colors.white24)
         ),
       Container(
@@ -158,7 +161,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(event.circuitName ?? 'Circuito RC', style: const TextStyle(color: Colors.white70, fontSize: 15)),
+        Text(event.circuitName ?? 'Circuito RC', style: TextStyle(color: RCColors.textSecondary, fontSize: 15)),
         const SizedBox(height: 15),
         ClipRRect(
           borderRadius: BorderRadius.circular(15),
@@ -183,7 +186,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Pilotos Inscritos', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        Text('Pilotos Inscritos', style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 15),
         ...controller.registeredPilots.entries.map((entry) => _buildCategoryGroup(entry.key, entry.value)),
       ],
@@ -198,18 +201,18 @@ class EventDetailsView extends GetView<EventDetailsController> {
         child: Text(category, style: const TextStyle(color: RCColors.orange, fontWeight: FontWeight.bold, fontSize: 16)),
       ),
       ...pilots.map((pilot) => Card(
-        color: const Color(0xFF1A222D),
+        color: RCColors.card,
         margin: const EdgeInsets.only(bottom: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: ListTile(
           leading: CircleAvatar(
-            backgroundColor: Colors.white10,
+            backgroundColor: RCColors.background,
             backgroundImage: pilot.imageUrl != null ? NetworkImage(pilot.imageUrl!) : null,
-            child: pilot.imageUrl == null ? const Icon(Icons.person, color: Colors.white24) : null,
+            child: pilot.imageUrl == null ? Icon(Icons.person, color: RCColors.iconSecondary) : null,
           ),
-          title: Text(pilot.fullName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          subtitle: Text(pilot.subCategory, style: const TextStyle(color: Colors.white54)),
-          trailing: Text('${pilot.totalPoints} pts', style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold)),
+          title: Text(pilot.fullName, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
+          subtitle: Text(pilot.subCategory, style: TextStyle(color: RCColors.textSecondary)),
+          trailing: Text('${pilot.totalPoints} pts', style: TextStyle(color: RCColors.textSecondary, fontWeight: FontWeight.bold)),
         ),
       )),
     ],
@@ -232,9 +235,9 @@ class EventDetailsView extends GetView<EventDetailsController> {
   Widget _buildSection({required String title, required Widget child}) => Container(
     width: double.infinity,
     padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(color: const Color(0xFF1A222D), borderRadius: BorderRadius.circular(20)),
+    decoration: BoxDecoration(color: RCColors.card, borderRadius: BorderRadius.circular(20)),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+      Text(title, style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
       const SizedBox(height: 20),
       child
     ]),
@@ -245,14 +248,14 @@ class EventDetailsView extends GetView<EventDetailsController> {
     child: Row(children: [
       Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: iconColor.withAlpha(25), borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
           child: Icon(icon, color: iconColor, size: 24)
       ),
       const SizedBox(width: 15),
       Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(title, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(title, style: TextStyle(color: RCColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 2),
-        Text(subtitle, style: TextStyle(color: Colors.white.withAlpha(128), fontSize: 14))
+        Text(subtitle, style: TextStyle(color: RCColors.textSecondary, fontSize: 14))
       ]))
     ]),
   );
@@ -260,17 +263,17 @@ class EventDetailsView extends GetView<EventDetailsController> {
   Widget _buildNoMapPlaceholder() => Container(
     height: 180,
     decoration: BoxDecoration(
-        color: const Color(0xFF1A222D),
+        color: RCColors.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white10)
+        border: Border.all(color: RCColors.divider)
     ),
-    child: const Center(
+    child: Center(
         child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.map_outlined, color: Colors.white24, size: 40),
+              Icon(Icons.map_outlined, color: RCColors.iconSecondary, size: 40),
               SizedBox(height: 10),
-              Text('Mapa no disponible', style: TextStyle(color: Colors.white24))
+              Text('Mapa no disponible', style: TextStyle(color: RCColors.textSecondary))
             ]
         )
     ),

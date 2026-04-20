@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:rcsync/app/controllers/auth_controller.dart';
 import 'package:rcsync/core/theme/rc_theme.dart';
-import 'package:rcsync/core/values/languages.dart';
 import 'app/routes/app_pages.dart';
 
 void main() async {
@@ -30,24 +29,7 @@ void main() async {
     // Inject AuthController
     Get.put(AuthController(), permanent: true);
 
-    runApp(
-      GetMaterialApp(
-        title: "RCSync",
-        initialRoute: Supabase.instance.client.auth.currentUser == null
-            ? Routes.LOGIN
-            : Routes.HOME,
-        getPages: AppPages.routes,
-        debugShowCheckedModeBanner: false,
-        theme: RCTheme.lightTheme,
-        darkTheme: RCTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        
-        // --- TRANSLATIONS CONFIG ---
-        translations: AppTranslations(),
-        locale: const Locale('es', 'ES'),
-        fallbackLocale: const Locale('en', 'US'),
-      ),
-    );
+    runApp(const MyApp());
   } catch (e) {
     debugPrint("CRITICAL ERROR DURING INITIALIZATION: $e");
     runApp(MaterialApp(
@@ -60,5 +42,24 @@ void main() async {
         ),
       ),
     ));
+  }
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      title: "RCSync",
+      initialRoute: Supabase.instance.client.auth.currentUser == null
+          ? Routes.LOGIN
+          : Routes.HOME,
+      getPages: AppPages.routes,
+      debugShowCheckedModeBanner: false,
+      theme: RCTheme.lightTheme,
+      darkTheme: RCTheme.darkTheme,
+      themeMode: ThemeMode.system,
+    );
   }
 }
