@@ -16,10 +16,8 @@ class HomeController extends GetxController {
   final RxList<RaceEventModel> rawEvents = <RaceEventModel>[].obs;
   final RxList<NeatCleanCalendarEvent> eventList = <NeatCleanCalendarEvent>[].obs;
   
-  // Perfil del usuario actual
   final Rxn<ProfileModel> userProfile = Rxn<ProfileModel>();
 
-  // New states for the filtering logic
   var selectedDate = DateTime.now().obs;
   var isDaySelected = false.obs;
   var currentMonth = DateTime.now().obs;
@@ -32,7 +30,6 @@ class HomeController extends GetxController {
     getCurrentUserProfile();
   }
 
-  // Getter para permisos
   bool get isAdminOrOrganizer {
     final role = userProfile.value?.rol.toLowerCase() ?? 'piloto';
     return role == 'admin' || role == 'organizador';
@@ -63,7 +60,6 @@ class HomeController extends GetxController {
       Get.snackbar("Error", "No se pudo cargar tu perfil");
       return;
     }
-
     if (isAdminOrOrganizer) {
       Get.toNamed(Routes.CREATE_EVENT);
     } else {
@@ -99,7 +95,6 @@ class HomeController extends GetxController {
         description: e.circuitName ?? e.description ?? '',
         color: Colors.blueAccent,
       )).toList());
-
     } catch (e) {
       debugPrint("Error fetching events: $e");
     } finally {
@@ -107,7 +102,8 @@ class HomeController extends GetxController {
     }
   }
 
-  // Helper to get events for the currently shown month
+  // --- HELPERS PARA EL CALENDARIO ---
+  
   List<RaceEventModel> get eventsOfCurrentMonth {
     return rawEvents.where((e) {
       if (e.eventDateIni == null) return false;
@@ -116,7 +112,6 @@ class HomeController extends GetxController {
     }).toList();
   }
 
-  // Helper to get all future events
   List<RaceEventModel> get futureEvents {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -126,13 +121,12 @@ class HomeController extends GetxController {
     }).toList();
   }
 
-  // Helper to get events for a specific day
   List<RaceEventModel> eventsOfDay(DateTime date) {
     return rawEvents.where((e) {
       if (e.eventDateIni == null) return false;
       return e.eventDateIni!.year == date.year && 
-             e.eventDateIni!.month == date.month && 
-             e.eventDateIni!.day == date.day;
+             (e.eventDateIni!.month == date.month) && 
+             (e.eventDateIni!.day == date.day);
     }).toList();
   }
 
@@ -141,12 +135,18 @@ class HomeController extends GetxController {
       return "home_future_events".tr;
     }
     
-    // Usamos el locale actual para formatear la fecha dinámicamente
-    String locale = Get.locale?.toString() ?? 'es_ES';
+    String lang = Get.locale?.languageCode ?? 'es';
+    String country = Get.locale?.countryCode ?? '';
+    String fullLocale = country.isEmpty ? lang : "${lang}_$country";
+    
+    String title = "home_events_title".tr;
+    
     if (isDaySelected.value) {
-      return "Eventos del ${DateFormat('dd MMMM', locale).format(selectedDate.value)}";
+      String connector = "home_events_on".tr;
+      return "$title $connector ${DateFormat('dd MMMM', fullLocale).format(selectedDate.value)}";
     } else {
-      return "Eventos de ${DateFormat('MMMM', locale).format(currentMonth.value)}";
+      String connector = "home_events_of".tr;
+      return "$title $connector ${DateFormat('MMMM', fullLocale).format(currentMonth.value)}";
     }
   }
 
@@ -156,7 +156,6 @@ class HomeController extends GetxController {
         selectedDate.value.year == date.year && 
         selectedDate.value.month == date.month && 
         selectedDate.value.day == date.day) {
-      // Toggle off if same day clicked
       isDaySelected.value = false;
     } else {
       selectedDate.value = date;

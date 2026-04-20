@@ -4,7 +4,6 @@ class AppTranslations extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
         'es_ES': {
-          // --- LOGIN & REGISTER ---
           'login_email_label': 'CORREO ELECTRÒNICO',
           'login_password_label': 'CONTRASEÑA',
           'login_btn': 'INICIAR SESIÓN',
@@ -14,15 +13,14 @@ class AppTranslations extends Translations {
           'register_name_label': 'NOMBRE COMPLETO',
           'register_btn': 'REGISTRARSE',
           'register_back_btn': 'YA TENGO CUENTA',
-
-          // --- HOME ---
           'home_title': 'Calendario',
           'home_search_hint': 'Buscar eventos...',
           'home_no_events': 'No hay carreras programadas',
           'home_future_events': 'Próximos eventos',
           'home_today_btn': 'Hoy',
-
-          // --- PROFILE ---
+          'home_events_title': 'Eventos',
+          'home_events_of': 'de',
+          'home_events_on': 'del',
           'profile_title': 'Mi Perfil',
           'profile_full_name': 'Nombre Completo',
           'profile_email': 'Correo Electrónico',
@@ -37,24 +35,25 @@ class AppTranslations extends Translations {
           'profile_settings': 'Ajustes de la Aplicación',
           'profile_lang': 'Idioma',
           'profile_theme': 'Tema Visual',
-
-          // --- CREATE EVENT ---
           'create_event_title': 'Crear Nuevo Evento',
+          'create_event_edit_title': 'Modificar Evento',
           'create_event_name': 'Nombre del Evento',
           'create_event_desc': 'Descripción',
+          'create_event_price': 'Precio de Inscripción (€)',
           'create_event_img': 'Imagen del Evento',
           'create_event_img_hint': 'Toca para subir una imagen',
           'create_event_config': 'Configuración',
           'create_event_circuit': 'Seleccionar Circuito',
           'create_event_champ': 'Seleccionar Campeonato',
-          'create_event_dates': 'Fechas',
+          'create_event_dates': 'Fechas del Evento',
           'create_event_date_start': 'Fecha Inicio Evento',
           'create_event_date_end': 'Fecha Fin Evento',
+          'create_event_reg_dates': 'Fechas de Inscripción',
           'create_event_reg_start': 'Inicio Inscripciones',
           'create_event_reg_end': 'Fin Inscripciones',
           'create_event_btn': 'CREAR EVENTO',
-
-          // --- ADMIN DASHBOARD ---
+          'create_event_none': 'General',
+          'create_event_select_date': 'Seleccionar fecha',
           'admin_title': 'Panel de Gestión',
           'admin_tab_events': 'Eventos',
           'admin_tab_champs': 'Campeonatos',
@@ -63,8 +62,6 @@ class AppTranslations extends Translations {
           'admin_no_active_champs': 'No hay campeonatos activos para editar',
           'admin_no_pending_regs': 'No hay inscripciones pendientes',
           'admin_confirm_btn': 'Confirmar',
-
-          // --- RESULTS ---
           'results_title': 'Resultados',
           'results_filter_champ': 'Campeonato',
           'results_filter_year': 'Año',
@@ -73,8 +70,6 @@ class AppTranslations extends Translations {
           'results_status_active': '🏎️ CAMPEONATO EN CURSO (Suma total)',
           'results_status_finished': '🏆 FINALIZADO (Suma 4 mejores)',
           'results_select_filters': 'Selecciona los filtros superiores',
-
-          // --- FEEDBACK & ERRORS ---
           'access_denied_title': 'Acceso denegado',
           'access_denied_msg': 'No tienes permisos para agregar un evento',
           'error_required': 'Campo obligatorio',
@@ -91,13 +86,14 @@ class AppTranslations extends Translations {
           'register_name_label': 'FULL NAME',
           'register_btn': 'REGISTER',
           'register_back_btn': 'ALREADY HAVE AN ACCOUNT',
-
           'home_title': 'Calendar',
           'home_search_hint': 'Search events...',
           'home_no_events': 'No scheduled races',
           'home_future_events': 'Upcoming events',
           'home_today_btn': 'Today',
-
+          'home_events_title': 'Events',
+          'home_events_of': 'of',
+          'home_events_on': 'on',
           'profile_title': 'My Profile',
           'profile_full_name': 'Full Name',
           'profile_email': 'Email Address',
@@ -112,22 +108,25 @@ class AppTranslations extends Translations {
           'profile_settings': 'App Settings',
           'profile_lang': 'Language',
           'profile_theme': 'Visual Theme',
-
           'create_event_title': 'Create New Event',
+          'create_event_edit_title': 'Edit Event',
           'create_event_name': 'Event Name',
           'create_event_desc': 'Description',
+          'create_event_price': 'Registration Price (€)',
           'create_event_img': 'Event Image',
           'create_event_img_hint': 'Tap to upload an image',
           'create_event_config': 'Configuration',
           'create_event_circuit': 'Select Circuit',
           'create_event_champ': 'Select Championship',
-          'create_event_dates': 'Dates',
+          'create_event_dates': 'Event Dates',
           'create_event_date_start': 'Event Start Date',
           'create_event_date_end': 'Event End Date',
+          'create_event_reg_dates': 'Registration Dates',
           'create_event_reg_start': 'Registration Start',
           'create_event_reg_end': 'Registration End',
           'create_event_btn': 'CREATE EVENT',
-
+          'create_event_none': 'General',
+          'create_event_select_date': 'Select date',
           'admin_title': 'Management Panel',
           'admin_tab_events': 'Events',
           'admin_tab_champs': 'Championships',
@@ -136,7 +135,6 @@ class AppTranslations extends Translations {
           'admin_no_active_champs': 'No active championships to edit',
           'admin_no_pending_regs': 'No pending registrations',
           'admin_confirm_btn': 'Confirm',
-
           'results_title': 'Results',
           'results_filter_champ': 'Championship',
           'results_filter_year': 'Year',
@@ -145,7 +143,6 @@ class AppTranslations extends Translations {
           'results_status_active': '🏎️ CHAMPIONSHIP IN PROGRESS (Total sum)',
           'results_status_finished': '🏆 FINISHED (Sum of best 4)',
           'results_select_filters': 'Select the filters above',
-
           'access_denied_title': 'Access Denied',
           'access_denied_msg': 'You do not have permission to add an event',
           'error_required': 'Required field',
@@ -162,13 +159,14 @@ class AppTranslations extends Translations {
           'register_name_label': 'NOM COMPLET',
           'register_btn': 'REGISTRAR-SE',
           'register_back_btn': 'JA TINC COMPTE',
-
           'home_title': 'Calendari',
           'home_search_hint': 'Cercar esdeveniments...',
           'home_no_events': 'No hi ha curses programades',
           'home_future_events': 'Pròxims esdeveniments',
           'home_today_btn': 'Avui',
-
+          'home_events_title': 'Esdeveniments',
+          'home_events_of': 'de',
+          'home_events_on': 'del',
           'profile_title': 'El meu Perfil',
           'profile_full_name': 'Nom Complet',
           'profile_email': 'Correu Electrònic',
@@ -183,22 +181,25 @@ class AppTranslations extends Translations {
           'profile_settings': 'Ajustos de l\'Aplicació',
           'profile_lang': 'Idioma',
           'profile_theme': 'Tema Visual',
-
           'create_event_title': 'Crear Nou Esdeveniment',
+          'create_event_edit_title': 'Modificar Esdeveniment',
           'create_event_name': 'Nom de l\'Esdeveniment',
           'create_event_desc': 'Descripció',
+          'create_event_price': 'Preu d\'Inscripció (€)',
           'create_event_img': 'Imatge de l\'Esdeveniment',
           'create_event_img_hint': 'Toca per pujar una imatge',
           'create_event_config': 'Configuració',
           'create_event_circuit': 'Seleccionar Circuit',
           'create_event_champ': 'Seleccionar Campionat',
-          'create_event_dates': 'Dates',
+          'create_event_dates': 'Dates de l\'Esdeveniment',
           'create_event_date_start': 'Data Inici Esdeveniment',
           'create_event_date_end': 'Data Fi Esdeveniment',
+          'create_event_reg_dates': 'Dates d\'Inscripció',
           'create_event_reg_start': 'Inici Inscripcions',
           'create_event_reg_end': 'Fi Inscripcions',
           'create_event_btn': 'CREAR ESDEVENIMENT',
-
+          'create_event_none': 'General',
+          'create_event_select_date': 'Seleccionar data',
           'admin_title': 'Panell de Gestió',
           'admin_tab_events': 'Esdeveniments',
           'admin_tab_champs': 'Campionats',
@@ -207,7 +208,6 @@ class AppTranslations extends Translations {
           'admin_no_active_champs': 'No hi ha campionats actius per editar',
           'admin_no_pending_regs': 'No hi ha inscripcions pendents',
           'admin_confirm_btn': 'Confirmar',
-
           'results_title': 'Resultats',
           'results_filter_champ': 'Campionat',
           'results_filter_year': 'Any',
@@ -216,7 +216,6 @@ class AppTranslations extends Translations {
           'results_status_active': '🏎️ CAMPIONAT EN CURS (Suma total)',
           'results_status_finished': '🏆 FINALITZAT (Suma 4 millors)',
           'results_select_filters': 'Selecciona els filtres superiors',
-
           'access_denied_title': 'Accés denegat',
           'access_denied_msg': 'No tens permisos per afegir un esdeveniment',
           'error_required': 'Camp obligatori',
