@@ -28,9 +28,9 @@ class ResultsView extends GetView<ResultsController> {
                     colors: [RCColors.orange, Color(0xFFF68B28)],
                   ),
                 ),
-                child: const Text(
-                  "Resultados",
-                  style: TextStyle(
+                child: Text(
+                  "results_title".tr,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -79,7 +79,7 @@ class ResultsView extends GetView<ResultsController> {
               Expanded(
                 flex: 5,
                 child: Obx(() => _buildProfileStyleDropdown(
-                  label: "Campeonato",
+                  label: "results_filter_champ".tr,
                   icon: Icons.emoji_events_outlined,
                   value: controller.selectedChampionshipName.value.isEmpty ? null : controller.selectedChampionshipName.value,
                   items: controller.availableChampionships,
@@ -95,7 +95,7 @@ class ResultsView extends GetView<ResultsController> {
               Expanded(
                 flex: 3,
                 child: Obx(() => _buildProfileStyleDropdown(
-                  label: "Año",
+                  label: "results_filter_year".tr,
                   icon: Icons.calendar_today_outlined,
                   value: controller.selectedYear.value.isEmpty ? null : controller.selectedYear.value,
                   items: controller.availableYears,
@@ -115,7 +115,7 @@ class ResultsView extends GetView<ResultsController> {
               Expanded(
                 flex: 1,
                 child: Obx(() => _buildProfileStyleDropdown(
-                  label: "Categoría",
+                  label: "results_filter_cat".tr,
                   icon: Icons.directions_car_outlined,
                   value: controller.selectedCategory.value.isEmpty ? null : controller.selectedCategory.value,
                   items: controller.availableCategories,
@@ -136,7 +136,7 @@ class ResultsView extends GetView<ResultsController> {
                 child: Obx(() {
                   if (controller.selectedCategory.value == "Tamiya GT") {
                     return _buildProfileStyleDropdown(
-                      label: "Nivel",
+                      label: "results_filter_level".tr,
                       icon: Icons.speed_outlined,
                       value: controller.selectedSubFilter.value,
                       items: ["General", "Stock", "Superstock", "Junior"],
@@ -180,7 +180,7 @@ class ResultsView extends GetView<ResultsController> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          initialValue: safeValue,
+          value: safeValue,
           dropdownColor: RCColors.background, 
           icon: Icon(Icons.arrow_drop_down, color: RCColors.textSecondary),
           style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
@@ -208,7 +208,7 @@ class ResultsView extends GetView<ResultsController> {
               child: Text(e, style: TextStyle(color: RCColors.textPrimary))
           )).toList(),
           onChanged: items.isEmpty ? null : onChanged,
-          hint: items.isEmpty ? Text("Cargando...", style: TextStyle(color: RCColors.textSecondary.withAlpha(50), fontSize: 13)) : null,
+          hint: items.isEmpty ? Text("loading".tr, style: TextStyle(color: RCColors.textSecondary.withAlpha(50), fontSize: 13)) : null,
         ),
       ],
     );
@@ -227,7 +227,7 @@ class ResultsView extends GetView<ResultsController> {
           border: Border.all(color: isActive ? RCColors.orange.withOpacity(0.3) : Colors.greenAccent.withOpacity(0.3)),
         ),
         child: Text(
-          isActive ? "🏎️ CAMPEONATO EN CURSO (Suma total)" : "🏆 FINALIZADO (Suma 4 mejores)",
+          isActive ? "results_status_active".tr : "results_status_finished".tr,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontWeight: FontWeight.bold,
@@ -246,12 +246,12 @@ class ResultsView extends GetView<ResultsController> {
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Text("Selecciona los filtros superiores", style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
+            child: Text("results_select_filters".tr, style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
           ),
         );
       }
       return ListView.builder(
-        padding: const EdgeInsets.only(top: RCSpacing.sm, left: RCSpacing.md, right: RCSpacing.md, bottom: 100),
+        padding: const EdgeInsets.only(top: 10, left: 20, right: 20, bottom: 100),
         itemCount: controller.filteredEntries.length,
         itemBuilder: (context, index) {
           final entry = controller.filteredEntries[index];
@@ -267,7 +267,7 @@ class ResultsView extends GetView<ResultsController> {
           } else if (index == 2) {
             badgeColor = const Color(0xFFCD7F32); // Bronce
           } else {
-            badgeColor = RCColors.surface; 
+            badgeColor = RCColors.card; 
             badgeTextColor = RCColors.textPrimary;
           }
 
@@ -275,7 +275,7 @@ class ResultsView extends GetView<ResultsController> {
 
           return Card(
             color: RCColors.card,
-            margin: const EdgeInsets.only(bottom: RCSpacing.sm),
+            margin: const EdgeInsets.only(bottom: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
               side: index == 0 ? const BorderSide(color: Color(0xFFFFD700), width: 1) : BorderSide.none,
@@ -292,7 +292,7 @@ class ResultsView extends GetView<ResultsController> {
                       height: 48,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: RCColors.surface,
+                        color: RCColors.card,
                         border: Border.all(
                           color: index < 3 ? badgeColor : RCColors.divider,
                           width: index < 3 ? 2 : 1,

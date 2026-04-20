@@ -32,7 +32,7 @@ class HomeController extends GetxController {
     getCurrentUserProfile();
   }
 
-  // En home_controller.dart (añadir este getter)
+  // Getter para permisos
   bool get isAdminOrOrganizer {
     final role = userProfile.value?.rol.toLowerCase() ?? 'piloto';
     return role == 'admin' || role == 'organizador';
@@ -54,7 +54,7 @@ class HomeController extends GetxController {
         userProfile.value = ProfileModel.fromJson(response);
       }
     } catch (e) {
-      print("Error fetching user profile: $e");
+      debugPrint("Error fetching user profile: $e");
     }
   }
 
@@ -64,13 +64,12 @@ class HomeController extends GetxController {
       return;
     }
 
-    final role = userProfile.value!.rol.toLowerCase();
-    if (role == 'admin' || role == 'organizador') {
+    if (isAdminOrOrganizer) {
       Get.toNamed(Routes.CREATE_EVENT);
     } else {
       Get.snackbar(
-        "Acceso denegado", 
-        "No tienes permisos para agregar un evento",
+        "access_denied_title".tr, 
+        "access_denied_msg".tr,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
         snackPosition: SnackPosition.BOTTOM,
@@ -102,7 +101,7 @@ class HomeController extends GetxController {
       )).toList());
 
     } catch (e) {
-      print("Error fetching events: $e");
+      debugPrint("Error fetching events: $e");
     } finally {
       isLoading.value = false;
     }
@@ -139,12 +138,15 @@ class HomeController extends GetxController {
 
   String get listTitle {
     if (showAllFutureEvents.value) {
-      return "Próximos eventos";
+      return "home_future_events".tr;
     }
+    
+    // Usamos el locale actual para formatear la fecha dinámicamente
+    String locale = Get.locale?.toString() ?? 'es_ES';
     if (isDaySelected.value) {
-      return "Eventos del ${DateFormat('dd MMMM', 'es_ES').format(selectedDate.value)}";
+      return "Eventos del ${DateFormat('dd MMMM', locale).format(selectedDate.value)}";
     } else {
-      return "Eventos de ${DateFormat('MMMM', 'es_ES').format(currentMonth.value)}";
+      return "Eventos de ${DateFormat('MMMM', locale).format(currentMonth.value)}";
     }
   }
 

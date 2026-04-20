@@ -52,14 +52,25 @@ class ProfileController extends GetxController {
     newTransponderLabelC = TextEditingController();
     
     _initThemeName();
+    _initLanguage();
     getProfile();
     getTransponders();
   }
 
   void _initThemeName() {
-    // GetX 4.x no tiene un getter público 'themeMode'. 
-    // Inicializamos en "Sistema" por defecto para evitar errores de compilación.
     selectedThemeName.value = "Sistema";
+  }
+
+  void _initLanguage() {
+    // Detectar idioma actual de GetX al iniciar
+    Locale? currentLocale = Get.locale;
+    if (currentLocale?.languageCode == 'en') {
+      selectedLanguage.value = "English";
+    } else if (currentLocale?.languageCode == 'ca') {
+      selectedLanguage.value = "Català";
+    } else {
+      selectedLanguage.value = "Español";
+    }
   }
 
   void changeTheme(String? themeName) {
@@ -72,6 +83,13 @@ class ProfileController extends GetxController {
   void changeLanguage(String? lang) {
     if (lang != null) {
       selectedLanguage.value = lang;
+      if (lang == "English") {
+        Get.updateLocale(const Locale('en', 'US'));
+      } else if (lang == "Català") {
+        Get.updateLocale(const Locale('ca', 'ES'));
+      } else {
+        Get.updateLocale(const Locale('es', 'ES'));
+      }
     }
   }
 
@@ -109,7 +127,7 @@ class ProfileController extends GetxController {
       ),
       boxShadows: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.3),
+          color: Colors.black.withOpacity(0.3),
           blurRadius: 10,
           offset: const Offset(0, 5),
         )

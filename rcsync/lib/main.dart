@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:rcsync/app/controllers/auth_controller.dart';
 import 'package:rcsync/core/theme/rc_theme.dart';
+import 'package:rcsync/core/values/languages.dart';
 import 'app/routes/app_pages.dart';
 
 void main() async {
@@ -40,6 +41,11 @@ void main() async {
         theme: RCTheme.lightTheme,
         darkTheme: RCTheme.darkTheme,
         themeMode: ThemeMode.system,
+        
+        // --- TRANSLATIONS CONFIG ---
+        translations: AppTranslations(),
+        locale: const Locale('es', 'ES'),
+        fallbackLocale: const Locale('en', 'US'),
       ),
     );
   } catch (e) {

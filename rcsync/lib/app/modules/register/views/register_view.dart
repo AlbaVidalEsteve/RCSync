@@ -53,18 +53,22 @@ class RegisterView extends GetView<RegisterController> {
 
                 const SizedBox(height: 30),
 
+                // --- TÍTULO ---
+                Center(child: Text("register_title".tr, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold))),
+                const SizedBox(height: 30),
+
                 // --- CAMPO NOMBRE COMPLETO ---
-                _buildInputLabel("NOMBRE Y APELLIDO"),
+                _buildInputLabel("register_name_label".tr),
                 TextField(
                   controller: controller.fullNameC,
                   style: const TextStyle(color: RCColors.whiteRc),
-                  decoration: _inputDecoration(hint: "Tu nombre completo", icon: Icons.person_outline),
+                  decoration: _inputDecoration(hint: "John Doe", icon: Icons.person_outline),
                 ),
 
                 const SizedBox(height: 20),
 
                 // --- CAMPO EMAIL ---
-                _buildInputLabel("CORREO ELECTRÓNICO"),
+                _buildInputLabel("login_email_label".tr),
                 TextField(
                   controller: controller.emailC,
                   style: const TextStyle(color: RCColors.whiteRc),
@@ -74,7 +78,7 @@ class RegisterView extends GetView<RegisterController> {
                 const SizedBox(height: 20),
 
                 // --- CAMPO PASSWORD ---
-                _buildInputLabel("CONTRASEÑA"),
+                _buildInputLabel("login_password_label".tr),
                 Obx(() => TextField(
                   controller: controller.passwordC,
                   obscureText: controller.isHidden.value,
@@ -89,22 +93,11 @@ class RegisterView extends GetView<RegisterController> {
                   ),
                 )),
 
-                const SizedBox(height: 20),
-
-                // --- CAMPO CONFIRMAR PASSWORD ---
-                _buildInputLabel("CONFIRMAR CONTRASEÑA"),
-                Obx(() => TextField(
-                  controller: controller.confirmPasswordC,
-                  obscureText: controller.isHidden.value,
-                  style: const TextStyle(color: RCColors.whiteRc),
-                  decoration: _inputDecoration(hint: "Repite tu contraseña", icon: Icons.lock_reset),
-                )),
-
                 const SizedBox(height: 40),
 
                 // --- BOTÓN REGISTRAR ---
                 Obx(() => _buildMainButton(
-                  label: controller.isLoading.isFalse ? "CREAR CUENTA" : "REGISTRANDO...",
+                  label: controller.isLoading.isFalse ? "register_btn".tr : "login_loading".tr,
                   color: RCColors.orange,
                   onPressed: () => controller.signUp(),
                 )),
@@ -112,7 +105,7 @@ class RegisterView extends GetView<RegisterController> {
                 const SizedBox(height: 15),
 
                 _buildMainButton(
-                  label: "VOLVER AL LOGIN",
+                  label: "register_back_btn".tr,
                   color: Colors.transparent,
                   isOutline: true,
                   onPressed: () => Get.back(),
