@@ -117,6 +117,26 @@ class Languages extends Translations {
       'cha_btn_save': 'GUARDAR CAMBIOS',
       'cha_btn_create': 'CREAR CAMPEONATO',
       'required': 'Requerido',
+
+      // Detalle de Evento
+      'det_tech_rules': 'Reglamentos Técnicos',
+      'det_rulebook': 'Reglamento',
+      'det_open_pdf': 'Toca para abrir PDF',
+      'det_date': 'Fecha',
+      'det_organizer': 'Organizador',
+      'det_location': 'Ubicación',
+      'det_pilots': 'Pilotos Inscritos',
+      'det_register_now': 'Inscribirse ahora',
+      'det_register_closed': 'Inscripciones cerradas',
+      'det_no_map': 'Mapa no disponible',
+
+      // Registro a Evento
+      'reg_event_title': 'INSCRIPCIÓN AL EVENTO',
+      'reg_pilot_name': 'Nombre del Piloto',
+      'reg_transponder': 'Transponder',
+      'reg_btn_confirm': 'INSCRIBIRME AHORA',
+      'reg_cancel': 'CANCELAR',
+      'reg_select': 'Selecciona...',
     },
     'en': {
       'nav_events': 'Events',
@@ -228,6 +248,26 @@ class Languages extends Translations {
       'cha_btn_save': 'SAVE CHANGES',
       'cha_btn_create': 'CREATE CHAMPIONSHIP',
       'required': 'Required',
+
+      // Detalle de Evento
+      'det_tech_rules': 'Technical Rules',
+      'det_rulebook': 'Rulebook',
+      'det_open_pdf': 'Tap to open PDF',
+      'det_date': 'Date',
+      'det_organizer': 'Organizer',
+      'det_location': 'Location',
+      'det_pilots': 'Registered Pilots',
+      'det_register_now': 'Register Now',
+      'det_register_closed': 'Registration Closed',
+      'det_no_map': 'Map Not Available',
+
+      // Registro a Evento
+      'reg_event_title': 'EVENT REGISTRATION',
+      'reg_pilot_name': 'Pilot Name',
+      'reg_transponder': 'Transponder',
+      'reg_btn_confirm': 'REGISTER NOW',
+      'reg_cancel': 'CANCEL',
+      'reg_select': 'Select...',
     },
     'ca': {
       'nav_events': 'Esdeveniments',
@@ -339,6 +379,26 @@ class Languages extends Translations {
       'cha_btn_save': 'GUARDAR CANVIS',
       'cha_btn_create': 'CREAR CAMPIONAT',
       'required': 'Requerit',
+
+      // Detalle de Evento
+      'det_tech_rules': 'Reglaments Tècnics',
+      'det_rulebook': 'Reglament',
+      'det_open_pdf': 'Toca per obrir PDF',
+      'det_date': 'Data',
+      'det_organizer': 'Organitzador',
+      'det_location': 'Ubicació',
+      'det_pilots': 'Pilots Inscrits',
+      'det_register_now': 'Inscriure\'s ara',
+      'det_register_closed': 'Inscripcions tancades',
+      'det_no_map': 'Mapa no disponible',
+
+      // Registro a Evento
+      'reg_event_title': 'INSCRIPCIÓ A L\'ESDEVENIMENT',
+      'reg_pilot_name': 'Nom del Pilot',
+      'reg_transponder': 'Transponder',
+      'reg_btn_confirm': 'INSCRIURE\'M ARA',
+      'reg_cancel': 'CANCEL·LAR',
+      'reg_select': 'Selecciona...',
     },
   };
 }

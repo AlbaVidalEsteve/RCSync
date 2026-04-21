@@ -51,7 +51,7 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
                 ),
                 child: Column(
                   children: [
-                    const Text("INSCRIPCIÓN AL EVENTO", style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                    Text("reg_event_title".tr, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, letterSpacing: 1.2)),
                     const SizedBox(height: 5),
                     Text(eventName, style: const TextStyle(color: Colors.white70, fontSize: 14)),
                   ],
@@ -78,13 +78,13 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
                   ),
                   child: controller.isRegistering.value
                       ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text("INSCRIBIRME AHORA", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      : Text("reg_btn_confirm".tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 )),
                 const SizedBox(height: 12),
                 // BOTÓN CANCELAR
                 TextButton(
                   onPressed: () => Get.back(),
-                  child: Text("CANCELAR", style: TextStyle(color: RCColors.textSecondary, fontWeight: FontWeight.bold)),
+                  child: Text("reg_cancel".tr, style: TextStyle(color: RCColors.textSecondary, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
@@ -107,10 +107,10 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildInputField(label: "Nombre del Piloto", icon: Icons.person_outline, controller: TextEditingController(text: fullName), enabled: false),
+          _buildInputField(label: "reg_pilot_name".tr, icon: Icons.person_outline, controller: TextEditingController(text: fullName), enabled: false),
           const SizedBox(height: 20),
           Obx(() => _buildProfileStyleDropdown<String>(
-            label: "Transponder",
+            label: "reg_transponder".tr,
             icon: Icons.track_changes_outlined,
             value: controller.selectedTransponderId.value.isEmpty ? null : controller.selectedTransponderId.value,
             items: userTransponders.map((t) => DropdownMenuItem<String>(value: t.id, child: Text("${t.number} - ${t.label}", style: TextStyle(color: RCColors.textPrimary)))).toList(),
@@ -118,7 +118,7 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
           )),
           const SizedBox(height: 20),
           Obx(() => _buildProfileStyleDropdown<String>(
-            label: "Categoría",
+            label: "reg_category".tr,
             icon: Icons.directions_car_outlined,
             value: controller.selectedCategory.value.isEmpty ? null : controller.selectedCategory.value,
             items: controller.availableCategories.map((c) => DropdownMenuItem<String>(value: c, child: Text(c, style: TextStyle(color: RCColors.textPrimary)))).toList(),
@@ -154,7 +154,7 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
           decoration: InputDecoration(filled: true, fillColor: RCColors.background.withValues(alpha: 0.5), border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none), contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
           items: items,
           onChanged: onChanged,
-          hint: Text("Selecciona...", style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5), fontSize: 13)),
+          hint: Text("reg_select".tr, style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5), fontSize: 13)),
         ),
       ],
     );

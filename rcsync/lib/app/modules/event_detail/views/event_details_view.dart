@@ -74,10 +74,10 @@ class EventDetailsView extends GetView<EventDetailsController> {
       if (controller.rulebooks.isEmpty) return const SizedBox.shrink();
 
       return _buildSection(
-        title: 'Reglamentos Técnicos',
+        title: 'det_tech_rules'.tr,
         child: Column(
           children: controller.rulebooks.map((rb) {
-            final catName = rb['categories']?['name'] ?? 'General';
+            final catName = rb['categories']?['name'] ?? 'evt_none'.tr;
             final url = rb['rulebook_url'];
 
             return Container(
@@ -89,10 +89,10 @@ class EventDetailsView extends GetView<EventDetailsController> {
               child: ListTile(
                 leading: const Icon(Icons.picture_as_pdf, color: Colors.redAccent, size: 28),
                 title: Text(
-                  'Reglamento $catName',
+                  '${'det_rulebook'.tr} $catName',
                   style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 14),
                 ),
-                subtitle: Text('Toca para abrir PDF', style: TextStyle(color: RCColors.textSecondary, fontSize: 12)),
+                subtitle: Text('det_open_pdf'.tr, style: TextStyle(color: RCColors.textSecondary, fontSize: 12)),
                 trailing: Icon(Icons.arrow_forward_ios, color: RCColors.iconSecondary, size: 16),
                 onTap: () => controller.openRulebook(url),
               ),
@@ -143,13 +143,13 @@ class EventDetailsView extends GetView<EventDetailsController> {
         _buildDetailRow(
             icon: Icons.calendar_today,
             iconColor: RCColors.orange,
-            title: 'Fecha',
+            title: 'det_date'.tr,
             subtitle: controller.formattedDate
         ),
         _buildDetailRow(
             icon: Icons.emoji_events_outlined,
             iconColor: Colors.amber,
-            title: 'Organizador',
+            title: 'det_organizer'.tr,
             subtitle: event.organizerName ?? 'Club RC'
         ),
       ],
@@ -157,7 +157,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
   );
 
   Widget _buildLocation(RaceEventModel event) => _buildSection(
-    title: 'Ubicación',
+    title: 'det_location'.tr,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -186,7 +186,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Pilotos Inscritos', style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
+        Text('det_pilots'.tr, style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
         const SizedBox(height: 15),
         ...controller.registeredPilots.entries.map((entry) => _buildCategoryGroup(entry.key, entry.value)),
       ],
@@ -226,7 +226,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
       padding: const EdgeInsets.all(20),
       color: RCColors.background,
       child: RCPrimaryButton(
-        label: isInscriptionsOpen ? 'Inscribirse ahora' : 'Inscripciones cerradas',
+        label: isInscriptionsOpen ? 'det_register_now'.tr : 'det_register_closed'.tr,
         onPressed: isInscriptionsOpen ? () => Get.toNamed(Routes.EVENT_REGISTRATION, arguments: event) : null,
       ),
     );
@@ -272,8 +272,8 @@ class EventDetailsView extends GetView<EventDetailsController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.map_outlined, color: RCColors.iconSecondary, size: 40),
-              SizedBox(height: 10),
-              Text('Mapa no disponible', style: TextStyle(color: RCColors.textSecondary))
+              const SizedBox(height: 10),
+              Text('det_no_map'.tr, style: TextStyle(color: RCColors.textSecondary))
             ]
         )
     ),
