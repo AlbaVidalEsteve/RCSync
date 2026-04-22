@@ -183,7 +183,7 @@ class ResultsView extends GetView<ResultsController> {
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: safeValue,
+          initialValue: safeValue,
           dropdownColor: RCColors.card, 
           icon: Icon(Icons.arrow_drop_down, color: RCColors.textSecondary),
           style: TextStyle(color: RCColors.textPrimary, fontSize: 14),

@@ -5,11 +5,15 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:rcsync/app/controllers/auth_controller.dart';
 import 'package:rcsync/core/theme/rc_theme.dart';
 import 'package:rcsync/core/values/languages.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'app/routes/app_pages.dart';
 
 void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
+    
+    // Inicializar formatos de fecha en español
+    await initializeDateFormatting('es_ES', null);
 
     // Load environment variables
     await dotenv.load(fileName: ".env");
@@ -56,9 +60,7 @@ class MyApp extends StatelessWidget {
       translations: Languages(),
       locale: const Locale('es'),
       fallbackLocale: const Locale('en'),
-      initialRoute: Supabase.instance.client.auth.currentUser == null
-          ? Routes.LOGIN
-          : Routes.HOME,
+      initialRoute: Routes.SPLASH,
       getPages: AppPages.routes,
       debugShowCheckedModeBanner: false,
       theme: RCTheme.lightTheme,

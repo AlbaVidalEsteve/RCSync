@@ -17,15 +17,22 @@ import 'package:rcsync/app/modules/create_event/bindings/create_event_binding.da
 import 'package:rcsync/app/modules/create_event/views/create_event_view.dart';
 import 'package:rcsync/app/modules/championship_form/bindings/championship_form_binding.dart';
 import 'package:rcsync/app/modules/championship_form/views/championship_form_view.dart';
+import 'package:rcsync/app/modules/splash/bindings/splash_binding.dart';
+import 'package:rcsync/app/modules/splash/views/splash_view.dart';
 
 part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.HOME;
+  static const INITIAL = Routes.SPLASH;
 
   static final routes = [
+    GetPage(
+      name: _Paths.SPLASH,
+      page: () => const SplashView(),
+      binding: SplashBinding(),
+    ),
     GetPage(
       name: _Paths.HOME,
       page: () => const HomeScreen(),

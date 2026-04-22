@@ -264,10 +264,12 @@ class ProfileController extends GetxController {
       isLoading.value = true;
       final userId = client.auth.currentUser!.id;
 
+      // 1. Guardar datos básicos del perfil
       await client.from("profiles").update({
         "full_name": nameC.text,
       }).eq("id_profile", userId);
 
+      // 2. Gestionar transponders eliminados
       List<String> currentExistingIds = transponders
           .where((t) => !t["id_transponder"].toString().startsWith("temp_"))
           .map((t) => t["id_transponder"].toString())
@@ -280,6 +282,22 @@ class ProfileController extends GetxController {
         await client.from("transponders").delete().filter("id_transponder", "in", toDelete);
       }
 
+      // 3. Procesar transponder que está "en edición" pero no se ha añadido con el botón (+)
+      final pendingNumStr = newTransponderNumberC.text.trim();
+      final pendingLabel = newTransponderLabelC.text.trim();
+      final pendingNum = int.tryParse(pendingNumStr);
+
+      if (pendingNum != null && pendingLabel.isNotEmpty) {
+        await client.from("transponders").insert({
+          "number": pendingNum,
+          "label": pendingLabel,
+          "id_profile": userId,
+        });
+        newTransponderNumberC.clear();
+        newTransponderLabelC.clear();
+      }
+
+      // 4. Guardar cambios en transponders de la lista (Nuevos o Editados)
       for (var t in transponders) {
         String id = t["id_transponder"].toString();
         var controllers = transponderControllers[id];

@@ -156,7 +156,7 @@ class CreateEventView extends GetView<CreateEventController> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
       child: Obx(() => DropdownButtonFormField<int>(
-        value: selectedValue.value,
+        initialValue: selectedValue.value,
         dropdownColor: RCColors.card,
         style: TextStyle(color: RCColors.textPrimary),
         decoration: InputDecoration(
