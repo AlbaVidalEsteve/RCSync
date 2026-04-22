@@ -141,7 +141,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                     Obx(() => Switch(
                         value: controller.isActive.value,
                         onChanged: (v) => controller.isActive.value = v,
-                        activeColor: RCColors.orange,
+                        activeThumbColor: RCColors.orange,
                         activeTrackColor: RCColors.orange.withOpacity(0.3),
                     )),
                   ],
@@ -226,7 +226,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
         _buildInputLabel(label, icon: icon),
         const SizedBox(height: 8),
         DropdownButtonFormField<T>(
-          value: value,
+          initialValue: value,
           dropdownColor: RCColors.card,
           style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
           decoration: InputDecoration(

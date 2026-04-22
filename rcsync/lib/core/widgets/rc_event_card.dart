@@ -9,6 +9,7 @@ class RCEventCard extends StatelessWidget {
   final String? imageUrl;
   final VoidCallback onTap;
   final bool isAccepted;
+  final int index;
 
   const RCEventCard({
     super.key,
@@ -18,19 +19,21 @@ class RCEventCard extends StatelessWidget {
     this.imageUrl,
     required this.onTap,
     this.isAccepted = true,
+    this.index = 5,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        decoration: BoxDecoration(
-          color: RCColors.card,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: RCColors.divider),
+      child: Card(
+        color: RCColors.card,
+        margin: const EdgeInsets.only(bottom: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide.none,
         ),
+        elevation: index < 3 ? 4 : 1,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -38,7 +41,7 @@ class RCEventCard extends StatelessWidget {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                   child: (imageUrl != null && imageUrl!.isNotEmpty)
                     ? Image.network(imageUrl!, height: 160, width: double.infinity, fit: BoxFit.cover)
                     : Container(
