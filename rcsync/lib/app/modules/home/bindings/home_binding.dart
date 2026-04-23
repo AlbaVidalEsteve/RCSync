@@ -3,19 +3,22 @@ import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import '../../results/controllers/results_controller.dart';
 import '../../profile/controllers/profile_controller.dart';
+import '../../admin_dashboard/controllers/admin_dashboard_controller.dart';
 
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
     Get.lazyPut<HomeController>(
-      () => HomeController(),
+          () => HomeController(),
     );
-    // Agregamos ProfileController aquí para que esté disponible cuando se cargue la Home
     Get.lazyPut<ProfileController>(
-      () => ProfileController(),
+          () => ProfileController(),
     );
     Get.lazyPut<ResultsController>(
-      () => ResultsController(),
+          () => ResultsController(),
+    );
+    Get.lazyPut<AdminDashboardController>(
+          () => AdminDashboardController(),
     );
   }
 }

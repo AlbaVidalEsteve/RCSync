@@ -10,6 +10,17 @@ import 'package:rcsync/app/data/models/race_event_model.dart';
 class EventDetailsView extends GetView<EventDetailsController> {
   const EventDetailsView({super.key});
 
+  // URL de imagen por defecto
+  static const String _genericHelmetUrl = "https://llprsnjobjwtcwwpsqwy.supabase.co/storage/v1/object/public/imagenes/perfilfoto/imagen%20perfil%20generica.png";
+
+  // Colores para el badge de posición
+  Color _getPositionColor(int position) {
+    if (position == 1) return RCColors.gold;
+    if (position == 2) return RCColors.silver;
+    if (position == 3) return RCColors.bronze;
+    return RCColors.orange;
+  }
+
   @override
   Widget build(BuildContext context) {
     Theme.of(context);
@@ -26,7 +37,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
         return CustomScrollView(
           slivers: [
             SliverAppBar(
-              expandedHeight: 300,
+              expandedHeight: 350,
               pinned: true,
               backgroundColor: RCColors.background,
               leading: _buildBackBtn(),
@@ -40,29 +51,23 @@ class EventDetailsView extends GetView<EventDetailsController> {
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
-                      // 1. Info Evento
                       _buildEventInfo(event),
                       const SizedBox(height: 20),
 
-                      // 2. Botón de Exportar (solo para admin/organizador)
                       if (controller.isAdminOrOrganizer.value)
                         _buildExportButton(),
                       const SizedBox(height: 20),
 
-                      // 3. Reglamentos colapsable
                       _buildRulebooksSection(),
                       const SizedBox(height: 20),
 
-                      // 4. Descripcion evento colapsable
                       _buildDescriptionSection(event),
                       const SizedBox(height: 20),
 
-                      // 5. Pilotos inscritos y confirmados colapsable
                       _buildPilotList(),
                       const SizedBox(height: 20),
 
-                      // 6. Mapa y ubicacion
-                      _buildLocation(event),
+                      _buildLocationSection(event),
 
                       const SizedBox(height: 100),
                     ],
@@ -77,12 +82,16 @@ class EventDetailsView extends GetView<EventDetailsController> {
     );
   }
 
-  // Header
   Widget _buildHeaderBackground(RaceEventModel event) => Stack(
     fit: StackFit.expand,
     children: [
       if (event.imageEvent != null)
-        Image.network(event.imageEvent!, fit: BoxFit.cover)
+        Image.network(
+          event.imageEvent!,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        )
       else
         Container(
             color: RCColors.orange.withValues(alpha: 0.2),
@@ -111,7 +120,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
     ),
   );
 
-  // Botón de Exportar
   Widget _buildExportButton() {
     return Container(
       width: double.infinity,
@@ -156,7 +164,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
     );
   }
 
-  // Info Evento
   Widget _buildEventInfo(RaceEventModel event) => _buildSection(
     title: event.name,
     child: Column(
@@ -177,7 +184,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
     ),
   );
 
-  // Reglamentos
   Widget _buildRulebooksSection() {
     return Obx(() {
       if (controller.rulebooks.isEmpty) return const SizedBox.shrink();
@@ -215,7 +221,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
     });
   }
 
-  // Descripcion
   Widget _buildDescriptionSection(RaceEventModel event) {
     final String? description = event.description;
     if (description == null || description.trim().isEmpty) return const SizedBox.shrink();
@@ -232,7 +237,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
     ));
   }
 
-  // Pilotos Inscritos
   Widget _buildPilotList() => Obx(() {
     if (controller.registeredPilots.isEmpty) return const SizedBox.shrink();
 
@@ -282,31 +286,185 @@ class EventDetailsView extends GetView<EventDetailsController> {
           ],
         ),
       ),
-      ...pilots.map((pilot) => Card(
-        color: RCColors.card,
-        margin: const EdgeInsets.only(bottom: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: RCColors.background,
-            backgroundImage: pilot.imageUrl != null ? NetworkImage(pilot.imageUrl!) : null,
-            child: pilot.imageUrl == null ? Icon(Icons.person, color: RCColors.iconSecondary) : null,
+      ...pilots.asMap().entries.map((entry) {
+        final index = entry.key;
+        final pilot = entry.value;
+        final position = index + 1;
+
+        // Determinar colores según categoría
+        final bool isSuperstock = pilot.subCategory.toUpperCase() == 'SUPERSTOCK';
+        // Limpiar la categoría para mostrar sin texto extra
+        String displayCategory = pilot.subCategory;
+        if (displayCategory.contains('JUNIOR')) {
+          displayCategory = displayCategory.replaceAll(RegExp(r'JUNIOR[\+]?', caseSensitive: false), '').trim();
+        }
+        if (displayCategory.isEmpty) displayCategory = 'STOCK';
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          decoration: BoxDecoration(
+            color: RCColors.card,
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: RCColors.divider.withOpacity(0.3),
+            ),
           ),
-          title: Text(pilot.fullName, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
-          subtitle: Text(pilot.subCategory, style: TextStyle(color: RCColors.textSecondary)),
-          trailing: Text('${pilot.totalPoints} pts', style: TextStyle(color: RCColors.textSecondary, fontWeight: FontWeight.bold)),
-        ),
-      )),
+          child: ListTile(
+            leading: Stack(
+              alignment: Alignment.bottomRight,
+              children: [
+                // Avatar circular con foto
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: RCColors.surface,
+                    border: Border.all(
+                      color: _getPositionColor(position).withOpacity(0.5),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: ClipOval(
+                    child: Image.network(
+                      (pilot.imageUrl != null && pilot.imageUrl!.isNotEmpty)
+                          ? pilot.imageUrl!
+                          : _genericHelmetUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.network(
+                          _genericHelmetUrl,
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                // Badge con la posición
+                Positioned(
+                  right: -2,
+                  bottom: -2,
+                  child: Container(
+                    padding: const EdgeInsets.all(1),
+                    decoration: BoxDecoration(
+                      color: RCColors.card,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: RCColors.card, width: 1.5),
+                    ),
+                    child: Container(
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: _getPositionColor(position),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$position',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 9,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            title: Text(
+              pilot.fullName,
+              style: TextStyle(
+                color: RCColors.textPrimary,
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: [
+                  // Badge de categoría (STOCK/SUPERSTOCK)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: isSuperstock
+                          ? Colors.purple.withOpacity(0.2)
+                          : Colors.blue.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: isSuperstock
+                            ? Colors.purpleAccent
+                            : Colors.blueAccent,
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Text(
+                      displayCategory,
+                      style: TextStyle(
+                        color: isSuperstock
+                            ? Colors.purpleAccent
+                            : Colors.lightBlueAccent,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                  // Badge de Junior (usando el booleano isJunior)
+                  if (pilot.isJunior)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.greenAccent, width: 0.5),
+                      ),
+                      child: const Text(
+                        "JUNIOR",
+                        style: TextStyle(
+                          color: Colors.greenAccent,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: RCColors.orange.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '${pilot.totalPoints} pts',
+                style: TextStyle(
+                  color: RCColors.orange,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ),
+        );
+      }),
     ],
   );
 
-  // Mapa
-  Widget _buildLocation(RaceEventModel event) => _buildSection(
+  Widget _buildLocationSection(RaceEventModel event) => Obx(() => _buildCollapsibleSection(
     title: 'det_location'.tr,
+    icon: Icons.location_on_outlined,
+    isExpanded: controller.isLocationExpanded.value,
+    onToggle: () => controller.isLocationExpanded.value = !controller.isLocationExpanded.value,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Solo el mapa, sin texto de población
         ClipRRect(
           borderRadius: BorderRadius.circular(15),
           child: (event.circuitLat != null && event.circuitLng != null)
@@ -319,9 +477,8 @@ class EventDetailsView extends GetView<EventDetailsController> {
         ),
       ],
     ),
-  );
+  ));
 
-  // Accion Boton inferior
   Widget _buildBottomAction() {
     final event = controller.event.value;
     final bool isInscriptionsOpen = event.eventRegFin != null && event.eventRegFin!.isAfter(DateTime.now());
@@ -336,7 +493,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
     );
   }
 
-  // Widgets reutilizables
   Widget _buildSection({required String title, required Widget child}) => Container(
     width: double.infinity,
     padding: const EdgeInsets.all(20),

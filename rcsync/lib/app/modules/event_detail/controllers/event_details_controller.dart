@@ -17,12 +17,16 @@ class RegisteredPilot {
   final String subCategory;
   final String? imageUrl;
   final int totalPoints;
+  final int position;
+  final bool isJunior;
 
   RegisteredPilot({
     required this.fullName,
     required this.subCategory,
     this.imageUrl,
     required this.totalPoints,
+    required this.position,
+    required this.isJunior,
   });
 }
 
@@ -35,11 +39,13 @@ class EventDetailsController extends GetxController {
 
   // Lista de reglamentos encontrados
   var rulebooks = <Map<String, dynamic>>[].obs;
-  var isRulebooksExpanded = true.obs;
-  var isDescriptionExpanded = true.obs;
-  var isPilotsExpanded = true.obs;
 
-  // Verificar si el usuario actual es admin u organizador
+  // Todos los menús colapsables empiezan cerrados
+  var isRulebooksExpanded = false.obs;
+  var isDescriptionExpanded = false.obs;
+  var isPilotsExpanded = false.obs;
+  var isLocationExpanded = false.obs;
+
   var isAdminOrOrganizer = false.obs;
 
   @override
@@ -49,7 +55,7 @@ class EventDetailsController extends GetxController {
       event = (Get.arguments as RaceEventModel).obs;
       fetchRegisteredPilots();
       fetchRulebooks();
-      _checkAdminOrOrganizer(); // Verificar rol al iniciar
+      _checkAdminOrOrganizer();
     }
   }
 
@@ -93,7 +99,6 @@ class EventDetailsController extends GetxController {
     }
   }
 
-  // Funcion abrir mapa
   Future<void> openMapsWithRoute() async {
     if (event.value.circuitLat == null || event.value.circuitLng == null) {
       Get.snackbar(
@@ -109,16 +114,13 @@ class EventDetailsController extends GetxController {
     final double destLat = event.value.circuitLat!;
     final double destLng = event.value.circuitLng!;
 
-    // URL para Google Maps con navegación desde ubicación actual
     final String googleMapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=$destLat,$destLng&travelmode=driving';
-
     final Uri uri = Uri.parse(googleMapsUrl);
 
     try {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        // Fallback a navegador web
         await launchUrl(uri, mode: LaunchMode.platformDefault);
       }
     } catch (e) {
@@ -132,11 +134,9 @@ class EventDetailsController extends GetxController {
     }
   }
 
-  // registros con filtro approved
   Future<void> fetchRegisteredPilots() async {
     isLoading.value = true;
     try {
-      // V9
       final response = await supabase.rpc(
           'get_event_ranking_pre_race_v9',
           params: {'p_event_id': event.value.idEvent}
@@ -148,19 +148,33 @@ class EventDetailsController extends GetxController {
       for (var item in data) {
         String catName = item['category_name'] ?? 'Otros';
 
+        final bool isJunior = item['is_junior'] ?? false;
+
         var pilot = RegisteredPilot(
           fullName: item['full_name'] ?? 'Piloto',
           subCategory: item['subcategory_name'] ?? 'STOCK',
           imageUrl: item['image_url'],
           totalPoints: (item['total_points_previo'] as num).toInt(),
+          position: 0,
+          isJunior: isJunior,
         );
 
         grouped.putIfAbsent(catName, () => []).add(pilot);
       }
 
-      // Ordenar por puntos (Mayor a menor)
+      // Ordenar por puntos y asignar posiciones
       grouped.forEach((key, list) {
         list.sort((a, b) => b.totalPoints.compareTo(a.totalPoints));
+        for (int i = 0; i < list.length; i++) {
+          list[i] = RegisteredPilot(
+            fullName: list[i].fullName,
+            subCategory: list[i].subCategory,
+            imageUrl: list[i].imageUrl,
+            totalPoints: list[i].totalPoints,
+            position: i + 1,
+            isJunior: list[i].isJunior,
+          );
+        }
       });
 
       registeredPilots.value = grouped;
@@ -178,10 +192,8 @@ class EventDetailsController extends GetxController {
     }
   }
 
-  // Exportar lista de pilotos inscritos a CSV con separación por categorías
   Future<void> exportRegisteredPilots() async {
     try {
-      // Mostrar indicador de carga
       Get.dialog(
         Container(
           padding: const EdgeInsets.all(20),
@@ -201,7 +213,6 @@ class EventDetailsController extends GetxController {
         barrierDismissible: false,
       );
 
-      // Asegurar que tenemos datos actualizados
       await fetchRegisteredPilots();
 
       if (registeredPilots.isEmpty) {
@@ -215,7 +226,6 @@ class EventDetailsController extends GetxController {
         return;
       }
 
-      // Recopilar todos los pilotos con su información completa
       final Map<String, List<Map<String, dynamic>>> pilotsByCategory = {};
 
       for (var entry in registeredPilots.entries) {
@@ -223,7 +233,6 @@ class EventDetailsController extends GetxController {
         final List<Map<String, dynamic>> categoryPilots = [];
 
         for (var pilot in entry.value) {
-          // Obtener transponder del piloto
           String transponder = '';
           try {
             final response = await supabase
@@ -251,62 +260,48 @@ class EventDetailsController extends GetxController {
             'ranking': pilot.totalPoints,
             'categoria': pilot.subCategory,
             'transponder': transponder,
-            'posicion': categoryPilots.length + 1,
+            'posicion': pilot.position,
+            'junior': pilot.isJunior ? 'SÍ' : 'NO',
           });
-        }
-
-        // Ordenar por ranking dentro de la categoría
-        categoryPilots.sort((a, b) => b['ranking'].compareTo(a['ranking']));
-
-        // Actualizar posiciones después del ordenamiento
-        for (int i = 0; i < categoryPilots.length; i++) {
-          categoryPilots[i]['posicion'] = i + 1;
         }
 
         pilotsByCategory[category] = categoryPilots;
       }
 
-      // Crear CSV
       final StringBuffer csv = StringBuffer();
-      csv.write('\u{FEFF}'); // BOM para UTF-8
+      csv.write('\u{FEFF}');
 
       for (var entry in pilotsByCategory.entries) {
         final category = entry.key;
         final pilots = entry.value;
 
-        // Encabezado de categoría
         csv.writeln('=== $category ===');
         csv.writeln();
+        csv.writeln('Nº;Nombre;Ranking;Categoría;Transponder;Junior');
 
-        // Encabezados de columnas
-        csv.writeln('Nº;Nombre;Ranking;Categoría;Transponder');
-
-        // Datos de la categoría
         for (var pilot in pilots) {
           csv.writeln(
               '${pilot['posicion']};'
                   '${pilot['nombre']};'
                   '${pilot['ranking']};'
                   '${pilot['categoria']};'
-                  '${pilot['transponder']}'
+                  '${pilot['transponder']};'
+                  '${pilot['junior']}'
           );
         }
 
-        csv.writeln(); // Línea en blanco entre categorías
-        csv.writeln(); // Línea adicional para separar
+        csv.writeln();
+        csv.writeln();
       }
 
-      // Guardar archivo
       final directory = await getApplicationDocumentsDirectory();
       final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
       final String fileName = 'inscritos_${event.value.name.replaceAll(' ', '_')}_$timestamp.csv';
       final File file = File('${directory.path}/$fileName');
       await file.writeAsString(csv.toString(), encoding: utf8);
 
-      // Cerrar diálogo de carga
       Get.back();
 
-      // Mostrar diálogo de éxito
       Get.dialog(
         Dialog(
           backgroundColor: RCColors.card,
@@ -366,7 +361,8 @@ class EventDetailsController extends GetxController {
                             '• Nº = Posición dentro de la categoría\n'
                             '• Ranking = Puntos totales del piloto\n'
                             '• Categoría = STOCK / SUPERSTOCK\n'
-                            '• Transponder = Número del transponder',
+                            '• Transponder = Número del transponder\n'
+                            '• Junior = SÍ/NO',
                         style: TextStyle(color: RCColors.textSecondary, fontSize: 11),
                       ),
                     ],
@@ -409,7 +405,6 @@ class EventDetailsController extends GetxController {
     }
   }
 
-  // Metodo para verificar si el usuario es admin u organizador
   Future<void> _checkAdminOrOrganizer() async {
     try {
       final user = supabase.auth.currentUser;
@@ -418,7 +413,6 @@ class EventDetailsController extends GetxController {
         return;
       }
 
-      // Obtener el rol del usuario desde la base de datos
       final response = await supabase
           .from('profiles')
           .select('rol')

@@ -6,6 +6,9 @@ import 'package:rcsync/app/data/models/race_event_model.dart';
 import 'package:rcsync/app/data/models/profiles_model.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import '../../../routes/app_pages.dart';
+import '../../admin_dashboard/controllers/admin_dashboard_controller.dart';
+import '../../results/controllers/results_controller.dart';
+import '../../profile/controllers/profile_controller.dart';
 
 class HomeController extends GetxController {
   RxBool isLoading = false.obs;
@@ -15,7 +18,7 @@ class HomeController extends GetxController {
 
   final RxList<RaceEventModel> rawEvents = <RaceEventModel>[].obs;
   final RxList<NeatCleanCalendarEvent> eventList = <NeatCleanCalendarEvent>[].obs;
-  
+
   // Perfil del usuario actual
   final Rxn<ProfileModel> userProfile = Rxn<ProfileModel>();
 
@@ -32,14 +35,61 @@ class HomeController extends GetxController {
     getCurrentUserProfile();
   }
 
-  // En home_controller.dart (añadir este getter)
+  // Getter para verificar si es admin u organizador
   bool get isAdminOrOrganizer {
     final role = userProfile.value?.rol.toLowerCase() ?? 'piloto';
     return role == 'admin' || role == 'organizador';
   }
 
+  // Cambiar índice y actualizar datos según la pestaña seleccionada
   void changeIndex(int index) {
     selectedIndex.value = index;
+    _refreshDataByTab(index);
+  }
+
+  // Actualizar datos según la pestaña seleccionada
+  void _refreshDataByTab(int index) {
+    switch (index) {
+      case 0: // Eventos
+        getEvents();
+        break;
+      case 1: // Admin Dashboard (solo si es admin/organizador)
+        if (isAdminOrOrganizer && Get.isRegistered<AdminDashboardController>()) {
+          Get.find<AdminDashboardController>().loadAllData();
+        }
+        break;
+      case 2: // Resultados
+        if (Get.isRegistered<ResultsController>()) {
+          final resultsController = Get.find<ResultsController>();
+          resultsController.fetchAvailableYears();
+        }
+        break;
+      case 3: // Perfil
+        if (Get.isRegistered<ProfileController>()) {
+          final profileController = Get.find<ProfileController>();
+          profileController.getProfile();
+          profileController.getTransponders();
+        }
+        break;
+    }
+  }
+
+  // Refrescar todos los datos (útil cuando la app vuelve a primer plano)
+  void refreshAllData() {
+    getEvents();
+    getCurrentUserProfile();
+
+    if (Get.isRegistered<AdminDashboardController>()) {
+      Get.find<AdminDashboardController>().loadAllData();
+    }
+    if (Get.isRegistered<ResultsController>()) {
+      Get.find<ResultsController>().fetchAvailableYears();
+    }
+    if (Get.isRegistered<ProfileController>()) {
+      final profileController = Get.find<ProfileController>();
+      profileController.getProfile();
+      profileController.getTransponders();
+    }
   }
 
   Future<void> getCurrentUserProfile() async {
@@ -69,7 +119,7 @@ class HomeController extends GetxController {
       Get.toNamed(Routes.CREATE_EVENT);
     } else {
       Get.snackbar(
-        "Acceso denegado", 
+        "Acceso denegado",
         "No tienes permisos para agregar un evento",
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
@@ -82,13 +132,13 @@ class HomeController extends GetxController {
     try {
       isLoading.value = true;
       final response = await client.from("events").select('''
-      *,
-      circuits (*),
-      championships (
         *,
-        profiles (*)
-      )
-    ''').order("event_date_ini", ascending: true);
+        circuits (*),
+        championships (
+          *,
+          profiles (*)
+        )
+      ''').order("event_date_ini", ascending: true);
 
       final List<RaceEventModel> fetchedEvents = [];
 
@@ -130,13 +180,12 @@ class HomeController extends GetxController {
     }
   }
 
-
   // Helper to get events for the currently shown month
   List<RaceEventModel> get eventsOfCurrentMonth {
     return rawEvents.where((e) {
       if (e.eventDateIni == null) return false;
-      return e.eventDateIni!.year == currentMonth.value.year && 
-             e.eventDateIni!.month == currentMonth.value.month;
+      return e.eventDateIni!.year == currentMonth.value.year &&
+          e.eventDateIni!.month == currentMonth.value.month;
     }).toList();
   }
 
@@ -154,9 +203,9 @@ class HomeController extends GetxController {
   List<RaceEventModel> eventsOfDay(DateTime date) {
     return rawEvents.where((e) {
       if (e.eventDateIni == null) return false;
-      return e.eventDateIni!.year == date.year && 
-             e.eventDateIni!.month == date.month && 
-             e.eventDateIni!.day == date.day;
+      return e.eventDateIni!.year == date.year &&
+          e.eventDateIni!.month == date.month &&
+          e.eventDateIni!.day == date.day;
     }).toList();
   }
 
@@ -173,9 +222,9 @@ class HomeController extends GetxController {
 
   void handleDateSelected(DateTime date) {
     showAllFutureEvents.value = false;
-    if (isDaySelected.value && 
-        selectedDate.value.year == date.year && 
-        selectedDate.value.month == date.month && 
+    if (isDaySelected.value &&
+        selectedDate.value.year == date.year &&
+        selectedDate.value.month == date.month &&
         selectedDate.value.day == date.day) {
       // Toggle off if same day clicked
       isDaySelected.value = false;

@@ -4,6 +4,7 @@ import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/routes/app_pages.dart';
 import 'package:intl/intl.dart';
 import '../controllers/admin_dashboard_controller.dart';
+import '../controllers/import_results_controller.dart';
 import 'import_results_view.dart';
 
 class AdminDashboardView extends StatelessWidget {
@@ -11,7 +12,6 @@ class AdminDashboardView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchar el tema para cambios reactivos
     Theme.of(context);
     final controller = Get.put(AdminDashboardController());
 
@@ -33,7 +33,7 @@ class AdminDashboardView extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.upload_file),
-            onPressed: () => Get.to(() => ImportResultsView()),
+            onPressed: () => Get.to(() => const ImportResultsView()),
             tooltip: 'import_results'.tr,
           ),
         ],
@@ -53,7 +53,6 @@ class AdminDashboardView extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // Línea naranja debajo de la TabBar
           Container(height: 2, color: RCColors.orange),
           Expanded(
             child: TabBarView(
@@ -68,8 +67,8 @@ class AdminDashboardView extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(bottom: 90.0),
           child: FloatingActionButton(
-            backgroundColor: RCColors.orange, 
-            foregroundColor: Colors.white, 
+            backgroundColor: RCColors.orange,
+            foregroundColor: Colors.white,
             elevation: 4,
             onPressed: () async {
               dynamic result;
@@ -97,7 +96,7 @@ class AdminDashboardView extends StatelessWidget {
       final groups = controller.groupedEvents.entries.toList();
 
       return ListView.builder(
-        padding: const EdgeInsets.all(15), 
+        padding: const EdgeInsets.all(15),
         itemCount: groups.length,
         itemBuilder: (context, index) {
           final champName = groups[index].key;
@@ -106,25 +105,25 @@ class AdminDashboardView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10), 
-                child: Text(champName.toUpperCase(), style: TextStyle(color: RCColors.orange, fontWeight: FontWeight.bold, fontSize: 16))
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Text(champName.toUpperCase(), style: TextStyle(color: RCColors.orange, fontWeight: FontWeight.bold, fontSize: 16))
               ),
               ...events.map((event) {
                 final locale = Get.locale?.toLanguageTag() ?? 'es-ES';
                 final dateStr = event.eventDateIni != null ? DateFormat.yMMMd(locale).format(event.eventDateIni!) : '---';
                 return Card(
-                  color: RCColors.card, 
-                  margin: const EdgeInsets.only(bottom: 10), 
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                  child: ListTile(
-                    title: Text(event.name, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)), 
-                    subtitle: Text(dateStr, style: TextStyle(color: RCColors.textSecondary)), 
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit, color: RCColors.orange),
-                      onPressed: () => controller.editEvent(event)
+                    color: RCColors.card,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    child: ListTile(
+                        title: Text(event.name, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
+                        subtitle: Text(dateStr, style: TextStyle(color: RCColors.textSecondary)),
+                        trailing: IconButton(
+                            icon: const Icon(Icons.edit, color: RCColors.orange),
+                            onPressed: () => controller.editEvent(event)
+                        )
                     )
-                  )
                 );
               }),
             ],
@@ -140,23 +139,23 @@ class AdminDashboardView extends StatelessWidget {
       if (controller.activeChampionshipsList.isEmpty) return Center(child: Text("adm_no_champs".tr, style: TextStyle(color: RCColors.textSecondary)));
 
       return ListView.builder(
-        padding: const EdgeInsets.all(15), 
+        padding: const EdgeInsets.all(15),
         itemCount: controller.activeChampionshipsList.length,
         itemBuilder: (context, index) {
           final champ = controller.activeChampionshipsList[index];
           return Card(
-            color: RCColors.card, 
-            margin: const EdgeInsets.only(bottom: 10), 
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: ListTile(
-              title: Text(champ['name'] ?? '---', style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)), 
-              subtitle: Text('${"adm_year".tr}: ${champ['year']}', style: TextStyle(color: RCColors.textSecondary)), 
-              trailing: IconButton(
-                icon: const Icon(Icons.edit, color: RCColors.orange),
-                onPressed: () => controller.editChampionship(champ)
+              color: RCColors.card,
+              margin: const EdgeInsets.only(bottom: 10),
+              elevation: 2,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              child: ListTile(
+                  title: Text(champ['name'] ?? '---', style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
+                  subtitle: Text('${"adm_year".tr}: ${champ['year']}', style: TextStyle(color: RCColors.textSecondary)),
+                  trailing: IconButton(
+                      icon: const Icon(Icons.edit, color: RCColors.orange),
+                      onPressed: () => controller.editChampionship(champ)
+                  )
               )
-            )
           );
         },
       );
@@ -166,52 +165,176 @@ class AdminDashboardView extends StatelessWidget {
   Widget _buildInscripcionesList(AdminDashboardController controller) {
     return Obx(() {
       if (controller.isLoadingRegs.value) return const Center(child: CircularProgressIndicator(color: RCColors.orange));
-      if (controller.pendingRegistrationsList.isEmpty) {
+
+      // Verificar si hay inscripciones
+      final hasPending = controller.pendingRegistrationsList.isNotEmpty;
+      final hasApproved = controller.approvedRegistrationsList.isNotEmpty;
+      final hasDenied = controller.deniedRegistrationsList.isNotEmpty;
+
+      if (!hasPending && !hasApproved && !hasDenied) {
         return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, 
-            children: [
-              const Icon(Icons.check_circle_outline, color: Colors.green, size: 60), 
-              const SizedBox(height: 10), 
-              Text("adm_no_regs".tr, style: TextStyle(color: RCColors.textSecondary, fontSize: 16))
-            ]
-          )
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check_circle_outline, color: Colors.green, size: 60),
+                  const SizedBox(height: 10),
+                  Text("adm_no_regs".tr, style: TextStyle(color: RCColors.textSecondary, fontSize: 16))
+                ]
+            )
         );
       }
 
-      return ListView.builder(
-        padding: const EdgeInsets.all(15), 
-        itemCount: controller.pendingRegistrationsList.length,
-        itemBuilder: (context, index) {
-          final reg = controller.pendingRegistrationsList[index];
-          final pilotName = reg['profiles']?['full_name'] ?? '---';
-          final eventName = reg['events']?['name'] ?? '---';
-          final categoryName = reg['categories']?['name'] ?? '';
-          return Card(
-            color: RCColors.card, 
-            margin: const EdgeInsets.only(bottom: 10), 
-            elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            child: ListTile(
-              title: Text(pilotName, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)), 
-              subtitle: Text('$eventName\n${"res_category".tr}: $categoryName', style: TextStyle(color: RCColors.textSecondary)), 
-              isThreeLine: true, 
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, 
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
-                ), 
-                onPressed: () { 
-                  final regId = reg['id_registration']; 
-                  if (regId != null) controller.confirmRegistration(regId); 
-                }, 
-                child: Text('adm_confirm'.tr)
-              )
-            )
-          );
-        },
+      return Column(
+        children: [
+          // Tabs para filtrar por estado
+          Container(
+            margin: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: RCColors.card,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: SegmentedButton<int>(
+              segments: const [
+                ButtonSegment(value: 0, label: Text('Pendientes'), icon: Icon(Icons.pending_actions, size: 18)),
+                ButtonSegment(value: 1, label: Text('Aprobados'), icon: Icon(Icons.check_circle, size: 18)),
+                ButtonSegment(value: 2, label: Text('Rechazados'), icon: Icon(Icons.cancel, size: 18)),
+              ],
+              selected: {controller.regTabIndex.value},
+              onSelectionChanged: (Set<int> newSelection) {
+                controller.regTabIndex.value = newSelection.first;
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return RCColors.orange;
+                  }
+                  return Colors.transparent;
+                }),
+                foregroundColor: WidgetStateProperty.resolveWith((states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Colors.white;
+                  }
+                  return RCColors.textSecondary;
+                }),
+              ),
+            ),
+          ),
+
+          // Lista según el tab seleccionado
+          Expanded(
+            child: IndexedStack(
+              index: controller.regTabIndex.value,
+              children: [
+                _buildRegList(controller.pendingRegistrationsList, controller, 'pending'),
+                _buildRegList(controller.approvedRegistrationsList, controller, 'approved'),
+                _buildRegList(controller.deniedRegistrationsList, controller, 'denied'),
+              ],
+            ),
+          ),
+        ],
       );
     });
+  }
+
+  Widget _buildRegList(RxList<Map<String, dynamic>> registrations, AdminDashboardController controller, String status) {
+    if (registrations.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              status == 'pending' ? Icons.pending_actions :
+              (status == 'approved' ? Icons.check_circle : Icons.cancel),
+              size: 50,
+              color: status == 'pending' ? Colors.orange :
+              (status == 'approved' ? Colors.green : Colors.red),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              status == 'pending' ? 'No hay inscripciones pendientes' :
+              (status == 'approved' ? 'No hay inscripciones aprobadas' : 'No hay inscripciones rechazadas'),
+              style: TextStyle(color: RCColors.textSecondary),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(15),
+      itemCount: registrations.length,
+      itemBuilder: (context, index) {
+        final reg = registrations[index];
+        final pilotName = reg['profiles']?['full_name'] ?? '---';
+        final eventName = reg['events']?['name'] ?? '---';
+        final categoryName = reg['categories']?['name'] ?? '';
+        final pilotImage = reg['profiles']?['image_profile'];
+
+        return Card(
+          color: RCColors.card,
+          margin: const EdgeInsets.only(bottom: 10),
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: BorderSide(
+              color: status == 'pending' ? Colors.orange :
+              (status == 'approved' ? Colors.green : Colors.red),
+              width: 1,
+            ),
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: RCColors.background,
+              backgroundImage: pilotImage != null ? NetworkImage(pilotImage) : null,
+              child: pilotImage == null ? Icon(Icons.person, color: RCColors.iconSecondary) : null,
+            ),
+            title: Text(pilotName, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(eventName, style: TextStyle(color: RCColors.textSecondary)),
+                Text('${"res_category".tr}: $categoryName', style: TextStyle(color: RCColors.textSecondary, fontSize: 12)),
+              ],
+            ),
+            isThreeLine: true,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (status == 'pending') ...[
+                  // Botón Aceptar (verde)
+                  IconButton(
+                    icon: const Icon(Icons.check_circle, color: Colors.green),
+                    onPressed: () {
+                      final regId = reg['id_registration'];
+                      if (regId != null) controller.confirmRegistration(regId);
+                    },
+                    tooltip: 'Aceptar inscripción',
+                  ),
+                  // Botón Rechazar (naranja)
+                  IconButton(
+                    icon: const Icon(Icons.cancel, color: Colors.orange),
+                    onPressed: () {
+                      final regId = reg['id_registration'];
+                      if (regId != null) controller.denyRegistration(regId);
+                    },
+                    tooltip: 'Rechazar inscripción',
+                  ),
+                ],
+                // Botón Cancelar/Borrar (rojo) - visible siempre para admin
+                // Solo mostrar si el usuario es admin (simplificado, puedes añadir verificación)
+                IconButton(
+                  icon: const Icon(Icons.delete_forever, color: Colors.red),
+                  onPressed: () {
+                    final regId = reg['id_registration'];
+                    if (regId != null) controller.cancelRegistration(regId);
+                  },
+                  tooltip: 'Cancelar y eliminar inscripción',
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
