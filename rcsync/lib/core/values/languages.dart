@@ -9,14 +9,34 @@ class Languages extends Translations {
       'nav_mgmt': 'Gestión',
       'nav_results': 'Resultados',
       'nav_profile': 'Perfil',
-      
+
       // Home / Calendario
       'cal_title': 'Calendario',
-      'search_events': 'Buscar eventos...',
-      'today': 'Hoy',
-      'no_events': 'No hay carreras programadas',
-      'future_events': 'Próximos Eventos',
+      'cal_today': 'Hoy',
+      'cal_month': 'Abril',
+      'events_of_month': 'Eventos de',
       'events_of_day': 'Eventos del día',
+      'no_events_scheduled': 'No hay carreras programadas',
+      'categories': 'categorías',
+      'no_location': 'Ubicación por definir',
+      'upcoming_events': 'Próximos eventos',
+      'search_events': 'Buscar eventos...',
+      'future_events': 'Próximos Eventos',
+
+      // Días de la semana
+      'cal_mon': 'L',
+      'cal_tue': 'M',
+      'cal_wed': 'X',
+      'cal_thu': 'J',
+      'cal_fri': 'V',
+      'cal_sat': 'S',
+      'cal_sun': 'D',
+
+      // Filtros
+      'filter_events': 'Filtrar eventos',
+      'all_events': 'Todos los eventos',
+      'this_month': 'Este mes',
+      'selected_day': 'Día seleccionado',
 
       // Perfil
       'profile_title': 'Mi Perfil',
@@ -31,7 +51,7 @@ class Languages extends Translations {
       'language': 'Idioma',
       'theme': 'Tema Visual',
       'logout': 'Cerrar Sesión',
-      
+
       // Transponders
       'ts_number': 'Número',
       'ts_name': 'Nombre',
@@ -39,7 +59,7 @@ class Languages extends Translations {
       'ts_success': 'Perfil actualizado correctamente',
 
       // Login
-      'login_email_label': 'CORREO ELECTRÒNICO',
+      'login_email_label': 'CORREO ELECTRÓNICO',
       'login_password_label': 'CONTRASEÑA',
       'login_btn': 'INICIAR SESIÓN',
       'loading': 'CARGANDO...',
@@ -117,6 +137,11 @@ class Languages extends Translations {
       'cha_btn_save': 'GUARDAR CAMBIOS',
       'cha_btn_create': 'CREAR CAMPEONATO',
       'required': 'Requerido',
+      'cha_select_existing': 'Seleccionar categoría existente',
+      'cha_select_cat': 'Selecciona una categoría...',
+      'cha_add_selected': 'Añadir seleccionada',
+      'cha_create_new': 'Crear nueva categoría',
+      'cha_create_and_add': 'Crear y añadir',
 
       // Detalle de Evento
       'det_tech_rules': 'Reglamentos Técnicos',
@@ -129,6 +154,9 @@ class Languages extends Translations {
       'det_register_now': 'Inscribirse ahora',
       'det_register_closed': 'Inscripciones cerradas',
       'det_no_map': 'Mapa no disponible',
+      'det_description': 'Descripción evento',
+      'det_pilots_count': 'Pilotos inscritos',
+      'export_pilots': 'Exportar Inscritos',
 
       // Registro a Evento
       'reg_event_title': 'INSCRIPCIÓN AL EVENTO',
@@ -137,20 +165,54 @@ class Languages extends Translations {
       'reg_btn_confirm': 'INSCRIBIRME AHORA',
       'reg_cancel': 'CANCELAR',
       'reg_select': 'Selecciona...',
+
+      // Importar Resultados
+      'import_results': 'Importar Resultados',
+      'select_event': 'Seleccionar Evento',
+      'select_category': 'Seleccionar Categoría',
+      'select_excel_file': 'Seleccionar archivo Excel',
+      'import_instructions': 'Instrucciones',
+      'file_format_info': 'El archivo debe estar en formato Excel (.xlsx o .xls)',
+      'headers_info': 'La primera fila debe contener los encabezados',
+      'columns_info': 'Columnas requeridas: Nombre/Pilot Name, Transponder Nr 1',
+      'matching_info': 'Los pilotos se emparejarán automáticamente por nombre o transponder',
     },
     'en': {
+      // Navigation
       'nav_events': 'Events',
       'nav_mgmt': 'Management',
       'nav_results': 'Results',
       'nav_profile': 'Profile',
-      
-      'cal_title': 'Calendar',
-      'search_events': 'Search events...',
-      'today': 'Today',
-      'no_events': 'No scheduled races',
-      'future_events': 'Future Events',
-      'events_of_day': 'Events of the day',
 
+      // Home / Calendar
+      'cal_title': 'Calendar',
+      'cal_today': 'Today',
+      'cal_month': 'April',
+      'events_of_month': 'Events of',
+      'events_of_day': "Day's events",
+      'no_events_scheduled': 'No scheduled races',
+      'categories': 'categories',
+      'no_location': 'Location to be defined',
+      'upcoming_events': 'Upcoming events',
+      'search_events': 'Search events...',
+      'future_events': 'Future Events',
+
+      // Week days
+      'cal_mon': 'M',
+      'cal_tue': 'T',
+      'cal_wed': 'W',
+      'cal_thu': 'T',
+      'cal_fri': 'F',
+      'cal_sat': 'S',
+      'cal_sun': 'S',
+
+      // Filters
+      'filter_events': 'Filter events',
+      'all_events': 'All events',
+      'this_month': 'This month',
+      'selected_day': 'Selected day',
+
+      // Profile
       'profile_title': 'My Profile',
       'full_name': 'Full Name',
       'email': 'Email Address',
@@ -164,6 +226,7 @@ class Languages extends Translations {
       'theme': 'Visual Theme',
       'logout': 'Logout',
 
+      // Transponders
       'ts_number': 'Number',
       'ts_name': 'Name',
       'ts_error': 'You must enter a valid number and name',
@@ -187,7 +250,7 @@ class Languages extends Translations {
       'hint_email': 'example@rcsync.com',
       'hint_password_confirm': 'Repeat your password',
 
-      // Resultados
+      // Results
       'res_title': 'Results',
       'res_championship': 'Championship',
       'res_year': 'Year',
@@ -211,7 +274,7 @@ class Languages extends Translations {
       'adm_success_created': 'Created successfully',
       'adm_year': 'Year',
 
-      // Crear/Editar Evento
+      // Create/Edit Event
       'evt_create_title': 'Create New Event',
       'evt_edit_title': 'Modify Event',
       'evt_name': 'Event Name',
@@ -233,7 +296,7 @@ class Languages extends Translations {
       'evt_sel_date': 'Select date',
       'evt_touch_img': 'Tap to upload an image',
 
-      // Formulario Campeonato
+      // Championship Form
       'cha_new': 'NEW CHAMPIONSHIP',
       'cha_edit': 'MODIFY CHAMPIONSHIP',
       'cha_name': 'Championship Name',
@@ -248,8 +311,13 @@ class Languages extends Translations {
       'cha_btn_save': 'SAVE CHANGES',
       'cha_btn_create': 'CREATE CHAMPIONSHIP',
       'required': 'Required',
+      'cha_select_existing': 'Select existing category',
+      'cha_select_cat': 'Select a category...',
+      'cha_add_selected': 'Add selected',
+      'cha_create_new': 'Create new category',
+      'cha_create_and_add': 'Create and add',
 
-      // Detalle de Evento
+      // Event Details
       'det_tech_rules': 'Technical Rules',
       'det_rulebook': 'Rulebook',
       'det_open_pdf': 'Tap to open PDF',
@@ -260,28 +328,65 @@ class Languages extends Translations {
       'det_register_now': 'Register Now',
       'det_register_closed': 'Registration Closed',
       'det_no_map': 'Map Not Available',
+      'det_description': 'Event description',
+      'det_pilots_count': 'Registered drivers',
+      'export_pilots': 'Export Pilots',
 
-      // Registro a Evento
+      // Event Registration
       'reg_event_title': 'EVENT REGISTRATION',
       'reg_pilot_name': 'Pilot Name',
       'reg_transponder': 'Transponder',
       'reg_btn_confirm': 'REGISTER NOW',
       'reg_cancel': 'CANCEL',
       'reg_select': 'Select...',
+
+      // Import Results
+      'import_results': 'Import Results',
+      'select_event': 'Select Event',
+      'select_category': 'Select Category',
+      'select_excel_file': 'Select Excel file',
+      'import_instructions': 'Instructions',
+      'file_format_info': 'File must be in Excel format (.xlsx or .xls)',
+      'headers_info': 'First row must contain headers',
+      'columns_info': 'Required columns: Nombre/Pilot Name, Transponder Nr 1',
+      'matching_info': 'Pilots will be automatically matched by name or transponder',
     },
     'ca': {
+      // Navegació
       'nav_events': 'Esdeveniments',
       'nav_mgmt': 'Gestió',
       'nav_results': 'Resultats',
       'nav_profile': 'Perfil',
-      
-      'cal_title': 'Calendari',
-      'search_events': 'Cercar esdeveniments...',
-      'today': 'Avui',
-      'no_events': 'No hi ha curses programades',
-      'future_events': 'Pròxims Esdeveniments',
-      'events_of_day': 'Esdeveniments del dia',
 
+      // Home / Calendari
+      'cal_title': 'Calendari',
+      'cal_today': 'Avui',
+      'cal_month': 'Abril',
+      'events_of_month': 'Esdeveniments de',
+      'events_of_day': "Esdeveniments del dia",
+      'no_events_scheduled': 'No hi ha curses programades',
+      'categories': 'categories',
+      'no_location': 'Ubicació per definir',
+      'upcoming_events': 'Properes esdeveniments',
+      'search_events': 'Cercar esdeveniments...',
+      'future_events': 'Propers Esdeveniments',
+
+      // Dies de la setmana
+      'cal_mon': 'Dl',
+      'cal_tue': 'Dt',
+      'cal_wed': 'Dc',
+      'cal_thu': 'Dj',
+      'cal_fri': 'Dv',
+      'cal_sat': 'Ds',
+      'cal_sun': 'Dg',
+
+      // Filtres
+      'filter_events': 'Filtrar esdeveniments',
+      'all_events': 'Tots els esdeveniments',
+      'this_month': 'Aquest mes',
+      'selected_day': 'Dia seleccionat',
+
+      // Perfil
       'profile_title': 'El meu Perfil',
       'full_name': 'Nom Complet',
       'email': 'Correu Electrònic',
@@ -295,6 +400,7 @@ class Languages extends Translations {
       'theme': 'Tema Visual',
       'logout': 'Tancar Sessió',
 
+      // Transponders
       'ts_number': 'Número',
       'ts_name': 'Nom',
       'ts_error': 'Has d\'introduir un número vàlid i un nom',
@@ -318,7 +424,7 @@ class Languages extends Translations {
       'hint_email': 'exemple@rcsync.com',
       'hint_password_confirm': 'Repeteix la teva contrasenya',
 
-      // Resultados
+      // Resultats
       'res_title': 'Resultats',
       'res_championship': 'Campionat',
       'res_year': 'Any',
@@ -342,7 +448,7 @@ class Languages extends Translations {
       'adm_success_created': 'Creat correctament',
       'adm_year': 'Any',
 
-      // Crear/Editar Evento
+      // Crear/Editar Esdeveniment
       'evt_create_title': 'Crear Nou Esdeveniment',
       'evt_edit_title': 'Modificar Esdeveniment',
       'evt_name': 'Nom de l\'Esdeveniment',
@@ -364,7 +470,7 @@ class Languages extends Translations {
       'evt_sel_date': 'Seleccionar data',
       'evt_touch_img': 'Toca per pujar una imatge',
 
-      // Formulario Campeonato
+      // Formulari Campionat
       'cha_new': 'NOU CAMPIONAT',
       'cha_edit': 'MODIFICAR CAMPIONAT',
       'cha_name': 'Nom del Campionat',
@@ -373,14 +479,19 @@ class Languages extends Translations {
       'cha_add_cat': 'Afegir Categoria',
       'cha_cat_hint': 'Ex. Tamiya GT',
       'cha_configured': 'CATEGORIES CONFIGURADES',
-      'cha_pdf_ready': '📄 PDF llist per pujar',
+      'cha_pdf_ready': '📄 PDF llest per pujar',
       'cha_pdf_ok': '✅ Reglament pujat',
       'cha_pdf_no': '⚠️ Sense reglament adjunt',
       'cha_btn_save': 'GUARDAR CANVIS',
       'cha_btn_create': 'CREAR CAMPIONAT',
       'required': 'Requerit',
+      'cha_select_existing': 'Seleccionar categoria existent',
+      'cha_select_cat': 'Selecciona una categoria...',
+      'cha_add_selected': 'Afegir seleccionada',
+      'cha_create_new': 'Crear nova categoria',
+      'cha_create_and_add': 'Crear i afegir',
 
-      // Detalle de Evento
+      // Detall d'Esdeveniment
       'det_tech_rules': 'Reglaments Tècnics',
       'det_rulebook': 'Reglament',
       'det_open_pdf': 'Toca per obrir PDF',
@@ -391,14 +502,28 @@ class Languages extends Translations {
       'det_register_now': 'Inscriure\'s ara',
       'det_register_closed': 'Inscripcions tancades',
       'det_no_map': 'Mapa no disponible',
+      'det_description': 'Descripció de l\'esdeveniment',
+      'det_pilots_count': 'Pilots registrats',
+      'export_pilots': 'Exportar Inscrits',
 
-      // Registro a Evento
+      // Registre a Esdeveniment
       'reg_event_title': 'INSCRIPCIÓ A L\'ESDEVENIMENT',
       'reg_pilot_name': 'Nom del Pilot',
       'reg_transponder': 'Transponder',
       'reg_btn_confirm': 'INSCRIURE\'M ARA',
       'reg_cancel': 'CANCEL·LAR',
       'reg_select': 'Selecciona...',
+
+      // Importar Resultats
+      'import_results': 'Importar Resultats',
+      'select_event': 'Seleccionar Esdeveniment',
+      'select_category': 'Seleccionar Categoria',
+      'select_excel_file': 'Seleccionar fitxer Excel',
+      'import_instructions': 'Instruccions',
+      'file_format_info': 'El fitxer ha d\'estar en format Excel (.xlsx o .xls)',
+      'headers_info': 'La primera fila ha de contenir les capçaleres',
+      'columns_info': 'Columnes requerides: Nombre/Pilot Name, Transponder Nr 1',
+      'matching_info': 'Els pilots s\'emparellaran automàticament per nom o transponder',
     },
   };
 }

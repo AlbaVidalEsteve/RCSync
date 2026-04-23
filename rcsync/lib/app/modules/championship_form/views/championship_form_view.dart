@@ -8,7 +8,6 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchar cambios de tema
     Theme.of(context);
 
     return Scaffold(
@@ -22,65 +21,71 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
         ),
       ),
       extendBodyBehindAppBar: true,
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Stack(
-                    children: [
-                      // HEADER CON GRADIENTE
-                      Container(
-                        width: double.infinity,
-                        height: 180,
-                        padding: const EdgeInsets.only(top: 70),
-                        alignment: Alignment.topCenter,
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [RCColors.orange, Color(0xFFF68B28)],
+      body: Obx(() {
+        if (controller.isLoading.value && controller.selectedCategories.isEmpty) {
+          return const Center(child: CircularProgressIndicator(color: RCColors.orange));
+        }
+
+        return Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        // HEADER CON GRADIENTE
+                        Container(
+                          width: double.infinity,
+                          height: 180,
+                          padding: const EdgeInsets.only(top: 70),
+                          alignment: Alignment.topCenter,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [RCColors.orange, Color(0xFFF68B28)],
+                            ),
+                          ),
+                          child: Text(
+                            controller.isEditing.value ? 'cha_edit'.tr : 'cha_new'.tr,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
+                            ),
                           ),
                         ),
-                        child: Obx(() => Text(
-                          controller.isEditing.value ? 'cha_edit'.tr : 'cha_new'.tr,
-                          style: const TextStyle(
-                            color: Colors.white, 
-                            fontSize: 20, 
-                            fontWeight: FontWeight.bold, 
-                            letterSpacing: 1.2
-                          ),
-                        )),
-                      ),
-                      
-                      // TARJETA DE FORMULARIO SOLAPADA
-                      Container(
-                        margin: const EdgeInsets.only(top: 140, left: 20, right: 20, bottom: 20),
-                        child: _buildFormCard(),
-                      ),
-                    ],
-                  ),
-                  
-                  // LISTA DE CATEGORÍAS
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: _buildCategoriesSection(),
-                  ),
-                  
-                  const SizedBox(height: 100),
-                ],
+
+                        // TARJETA DE FORMULARIO SOLAPADA
+                        Container(
+                          margin: const EdgeInsets.only(top: 140, left: 20, right: 20, bottom: 20),
+                          child: _buildFormCard(),
+                        ),
+                      ],
+                    ),
+
+                    // SECCIÓN DE CATEGORÍAS
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildCategoriesSection(),
+                    ),
+
+                    const SizedBox(height: 100),
+                  ],
+                ),
               ),
             ),
-          ),
-          
-          // BOTÓN GUARDAR FIJO ABAJO
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Obx(() => _buildSaveButton()),
-          ),
-        ],
-      ),
+
+            // BOTÓN GUARDAR FIJO ABAJO
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: _buildSaveButton(),
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -113,18 +118,18 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
             Row(
               children: [
                 Expanded(
-                  child: Obx(() => _buildProfileStyleDropdown<int>(
+                  child: _buildProfileStyleDropdown<int>(
                     label: "cha_year".tr,
                     icon: Icons.calendar_today_outlined,
                     value: controller.selectedYear.value,
-                    items: List.generate(5, (index) => DateTime.now().year + index).map((year) {
+                    items: List.generate(10, (index) => DateTime.now().year - 5 + index).map((year) {
                       return DropdownMenuItem(
-                        value: year, 
-                        child: Text(year.toString(), style: TextStyle(color: RCColors.textPrimary))
+                        value: year,
+                        child: Text(year.toString(), style: TextStyle(color: RCColors.textPrimary)),
                       );
                     }).toList(),
                     onChanged: (v) => controller.selectedYear.value = v!,
-                  )),
+                  ),
                 ),
                 const SizedBox(width: 20),
                 Column(
@@ -139,23 +144,61 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                     ),
                     const SizedBox(height: 8),
                     Obx(() => Switch(
-                        value: controller.isActive.value,
-                        onChanged: (v) => controller.isActive.value = v,
-                        activeThumbColor: RCColors.orange,
-                        activeTrackColor: RCColors.orange.withOpacity(0.3),
+                      value: controller.isActive.value,
+                      onChanged: (v) => controller.isActive.value = v,
+                      activeThumbColor: RCColors.orange,
+                      activeTrackColor: RCColors.orange.withOpacity(0.3),
                     )),
                   ],
                 )
               ],
             ),
             const SizedBox(height: 20),
-            _buildInputLabel("cha_add_cat".tr, icon: Icons.directions_car_outlined),
+
+            // DROPDOWN para seleccionar categoría existente
+            _buildInputLabel("cha_select_existing".tr, icon: Icons.list_alt),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Obx(() => DropdownButtonFormField<Map<String, dynamic>>(
+                    value: controller.selectedExistingCategory.value,
+                    dropdownColor: RCColors.card,
+                    style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: RCColors.background.withOpacity(0.5),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    items: controller.availableCategories.map((cat) {
+                      return DropdownMenuItem(
+                        value: cat,
+                        child: Text(cat['name'], style: TextStyle(color: RCColors.textPrimary)),
+                      );
+                    }).toList(),
+                    onChanged: (value) => controller.selectedExistingCategory.value = value,
+                    hint: Text("cha_select_cat".tr, style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
+                  )),
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: const Icon(Icons.add_circle, color: RCColors.orange, size: 40),
+                  onPressed: controller.addExistingCategory,
+                  tooltip: "cha_add_selected".tr,
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // INPUT para crear nueva categoría
+            _buildInputLabel("cha_create_new".tr, icon: Icons.add_box_outlined),
             const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
                   child: TextFormField(
-                    controller: controller.categoryController,
+                    controller: controller.newCategoryController,
                     style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'cha_cat_hint'.tr,
@@ -169,9 +212,10 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                 ),
                 const SizedBox(width: 10),
                 IconButton(
-                    icon: const Icon(Icons.add_circle, color: RCColors.orange, size: 40),
-                    onPressed: controller.addCategory
-                )
+                  icon: const Icon(Icons.create_new_folder, color: RCColors.orange, size: 40),
+                  onPressed: () => controller.addNewCategory(),
+                  tooltip: "cha_create_and_add".tr,
+                ),
               ],
             ),
           ],
@@ -215,7 +259,8 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
 
   Widget _buildProfileStyleDropdown<T>({
     required String label,
-    required IconData icon, T? value,
+    required IconData icon,
+    T? value,
     required List<DropdownMenuItem<T>> items,
     required Function(T?) onChanged
   }) {
@@ -225,7 +270,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
         _buildInputLabel(label, icon: icon),
         const SizedBox(height: 8),
         DropdownButtonFormField<T>(
-          initialValue: value,
+          value: value,
           dropdownColor: RCColors.card,
           style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
           decoration: InputDecoration(
@@ -260,8 +305,8 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
 
   Widget _buildCategoriesSection() {
     return Obx(() {
-      if (controller.categoriesList.isEmpty) return const SizedBox.shrink();
-      
+      if (controller.selectedCategories.isEmpty) return const SizedBox.shrink();
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -278,7 +323,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
               ),
             ),
           ),
-          ...controller.categoriesList.asMap().entries.map((entry) {
+          ...controller.selectedCategories.asMap().entries.map((entry) {
             int index = entry.key;
             var cat = entry.value;
 
@@ -289,12 +334,16 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
               color: RCColors.card,
               elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-                side: BorderSide(color: Get.isDarkMode ? Colors.transparent : RCColors.divider.withOpacity(0.08))
+                  borderRadius: BorderRadius.circular(15),
+                  side: BorderSide(color: Get.isDarkMode ? Colors.transparent : RCColors.divider.withOpacity(0.08))
               ),
               margin: const EdgeInsets.only(bottom: 10),
               child: ListTile(
-                title: Text(cat['name'], style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 14)),
+                leading: cat['is_new'] == true
+                    ? const Icon(Icons.fiber_new, color: Colors.green, size: 20)
+                    : null,
+                title: Text(cat['name'],
+                    style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 14)),
                 subtitle: Text(
                   hasNewPdf ? 'cha_pdf_ready'.tr
                       : (hasExistingUrl ? 'cha_pdf_ok'.tr : 'cha_pdf_no'.tr),
@@ -308,7 +357,8 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                   children: [
                     IconButton(
                       tooltip: 'Adjuntar Reglamento (PDF)',
-                      icon: Icon(hasExistingUrl && !hasNewPdf ? Icons.edit_document : Icons.picture_as_pdf, color: RCColors.orange, size: 20),
+                      icon: Icon(hasExistingUrl && !hasNewPdf ? Icons.edit_document : Icons.picture_as_pdf,
+                          color: RCColors.orange, size: 20),
                       onPressed: () => controller.pickPdfForCategory(index),
                     ),
                     IconButton(
@@ -332,9 +382,9 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          gradient: controller.isLoading.value 
-            ? null 
-            : const LinearGradient(colors: [RCColors.orange, Color(0xFFF68B28)]),
+          gradient: controller.isLoading.value
+              ? null
+              : const LinearGradient(colors: [RCColors.orange, Color(0xFFF68B28)]),
           color: controller.isLoading.value ? RCColors.card : null,
           boxShadow: controller.isLoading.value ? null : [
             BoxShadow(
@@ -354,9 +404,9 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
           child: controller.isLoading.value
               ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
               : Text(
-                  controller.isEditing.value ? 'cha_btn_save'.tr : 'cha_btn_create'.tr,
-                  style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.1)
-                ),
+              controller.isEditing.value ? 'cha_btn_save'.tr : 'cha_btn_create'.tr,
+              style: const TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.1)
+          ),
         ),
       ),
     );

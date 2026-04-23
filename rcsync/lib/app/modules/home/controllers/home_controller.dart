@@ -82,15 +82,37 @@ class HomeController extends GetxController {
     try {
       isLoading.value = true;
       final response = await client.from("events").select('''
+      *,
+      circuits (*),
+      championships (
         *,
-        circuits (*),
-        championships (
-          *,
-          profiles (*)
-        )
-      ''').order("event_date_ini", ascending: true);
-      
-      final List<RaceEventModel> fetchedEvents = RaceEventModel.fromJsonList(response);
+        profiles (*)
+      )
+    ''').order("event_date_ini", ascending: true);
+
+      final List<RaceEventModel> fetchedEvents = [];
+
+      for (var eventJson in response) {
+        int categoriesCount = 0;
+
+        // Si el evento tiene campeonato, obtener sus categorías
+        if (eventJson['id_championship'] != null) {
+          final champCategories = await client
+              .from('championship_categories')
+              .select('id_category')
+              .eq('id_championship', eventJson['id_championship']);
+
+          categoriesCount = champCategories.length;
+        }
+
+        final enrichedEvent = {
+          ...eventJson,
+          'categories_count': categoriesCount,
+        };
+
+        fetchedEvents.add(RaceEventModel.fromJson(enrichedEvent));
+      }
+
       rawEvents.assignAll(fetchedEvents);
 
       eventList.assignAll(fetchedEvents.map((e) => NeatCleanCalendarEvent(
@@ -107,6 +129,7 @@ class HomeController extends GetxController {
       isLoading.value = false;
     }
   }
+
 
   // Helper to get events for the currently shown month
   List<RaceEventModel> get eventsOfCurrentMonth {
@@ -139,12 +162,12 @@ class HomeController extends GetxController {
 
   String get listTitle {
     if (showAllFutureEvents.value) {
-      return "Próximos eventos";
+      return "upcoming_events".tr;
     }
     if (isDaySelected.value) {
-      return "Eventos del ${DateFormat('dd MMMM', 'es_ES').format(selectedDate.value)}";
+      return "${'events_of_day'.tr} ${DateFormat('dd MMMM', Get.locale?.languageCode ?? 'es').format(selectedDate.value)}";
     } else {
-      return "Eventos de ${DateFormat('MMMM', 'es_ES').format(currentMonth.value)}";
+      return "${'events_of_month'.tr} ${DateFormat('MMMM', Get.locale?.languageCode ?? 'es').format(currentMonth.value)}";
     }
   }
 

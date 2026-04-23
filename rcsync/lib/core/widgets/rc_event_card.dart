@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 import '../theme/rc_colors.dart';
 
 class RCEventCard extends StatelessWidget {
@@ -10,6 +11,7 @@ class RCEventCard extends StatelessWidget {
   final VoidCallback onTap;
   final bool isAccepted;
   final int index;
+  final int? categoriesCount;
 
   const RCEventCard({
     super.key,
@@ -20,7 +22,15 @@ class RCEventCard extends StatelessWidget {
     required this.onTap,
     this.isAccepted = true,
     this.index = 5,
+    this.categoriesCount,
   });
+
+  String _getCategoriesText() {
+    if (categoriesCount == null || categoriesCount == 0) {
+      return '0 ${'categories'.tr}';
+    }
+    return '$categoriesCount ${'categories'.tr}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +47,18 @@ class RCEventCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Imagen con Badge
             Stack(
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                   child: (imageUrl != null && imageUrl!.isNotEmpty)
-                    ? Image.network(imageUrl!, height: 160, width: double.infinity, fit: BoxFit.cover)
-                    : Container(
-                        height: 160,
-                        width: double.infinity,
-                        color: RCColors.background.withOpacity(0.1),
-                        child: Icon(Icons.image, color: RCColors.iconSecondary, size: 50),
-                      ),
+                      ? Image.network(imageUrl!, height: 160, width: double.infinity, fit: BoxFit.cover)
+                      : Container(
+                    height: 160,
+                    width: double.infinity,
+                    color: RCColors.background.withOpacity(0.1),
+                    child: Icon(Icons.image, color: RCColors.iconSecondary, size: 50),
+                  ),
                 ),
                 if (isAccepted)
                   Positioned(
@@ -66,8 +75,7 @@ class RCEventCard extends StatelessWidget {
                   ),
               ],
             ),
-            
-            // Texto inferior
+
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -83,7 +91,7 @@ class RCEventCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 5),
                   Text(
-                    location,
+                    location.isNotEmpty ? location : 'no_location'.tr,
                     style: TextStyle(color: RCColors.textSecondary, fontSize: 14),
                   ),
                   const SizedBox(height: 15),
@@ -95,14 +103,14 @@ class RCEventCard extends StatelessWidget {
                           const Icon(Icons.calendar_today_outlined, color: Colors.blueAccent, size: 16),
                           const SizedBox(width: 8),
                           Text(
-                            DateFormat('dd MMM', 'es_ES').format(date),
+                            DateFormat('dd MMM', Get.locale?.languageCode ?? 'es').format(date),
                             style: TextStyle(color: RCColors.textSecondary, fontSize: 14),
                           ),
                         ],
                       ),
-                      const Text(
-                        "3 categorías",
-                        style: TextStyle(color: Colors.blueAccent, fontSize: 14),
+                      Text(
+                        _getCategoriesText(),
+                        style: const TextStyle(color: Colors.blueAccent, fontSize: 14),
                       ),
                     ],
                   ),

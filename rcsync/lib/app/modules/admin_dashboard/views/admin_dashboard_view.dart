@@ -4,6 +4,7 @@ import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/routes/app_pages.dart';
 import 'package:intl/intl.dart';
 import '../controllers/admin_dashboard_controller.dart';
+import 'import_results_view.dart';
 
 class AdminDashboardView extends StatelessWidget {
   const AdminDashboardView({super.key});
@@ -21,24 +22,31 @@ class AdminDashboardView extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
         title: Text('adm_title'.tr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft, 
-              end: Alignment.bottomRight, 
-              colors: [RCColors.orange, Color(0xFFF68B28)]
+            decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [RCColors.orange, Color(0xFFF68B28)]
+                )
             )
-          )
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.upload_file),
+            onPressed: () => Get.to(() => ImportResultsView()),
+            tooltip: 'import_results'.tr,
+          ),
+        ],
         bottom: TabBar(
-          controller: controller.tabController, 
-          indicatorColor: Colors.white, 
+          controller: controller.tabController,
+          indicatorColor: Colors.white,
           indicatorWeight: 3,
-          labelColor: Colors.white, 
+          labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           dividerColor: Colors.transparent,
           tabs: [
-            Tab(text: 'adm_tab_events'.tr), 
-            Tab(text: 'adm_tab_champs'.tr), 
+            Tab(text: 'adm_tab_events'.tr),
+            Tab(text: 'adm_tab_champs'.tr),
             Tab(text: 'adm_tab_regs'.tr)
           ],
         ),

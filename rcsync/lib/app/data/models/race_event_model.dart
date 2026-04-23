@@ -19,6 +19,8 @@ class RaceEventModel {
   final String? circuitAddress;
   final String? organizerName;
 
+  final int? categoriesCount;
+
   RaceEventModel({
     required this.idEvent,
     this.idChampionship,
@@ -37,6 +39,7 @@ class RaceEventModel {
     this.circuitLng,
     this.circuitAddress,
     this.organizerName,
+    this.categoriesCount,
   });
 
   factory RaceEventModel.fromJson(Map<String, dynamic> json) {
@@ -65,6 +68,7 @@ class RaceEventModel {
       circuitLng: circuit != null ? (circuit['location_lng'] as num?)?.toDouble() : null,
       circuitAddress: circuit != null ? circuit['address'] : null,
       organizerName: organizer != null ? organizer['full_name'] : null,
+      categoriesCount: json['categories_count'],
     );
   }
 
