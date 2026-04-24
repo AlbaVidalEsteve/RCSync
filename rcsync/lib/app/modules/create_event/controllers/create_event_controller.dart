@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -5,6 +6,7 @@ import 'package:rcsync/app/data/models/race_event_model.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:rcsync/app/modules/home/controllers/home_controller.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:rcsync/core/services/image_service.dart';
 
 class CreateEventController extends GetxController {
   final supabase = Supabase.instance.client;
@@ -83,19 +85,29 @@ class CreateEventController extends GetxController {
 
   Future<void> saveEvent() async {
     if (isLoading.value) return;
-    
+
     if (!formKey.currentState!.validate()) return;
-    
+
     isLoading.value = true;
     FocusManager.instance.primaryFocus?.unfocus();
 
     try {
       String? finalImageUrl = existingImageUrl.value;
       if (selectedImage.value != null && selectedImage.value!.bytes != null) {
-        final bytes = selectedImage.value!.bytes!;
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${selectedImage.value!.name}';
-        await supabase.storage.from('imagenes').uploadBinary('eventosfoto/$fileName', bytes);
-        finalImageUrl = supabase.storage.from('imagenes').getPublicUrl('eventosfoto/$fileName');
+        // COMPRIMIR IMAGEN DEL EVENTO
+        if (selectedImage.value!.path != null) {
+          File originalFile = File(selectedImage.value!.path!);
+          File? compressed = await ImageService.compressEventImage(originalFile);
+          final bytesToUpload = compressed != null ? await compressed.readAsBytes() : selectedImage.value!.bytes;
+          final fileName = '${DateTime.now().millisecondsSinceEpoch}_${selectedImage.value!.name}';
+          await supabase.storage.from('imagenes').uploadBinary('eventosfoto/$fileName', bytesToUpload!);
+          finalImageUrl = supabase.storage.from('imagenes').getPublicUrl('eventosfoto/$fileName');
+        } else {
+          // Fallback si no hay path (ej. web)
+          final fileName = '${DateTime.now().millisecondsSinceEpoch}_${selectedImage.value!.name}';
+          await supabase.storage.from('imagenes').uploadBinary('eventosfoto/$fileName', selectedImage.value!.bytes!);
+          finalImageUrl = supabase.storage.from('imagenes').getPublicUrl('eventosfoto/$fileName');
+        }
       }
 
       final eventData = {
@@ -117,12 +129,10 @@ class CreateEventController extends GetxController {
         await supabase.from('events').insert(eventData);
       }
 
-      // IMPORTANTE: Refrescar Home antes de volver
       if (Get.isRegistered<HomeController>()) {
         await Get.find<HomeController>().getEvents();
       }
 
-      // SOLUCIÓN AL BUCLE: Navegar en el siguiente frame para evitar conflicto de MouseTracker
       SchedulerBinding.instance.addPostFrameCallback((_) {
         Get.back(result: true);
       });

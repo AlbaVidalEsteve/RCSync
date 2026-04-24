@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../theme/rc_colors.dart';
 
 class RCEventCard extends StatelessWidget {
@@ -52,7 +53,24 @@ class RCEventCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                   child: (imageUrl != null && imageUrl!.isNotEmpty)
-                      ? Image.network(imageUrl!, height: 160, width: double.infinity, fit: BoxFit.cover)
+                      ? CachedNetworkImage(
+                    imageUrl: imageUrl!,
+                    height: 160,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(
+                      height: 160,
+                      width: double.infinity,
+                      color: RCColors.background.withOpacity(0.1),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      height: 160,
+                      width: double.infinity,
+                      color: RCColors.background.withOpacity(0.1),
+                      child: Icon(Icons.image, color: RCColors.iconSecondary, size: 50),
+                    ),
+                  )
                       : Container(
                     height: 160,
                     width: double.infinity,
@@ -75,7 +93,6 @@ class RCEventCard extends StatelessWidget {
                   ),
               ],
             ),
-
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

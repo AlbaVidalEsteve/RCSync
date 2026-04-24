@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/core/widgets/rc_primary_button.dart';
 import 'package:rcsync/app/modules/map/views/map_view.dart';
@@ -10,10 +11,8 @@ import 'package:rcsync/app/data/models/race_event_model.dart';
 class EventDetailsView extends GetView<EventDetailsController> {
   const EventDetailsView({super.key});
 
-  // URL de imagen por defecto
   static const String _genericHelmetUrl = "https://llprsnjobjwtcwwpsqwy.supabase.co/storage/v1/object/public/imagenes/perfilfoto/imagen%20perfil%20generica.png";
 
-  // Colores para el badge de posición
   Color _getPositionColor(int position) {
     if (position == 1) return RCColors.gold;
     if (position == 2) return RCColors.silver;
@@ -24,16 +23,13 @@ class EventDetailsView extends GetView<EventDetailsController> {
   @override
   Widget build(BuildContext context) {
     Theme.of(context);
-
     return Scaffold(
       backgroundColor: RCColors.background,
       body: Obx(() {
         if (controller.isLoading.value && controller.registeredPilots.isEmpty) {
           return const Center(child: CircularProgressIndicator(color: RCColors.orange));
         }
-
         final RaceEventModel event = controller.event.value;
-
         return CustomScrollView(
           slivers: [
             SliverAppBar(
@@ -42,7 +38,18 @@ class EventDetailsView extends GetView<EventDetailsController> {
               backgroundColor: RCColors.background,
               leading: _buildBackBtn(),
               flexibleSpace: FlexibleSpaceBar(
-                background: _buildHeaderBackground(event),
+                background: CachedNetworkImage(
+                  imageUrl: event.imageEvent ?? '',
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(
+                    color: RCColors.orange.withOpacity(0.2),
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    color: RCColors.orange.withOpacity(0.2),
+                    child: const Icon(Icons.image, size: 100, color: Colors.white24),
+                  ),
+                ),
               ),
             ),
             SliverList(
@@ -53,22 +60,16 @@ class EventDetailsView extends GetView<EventDetailsController> {
                     children: [
                       _buildEventInfo(event),
                       const SizedBox(height: 20),
-
                       if (controller.isAdminOrOrganizer.value)
                         _buildExportButton(),
                       const SizedBox(height: 20),
-
                       _buildRulebooksSection(),
                       const SizedBox(height: 20),
-
                       _buildDescriptionSection(event),
                       const SizedBox(height: 20),
-
                       _buildPilotList(),
                       const SizedBox(height: 20),
-
                       _buildLocationSection(event),
-
                       const SizedBox(height: 100),
                     ],
                   ),
@@ -81,33 +82,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
       bottomSheet: _buildBottomAction(),
     );
   }
-
-  Widget _buildHeaderBackground(RaceEventModel event) => Stack(
-    fit: StackFit.expand,
-    children: [
-      if (event.imageEvent != null)
-        Image.network(
-          event.imageEvent!,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-        )
-      else
-        Container(
-            color: RCColors.orange.withValues(alpha: 0.2),
-            child: const Icon(Icons.image, size: 100, color: Colors.white24)
-        ),
-      Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.transparent, RCColors.background],
-          ),
-        ),
-      ),
-    ],
-  );
 
   Widget _buildBackBtn() => Padding(
     padding: const EdgeInsets.all(8.0),
@@ -187,7 +161,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
   Widget _buildRulebooksSection() {
     return Obx(() {
       if (controller.rulebooks.isEmpty) return const SizedBox.shrink();
-
       return _buildCollapsibleSection(
         title: 'det_tech_rules'.tr,
         icon: Icons.rule_folder_outlined,
@@ -197,11 +170,10 @@ class EventDetailsView extends GetView<EventDetailsController> {
           children: controller.rulebooks.map((rb) {
             final catName = rb['categories']?['name'] ?? 'evt_none'.tr;
             final url = rb['rulebook_url'];
-
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
-                color: RCColors.background.withValues(alpha: 0.5),
+                color: RCColors.background.withAlpha((0.5*255).toInt()),
                 borderRadius: BorderRadius.circular(15),
               ),
               child: ListTile(
@@ -224,7 +196,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
   Widget _buildDescriptionSection(RaceEventModel event) {
     final String? description = event.description;
     if (description == null || description.trim().isEmpty) return const SizedBox.shrink();
-
     return Obx(() => _buildCollapsibleSection(
       title: 'det_description'.tr,
       icon: Icons.info_outline,
@@ -239,7 +210,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
 
   Widget _buildPilotList() => Obx(() {
     if (controller.registeredPilots.isEmpty) return const SizedBox.shrink();
-
     return _buildCollapsibleSection(
       title: 'det_pilots'.tr,
       icon: Icons.people_outline,
@@ -256,12 +226,11 @@ class EventDetailsView extends GetView<EventDetailsController> {
     );
   });
 
-  // MODIFICADO: padding reducido en la cabecera de categoría
   Widget _buildCategoryGroup(String category, List<RegisteredPilot> pilots) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6), // Antes 10
+        padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -270,9 +239,9 @@ class EventDetailsView extends GetView<EventDetailsController> {
               style: const TextStyle(color: RCColors.orange, fontWeight: FontWeight.bold, fontSize: 16),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), // Antes 10,3
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: RCColors.orange.withValues(alpha: 0.12),
+                color: RCColors.orange.withAlpha((0.12*255).toInt()),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -280,7 +249,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
                 style: const TextStyle(
                   color: RCColors.orange,
                   fontWeight: FontWeight.bold,
-                  fontSize: 11, // Antes 12
+                  fontSize: 11,
                 ),
               ),
             ),
@@ -291,35 +260,29 @@ class EventDetailsView extends GetView<EventDetailsController> {
         final index = entry.key;
         final pilot = entry.value;
         final position = index + 1;
-
-        // Determinar colores según categoría
         final bool isSuperstock = pilot.subCategory.toUpperCase() == 'SUPERSTOCK';
-        // Limpiar la categoría para mostrar sin texto extra
         String displayCategory = pilot.subCategory;
         if (displayCategory.contains('JUNIOR')) {
           displayCategory = displayCategory.replaceAll(RegExp(r'JUNIOR[\+]?', caseSensitive: false), '').trim();
         }
         if (displayCategory.isEmpty) displayCategory = 'STOCK';
 
-        // MODIFICADO: Container del piloto con menos margin
         return Container(
-          margin: const EdgeInsets.only(bottom: 6), // Antes 8
+          margin: const EdgeInsets.only(bottom: 6),
           decoration: BoxDecoration(
             color: RCColors.card,
-            borderRadius: BorderRadius.circular(12), // Antes 15
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: RCColors.divider.withOpacity(0.3),
             ),
           ),
           child: ListTile(
-            // MODIFICADO: reducir padding interno del ListTile
-            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), // Nuevo
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             leading: Stack(
               alignment: Alignment.bottomRight,
               children: [
-                // Avatar circular con foto - tamaño reducido
                 Container(
-                  width: 40, // Antes 48
+                  width: 40,
                   height: 40,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
@@ -330,21 +293,16 @@ class EventDetailsView extends GetView<EventDetailsController> {
                     ),
                   ),
                   child: ClipOval(
-                    child: Image.network(
-                      (pilot.imageUrl != null && pilot.imageUrl!.isNotEmpty)
+                    child: CachedNetworkImage(
+                      imageUrl: (pilot.imageUrl != null && pilot.imageUrl!.isNotEmpty)
                           ? pilot.imageUrl!
                           : _genericHelmetUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image.network(
-                          _genericHelmetUrl,
-                          fit: BoxFit.cover,
-                        );
-                      },
+                      placeholder: (context, url) => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                      errorWidget: (context, url, error) => Image.network(_genericHelmetUrl, fit: BoxFit.cover),
                     ),
                   ),
                 ),
-                // Badge con la posición - tamaño reducido
                 Positioned(
                   right: -2,
                   bottom: -2,
@@ -356,7 +314,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
                       border: Border.all(color: RCColors.card, width: 1),
                     ),
                     child: Container(
-                      width: 16, // Antes 18
+                      width: 16,
                       height: 16,
                       decoration: BoxDecoration(
                         color: _getPositionColor(position),
@@ -382,18 +340,17 @@ class EventDetailsView extends GetView<EventDetailsController> {
               style: TextStyle(
                 color: RCColors.textPrimary,
                 fontWeight: FontWeight.bold,
-                fontSize: 14, // Antes 15
+                fontSize: 14,
               ),
             ),
             subtitle: Padding(
-              padding: const EdgeInsets.only(top: 2.0), // Antes 4
+              padding: const EdgeInsets.only(top: 2.0),
               child: Wrap(
-                spacing: 4, // Antes 6
-                runSpacing: 2, // Antes 4
+                spacing: 4,
+                runSpacing: 2,
                 children: [
-                  // Badge de categoría
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // Antes 8,3
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: isSuperstock
                           ? Colors.purple.withOpacity(0.2)
@@ -412,13 +369,12 @@ class EventDetailsView extends GetView<EventDetailsController> {
                         color: isSuperstock
                             ? Colors.purpleAccent
                             : Colors.lightBlueAccent,
-                        fontSize: 9, // Antes 10
+                        fontSize: 9,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.3,
                       ),
                     ),
                   ),
-                  // Badge Junior
                   if (pilot.isJunior)
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -441,17 +397,17 @@ class EventDetailsView extends GetView<EventDetailsController> {
               ),
             ),
             trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Antes 10,6
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
                 color: RCColors.orange.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(8), // Antes 10
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 '${pilot.totalPoints} pts',
                 style: TextStyle(
                   color: RCColors.orange,
                   fontWeight: FontWeight.bold,
-                  fontSize: 13, // Antes 16
+                  fontSize: 13,
                 ),
               ),
             ),
@@ -486,7 +442,6 @@ class EventDetailsView extends GetView<EventDetailsController> {
   Widget _buildBottomAction() {
     final event = controller.event.value;
     final bool isInscriptionsOpen = event.eventRegFin != null && event.eventRegFin!.isAfter(DateTime.now());
-
     return Container(
       padding: const EdgeInsets.all(20),
       color: RCColors.background,
@@ -497,74 +452,71 @@ class EventDetailsView extends GetView<EventDetailsController> {
     );
   }
 
-  // MODIFICADO: reducir padding de las secciones colapsables
   Widget _buildSection({required String title, required Widget child}) => Container(
     width: double.infinity,
-    padding: const EdgeInsets.all(16), // Antes 20
+    padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(color: RCColors.card, borderRadius: BorderRadius.circular(20)),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(title, style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
-      const SizedBox(height: 16), // Antes 20
+      const SizedBox(height: 16),
       child
     ]),
   );
 
-  // MODIFICADO: reducir padding de la sección colapsable
   Widget _buildCollapsibleSection({
     required String title,
     required IconData icon,
     required bool isExpanded,
     required VoidCallback onToggle,
     required Widget child,
-  }) =>
-      Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16), // Antes 20
-        decoration: BoxDecoration(color: RCColors.card, borderRadius: BorderRadius.circular(20)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: onToggle,
-              behavior: HitTestBehavior.opaque,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  }) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(color: RCColors.card, borderRadius: BorderRadius.circular(20)),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: onToggle,
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Icon(icon, size: 18, color: RCColors.textSecondary),
-                      const SizedBox(width: 10),
-                      Text(
-                        title,
-                        style: TextStyle(
-                          color: RCColors.textPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Icon(
-                    isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    color: RCColors.textSecondary,
+                  Icon(icon, size: 18, color: RCColors.textSecondary),
+                  const SizedBox(width: 10),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: RCColors.textPrimary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
-            ),
-            if (isExpanded) ...[
-              const SizedBox(height: 16), // Antes 20
-              child,
+              Icon(
+                isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                color: RCColors.textSecondary,
+              ),
             ],
-          ],
+          ),
         ),
-      );
+        if (isExpanded) ...[
+          const SizedBox(height: 16),
+          child,
+        ],
+      ],
+    ),
+  );
 
   Widget _buildDetailRow({required IconData icon, required Color iconColor, required String title, required String subtitle}) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 10),
     child: Row(children: [
       Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: iconColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+          decoration: BoxDecoration(color: iconColor.withAlpha((0.1*255).toInt()), borderRadius: BorderRadius.circular(10)),
           child: Icon(icon, color: iconColor, size: 24)
       ),
       const SizedBox(width: 15),

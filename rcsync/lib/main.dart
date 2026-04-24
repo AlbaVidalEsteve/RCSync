@@ -11,11 +11,7 @@ import 'app/routes/app_pages.dart';
 void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    
-    // Inicializar formatos de fecha en español
     await initializeDateFormatting('es_ES', null);
-
-    // Load environment variables
     await dotenv.load(fileName: ".env");
 
     final supabaseUrl = dotenv.maybeGet('SUPABASE_URL');
@@ -25,13 +21,11 @@ void main() async {
       throw Exception("Faltan las credenciales de Supabase en el archivo .env");
     }
 
-    // Initialize Supabase
     await Supabase.initialize(
       url: supabaseUrl,
       anonKey: supabaseAnonKey,
     );
 
-    // Inject AuthController
     Get.put(AuthController(), permanent: true);
 
     runApp(const MyApp());

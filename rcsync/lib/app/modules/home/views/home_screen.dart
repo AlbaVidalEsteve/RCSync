@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // Import añadido
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/core/widgets/rc_event_card.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
@@ -18,17 +19,14 @@ class HomeScreen extends GetView<HomeController> {
     return Scaffold(
       extendBody: true,
       body: Obx(() {
-        // Lista de vistas dinámica según rol
         final isAdmin = controller.isAdminOrOrganizer;
         final index = controller.selectedIndex.value;
-
         List<Widget> views = [
           _buildCalendarTab(context),
           if (isAdmin) const AdminDashboardView(),
           const ResultsView(),
           const ProfileView(),
         ];
-
         return IndexedStack(
           index: index,
           children: views,
@@ -36,8 +34,6 @@ class HomeScreen extends GetView<HomeController> {
       }),
       bottomNavigationBar: Obx(() {
         Theme.of(context);
-
-        // Items de navegación dinámicos
         List<BottomBarItem> navItems = [
           BottomBarItem(
             icon: const Icon(Icons.calendar_today_outlined),
@@ -69,11 +65,10 @@ class HomeScreen extends GetView<HomeController> {
             title: Text("nav_profile".tr),
           ),
         ];
-
         return StylishBottomBar(
           backgroundColor: RCColors.background,
           currentIndex: controller.selectedIndex.value,
-          onTap: (index) => controller.changeIndex(index), // ✅ Actualiza al navegar
+          onTap: (index) => controller.changeIndex(index),
           option: AnimatedBarOptions(
             iconSize: 24,
             barAnimation: BarAnimation.fade,
@@ -88,7 +83,7 @@ class HomeScreen extends GetView<HomeController> {
   Widget _buildCalendarTab(BuildContext context) {
     return Container(
       color: RCColors.background,
-      child: RefreshIndicator( // ✅ Permite refrescar haciendo pull down
+      child: RefreshIndicator(
         onRefresh: () async {
           await controller.getEvents();
           await controller.getCurrentUserProfile();
@@ -97,7 +92,6 @@ class HomeScreen extends GetView<HomeController> {
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             children: [
-              // HEADER CON GRADIENTE (Estilo Perfil/Resultados)
               Container(
                 width: double.infinity,
                 height: 180,
@@ -120,13 +114,10 @@ class HomeScreen extends GetView<HomeController> {
                   ),
                 ),
               ),
-
-              // CONTENIDO CON OVERLAP
               Transform.translate(
                 offset: const Offset(0, -60),
                 child: Column(
                   children: [
-                    // TARJETA DEL CALENDARIO
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                       decoration: BoxDecoration(
@@ -185,8 +176,6 @@ class HomeScreen extends GetView<HomeController> {
                         ),
                       ),
                     ),
-
-                    // LISTA DE EVENTOS (Estilo fuera de tarjeta)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                       child: Obx(() {
@@ -195,7 +184,6 @@ class HomeScreen extends GetView<HomeController> {
                             : (controller.isDaySelected.value
                             ? controller.eventsOfDay(controller.selectedDate.value)
                             : controller.eventsOfCurrentMonth);
-
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -221,7 +209,7 @@ class HomeScreen extends GetView<HomeController> {
                                   child: Text(
                                     "no_events_scheduled".tr,
                                     style: TextStyle(
-                                      color: RCColors.textSecondary.withValues(alpha: 0.5),
+                                      color: RCColors.textSecondary.withOpacity(0.5),
                                     ),
                                   ),
                                 ),

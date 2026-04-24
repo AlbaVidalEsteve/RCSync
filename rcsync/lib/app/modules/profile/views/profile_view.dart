@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/rc_colors.dart';
-
 import '../controllers/profile_controller.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileView extends GetView<ProfileController> {
   const ProfileView({super.key});
@@ -79,12 +79,15 @@ class ProfileView extends GetView<ProfileController> {
                               child: CircleAvatar(
                                 radius: 55,
                                 backgroundColor: RCColors.background,
-                                backgroundImage: controller.profileData['image_profile'] != null
-                                    ? NetworkImage(controller.profileData['image_profile'])
-                                    : null,
-                                child: controller.profileData['image_profile'] == null
-                                    ? Icon(Icons.person, size: 55, color: RCColors.iconSecondary)
-                                    : null,
+                                child: CachedNetworkImage(
+                                  imageUrl: controller.profileData['image_profile'] ?? '',
+                                  imageBuilder: (context, imageProvider) => CircleAvatar(
+                                    radius: 55,
+                                    backgroundImage: imageProvider,
+                                  ),
+                                  placeholder: (context, url) => const Icon(Icons.person, size: 55),
+                                  errorWidget: (context, url, error) => const Icon(Icons.person, size: 55),
+                                ),
                               ),
                             ),
                             Positioned(

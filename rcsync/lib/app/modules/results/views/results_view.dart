@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import '../controllers/results_controller.dart';
 
 class ResultsView extends GetView<ResultsController> {
   const ResultsView({super.key});
+  static const String _genericHelmetUrl = "https://llprsnjobjwtcwwpsqwy.supabase.co/storage/v1/object/public/imagenes/perfilfoto/imagen%20perfil%20generica.png";
 
   @override
   Widget build(BuildContext context) {
-    // Escuchar cambios de tema
     Theme.of(context);
-
     return Scaffold(
       backgroundColor: RCColors.background,
       body: Column(
         children: [
-          // --- HEADER CON GRADIENTE Y TARJETA SOLAPADA ---
           Stack(
             children: [
-              // FONDO GRADIENTE
               Container(
                 width: double.infinity,
-                height: 180, 
+                height: 180,
                 padding: const EdgeInsets.only(top: 60),
                 alignment: Alignment.topCenter,
                 decoration: const BoxDecoration(
@@ -41,31 +39,25 @@ class ResultsView extends GetView<ResultsController> {
                   ),
                 ),
               ),
-
-              // TARJETA DE FILTROS FLOTANTE
               Container(
-                margin: const EdgeInsets.only(top: 110), 
+                margin: const EdgeInsets.only(top: 110),
                 child: _buildFiltersCard(),
               ),
             ],
           ),
-
           _buildStatusBanner(),
-
-          // LISTA DE RESULTADOS
           Expanded(child: _buildList()),
         ],
       ),
     );
   }
 
-  // --- TARJETA DE FILTROS ---
   Widget _buildFiltersCard() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: RCColors.card, 
+        color: RCColors.card,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -170,7 +162,6 @@ class ResultsView extends GetView<ResultsController> {
     required Function(String?) onChanged
   }) {
     final safeValue = (value != null && items.contains(value)) ? value : null;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -184,12 +175,12 @@ class ResultsView extends GetView<ResultsController> {
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: safeValue,
-          dropdownColor: RCColors.card, 
+          dropdownColor: RCColors.card,
           icon: Icon(Icons.arrow_drop_down, color: RCColors.textSecondary),
           style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
-            fillColor: RCColors.background.withOpacity(0.5), 
+            fillColor: RCColors.background.withOpacity(0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,
@@ -271,11 +262,9 @@ class ResultsView extends GetView<ResultsController> {
           } else if (index == 2) {
             badgeColor = RCColors.bronze;
           } else {
-            badgeColor = RCColors.surface; 
+            badgeColor = RCColors.surface;
             badgeTextColor = RCColors.textPrimary;
           }
-
-          const String genericHelmetUrl = "https://llprsnjobjwtcwwpsqwy.supabase.co/storage/v1/object/public/imagenes/perfilfoto/imagen%20perfil%20generica.png";
 
           return Card(
             color: RCColors.card,
@@ -291,29 +280,24 @@ class ResultsView extends GetView<ResultsController> {
                 leading: Stack(
                   alignment: Alignment.bottomRight,
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: RCColors.surface,
-                        border: Border.all(
-                          color: index < 3 ? badgeColor : RCColors.divider,
-                          width: index < 3 ? 2 : 1,
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: RCColors.surface,
+                      child: CachedNetworkImage(
+                        imageUrl: (entry.imageProfile != null && entry.imageProfile!.isNotEmpty)
+                            ? entry.imageProfile!
+                            : _genericHelmetUrl,
+                        imageBuilder: (context, imageProvider) => CircleAvatar(
+                          radius: 24,
+                          backgroundImage: imageProvider,
                         ),
-                      ),
-                      child: ClipOval(
-                        child: Image.network(
-                          (entry.imageProfile != null && entry.imageProfile!.isNotEmpty)
-                              ? entry.imageProfile!
-                              : genericHelmetUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.network(
-                              genericHelmetUrl,
-                              fit: BoxFit.cover,
-                            );
-                          },
+                        placeholder: (context, url) => const CircleAvatar(
+                          radius: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        errorWidget: (context, url, error) => const CircleAvatar(
+                          radius: 24,
+                          child: Icon(Icons.person, size: 20),
                         ),
                       ),
                     ),
