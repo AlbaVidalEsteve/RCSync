@@ -256,11 +256,12 @@ class EventDetailsView extends GetView<EventDetailsController> {
     );
   });
 
+  // MODIFICADO: padding reducido en la cabecera de categoría
   Widget _buildCategoryGroup(String category, List<RegisteredPilot> pilots) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(vertical: 6), // Antes 10
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -269,7 +270,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
               style: const TextStyle(color: RCColors.orange, fontWeight: FontWeight.bold, fontSize: 16),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), // Antes 10,3
               decoration: BoxDecoration(
                 color: RCColors.orange.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
@@ -279,7 +280,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
                 style: const TextStyle(
                   color: RCColors.orange,
                   fontWeight: FontWeight.bold,
-                  fontSize: 12,
+                  fontSize: 11, // Antes 12
                 ),
               ),
             ),
@@ -300,23 +301,26 @@ class EventDetailsView extends GetView<EventDetailsController> {
         }
         if (displayCategory.isEmpty) displayCategory = 'STOCK';
 
+        // MODIFICADO: Container del piloto con menos margin
         return Container(
-          margin: const EdgeInsets.only(bottom: 8),
+          margin: const EdgeInsets.only(bottom: 6), // Antes 8
           decoration: BoxDecoration(
             color: RCColors.card,
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(12), // Antes 15
             border: Border.all(
               color: RCColors.divider.withOpacity(0.3),
             ),
           ),
           child: ListTile(
+            // MODIFICADO: reducir padding interno del ListTile
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4), // Nuevo
             leading: Stack(
               alignment: Alignment.bottomRight,
               children: [
-                // Avatar circular con foto
+                // Avatar circular con foto - tamaño reducido
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 40, // Antes 48
+                  height: 40,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: RCColors.surface,
@@ -340,20 +344,20 @@ class EventDetailsView extends GetView<EventDetailsController> {
                     ),
                   ),
                 ),
-                // Badge con la posición
+                // Badge con la posición - tamaño reducido
                 Positioned(
                   right: -2,
                   bottom: -2,
                   child: Container(
-                    padding: const EdgeInsets.all(1),
+                    padding: const EdgeInsets.all(0),
                     decoration: BoxDecoration(
                       color: RCColors.card,
                       shape: BoxShape.circle,
-                      border: Border.all(color: RCColors.card, width: 1.5),
+                      border: Border.all(color: RCColors.card, width: 1),
                     ),
                     child: Container(
-                      width: 18,
-                      height: 18,
+                      width: 16, // Antes 18
+                      height: 16,
                       decoration: BoxDecoration(
                         color: _getPositionColor(position),
                         shape: BoxShape.circle,
@@ -378,23 +382,23 @@ class EventDetailsView extends GetView<EventDetailsController> {
               style: TextStyle(
                 color: RCColors.textPrimary,
                 fontWeight: FontWeight.bold,
-                fontSize: 15,
+                fontSize: 14, // Antes 15
               ),
             ),
             subtitle: Padding(
-              padding: const EdgeInsets.only(top: 4.0),
+              padding: const EdgeInsets.only(top: 2.0), // Antes 4
               child: Wrap(
-                spacing: 6,
-                runSpacing: 4,
+                spacing: 4, // Antes 6
+                runSpacing: 2, // Antes 4
                 children: [
-                  // Badge de categoría (STOCK/SUPERSTOCK)
+                  // Badge de categoría
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), // Antes 8,3
                     decoration: BoxDecoration(
                       color: isSuperstock
                           ? Colors.purple.withOpacity(0.2)
                           : Colors.blue.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(5),
                       border: Border.all(
                         color: isSuperstock
                             ? Colors.purpleAccent
@@ -408,28 +412,28 @@ class EventDetailsView extends GetView<EventDetailsController> {
                         color: isSuperstock
                             ? Colors.purpleAccent
                             : Colors.lightBlueAccent,
-                        fontSize: 10,
+                        fontSize: 9, // Antes 10
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+                        letterSpacing: 0.3,
                       ),
                     ),
                   ),
-                  // Badge de Junior (usando el booleano isJunior)
+                  // Badge Junior
                   if (pilot.isJunior)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
                         color: Colors.green.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(5),
                         border: Border.all(color: Colors.greenAccent, width: 0.5),
                       ),
                       child: const Text(
                         "JUNIOR",
                         style: TextStyle(
                           color: Colors.greenAccent,
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
+                          letterSpacing: 0.3,
                         ),
                       ),
                     ),
@@ -437,17 +441,17 @@ class EventDetailsView extends GetView<EventDetailsController> {
               ),
             ),
             trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3), // Antes 10,6
               decoration: BoxDecoration(
                 color: RCColors.orange.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8), // Antes 10
               ),
               child: Text(
                 '${pilot.totalPoints} pts',
                 style: TextStyle(
                   color: RCColors.orange,
                   fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                  fontSize: 13, // Antes 16
                 ),
               ),
             ),
@@ -493,17 +497,19 @@ class EventDetailsView extends GetView<EventDetailsController> {
     );
   }
 
+  // MODIFICADO: reducir padding de las secciones colapsables
   Widget _buildSection({required String title, required Widget child}) => Container(
     width: double.infinity,
-    padding: const EdgeInsets.all(20),
+    padding: const EdgeInsets.all(16), // Antes 20
     decoration: BoxDecoration(color: RCColors.card, borderRadius: BorderRadius.circular(20)),
     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(title, style: TextStyle(color: RCColors.textPrimary, fontSize: 18, fontWeight: FontWeight.bold)),
-      const SizedBox(height: 20),
+      const SizedBox(height: 16), // Antes 20
       child
     ]),
   );
 
+  // MODIFICADO: reducir padding de la sección colapsable
   Widget _buildCollapsibleSection({
     required String title,
     required IconData icon,
@@ -513,7 +519,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
   }) =>
       Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16), // Antes 20
         decoration: BoxDecoration(color: RCColors.card, borderRadius: BorderRadius.circular(20)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -546,7 +552,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
               ),
             ),
             if (isExpanded) ...[
-              const SizedBox(height: 20),
+              const SizedBox(height: 16), // Antes 20
               child,
             ],
           ],
