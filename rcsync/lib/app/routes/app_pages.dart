@@ -19,6 +19,7 @@ import 'package:rcsync/app/modules/championship_form/bindings/championship_form_
 import 'package:rcsync/app/modules/championship_form/views/championship_form_view.dart';
 import 'package:rcsync/app/modules/splash/bindings/splash_binding.dart';
 import 'package:rcsync/app/modules/splash/views/splash_view.dart';
+import 'package:rcsync/app/middlewares/auth_middleware.dart';
 
 part 'app_routes.dart';
 
@@ -32,48 +33,55 @@ class AppPages {
       name: _Paths.SPLASH,
       page: () => const SplashView(),
       binding: SplashBinding(),
-    ),
-    GetPage(
-      name: _Paths.HOME,
-      page: () => const HomeScreen(),
-      binding: HomeBinding(),
+      // Sin middleware (pública)
     ),
     GetPage(
       name: _Paths.LOGIN,
       page: () => LoginView(),
       binding: LoginBinding(),
+      // pública
     ),
     GetPage(
       name: _Paths.REGISTER,
       page: () => const RegisterView(),
       binding: RegisterBinding(),
+      // pública
+    ),
+    GetPage(
+      name: _Paths.HOME,
+      page: () => const HomeScreen(),
+      binding: HomeBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: _Paths.PROFILE,
       page: () => ProfileView(),
       binding: ProfileBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: _Paths.EVENT_DETAIL,
       page: () => const EventDetailsView(),
       binding: EventDetailsBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: _Paths.EVENT_REGISTRATION,
       page: () => const EventRegistrationView(),
       binding: EventRegistrationBinding(),
+      middlewares: [AuthMiddleware()],
     ),
-
-    // RUTAS DE GESTIÓN
     GetPage(
       name: _Paths.CREATE_EVENT,
       page: () => const CreateEventView(),
       binding: CreateEventBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: Routes.CREATE_CHAMPIONSHIP,
       page: () => const ChampionshipFormView(),
       binding: ChampionshipFormBinding(),
+      middlewares: [AuthMiddleware()],
     ),
   ];
 }

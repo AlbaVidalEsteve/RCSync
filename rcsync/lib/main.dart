@@ -7,6 +7,7 @@ import 'package:rcsync/core/theme/rc_theme.dart';
 import 'package:rcsync/core/values/languages.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'app/routes/app_pages.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
 
 void main() async {
   try {
@@ -27,7 +28,6 @@ void main() async {
     );
 
     Get.put(AuthController(), permanent: true);
-
     runApp(const MyApp());
   } catch (e) {
     debugPrint("CRITICAL ERROR DURING INITIALIZATION: $e");
@@ -49,6 +49,34 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Si es web (ancho mayor a 600 píxeles)
+        if (constraints.maxWidth > 600) {
+          return Center(
+            child: Container(
+              width: 500, // Ancho fijo similar a móvil
+              decoration: BoxDecoration(
+                color: RCColors.background,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: Offset(0, 0),
+                  ),
+                ],
+              ),
+              child: _buildApp(),
+            ),
+          );
+        }
+        // Para móviles o pantallas pequeñas, comportamiento normal
+        return _buildApp();
+      },
+    );
+  }
+
+  Widget _buildApp() {
     return GetMaterialApp(
       title: "RCSync",
       translations: Languages(),
