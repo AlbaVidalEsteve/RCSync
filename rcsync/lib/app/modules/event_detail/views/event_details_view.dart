@@ -30,32 +30,64 @@ class EventDetailsView extends GetView<EventDetailsController> {
           return const Center(child: CircularProgressIndicator(color: RCColors.orange));
         }
         final RaceEventModel event = controller.event.value;
-        return CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 350,
-              pinned: true,
-              backgroundColor: RCColors.background,
-              leading: _buildBackBtn(),
-              flexibleSpace: FlexibleSpaceBar(
-                background: CachedNetworkImage(
-                  imageUrl: event.imageEvent ?? '',
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: RCColors.orange.withOpacity(0.2),
-                    child: const Center(child: CircularProgressIndicator()),
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              Stack(
+                children: [
+                  // Header con Imagen y Degradado
+                  Container(
+                    width: double.infinity,
+                    height: 250,
+                    decoration: BoxDecoration(
+                      color: RCColors.background,
+                    ),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: event.imageEvent ?? '',
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            color: RCColors.orange.withOpacity(0.1),
+                            child: const Center(child: CircularProgressIndicator()),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: RCColors.orange.withOpacity(0.1),
+                            child: const Icon(Icons.image, size: 100, color: Colors.white24),
+                          ),
+                        ),
+                        // Degradado sutil: oscuro arriba para el botón y fondo abajo para fundirse
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              stops: const [0.0, 0.4, 1.0],
+                              colors: [
+                                Colors.black.withOpacity(0.5),
+                                Colors.transparent,
+                                RCColors.background,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  errorWidget: (context, url, error) => Container(
-                    color: RCColors.orange.withOpacity(0.2),
-                    child: const Icon(Icons.image, size: 100, color: Colors.white24),
+                  // Botón de atrás
+                  Positioned(
+                    top: 50,
+                    left: 10,
+                    child: _buildBackBtn(),
                   ),
-                ),
+                ],
               ),
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate([
-                Padding(
-                  padding: const EdgeInsets.all(20),
+              // Contenido con la Card superpuesta
+              Transform.translate(
+                offset: const Offset(0, -40),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
                       _buildEventInfo(event),
@@ -70,13 +102,13 @@ class EventDetailsView extends GetView<EventDetailsController> {
                       _buildPilotList(),
                       const SizedBox(height: 20),
                       _buildLocationSection(event),
-                      const SizedBox(height: 100),
+                      const SizedBox(height: 120),
                     ],
                   ),
                 ),
-              ]),
-            ),
-          ],
+              ),
+            ],
+          ),
         );
       }),
       bottomSheet: _buildBottomAction(),

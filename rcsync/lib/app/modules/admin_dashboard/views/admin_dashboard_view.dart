@@ -187,36 +187,16 @@ class AdminDashboardView extends StatelessWidget {
       return Column(
         children: [
           // Tabs para filtrar por estado
-          Container(
-            margin: const EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: RCColors.card,
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: SegmentedButton<int>(
-              segments: const [
-                ButtonSegment(value: 0, label: Text('Pendientes'), icon: Icon(Icons.pending_actions, size: 18)),
-                ButtonSegment(value: 1, label: Text('Aprobados'), icon: Icon(Icons.check_circle, size: 18)),
-                ButtonSegment(value: 2, label: Text('Rechazados'), icon: Icon(Icons.cancel, size: 18)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
+            child: Row(
+              children: [
+                _buildStatusPill(0, 'Pendientes', Icons.pending_actions, Colors.amber, controller),
+                const SizedBox(width: 8),
+                _buildStatusPill(1, 'Aprobados', Icons.check_circle, Colors.green, controller),
+                const SizedBox(width: 8),
+                _buildStatusPill(2, 'Rechazados', Icons.cancel, Colors.red, controller),
               ],
-              selected: {controller.regTabIndex.value},
-              onSelectionChanged: (Set<int> newSelection) {
-                controller.regTabIndex.value = newSelection.first;
-              },
-              style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return RCColors.orange;
-                  }
-                  return Colors.transparent;
-                }),
-                foregroundColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return Colors.white;
-                  }
-                  return RCColors.textSecondary;
-                }),
-              ),
             ),
           ),
 
@@ -234,6 +214,46 @@ class AdminDashboardView extends StatelessWidget {
         ],
       );
     });
+  }
+
+  Widget _buildStatusPill(int index, String label, IconData icon, Color color, AdminDashboardController controller) {
+    final isSelected = controller.regTabIndex.value == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => controller.regTabIndex.value = index,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withOpacity(0.15) : RCColors.card,
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(
+              color: isSelected ? color : RCColors.divider,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 16,
+                color: isSelected ? color : RCColors.textSecondary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? color : RCColors.textSecondary,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildRegList(RxList<Map<String, dynamic>> registrations, AdminDashboardController controller, String status) {
@@ -277,60 +297,64 @@ class AdminDashboardView extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
             side: BorderSide(
-              color: status == 'pending' ? Colors.orange :
+              color: status == 'pending' ? Colors.amber :
               (status == 'approved' ? Colors.green : Colors.red),
               width: 1,
             ),
           ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: RCColors.background,
-              backgroundImage: pilotImage != null ? NetworkImage(pilotImage) : null,
-              child: pilotImage == null ? Icon(Icons.person, color: RCColors.iconSecondary) : null,
-            ),
-            title: Text(pilotName, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(eventName, style: TextStyle(color: RCColors.textSecondary)),
-                Text('${"res_category".tr}: $categoryName', style: TextStyle(color: RCColors.textSecondary, fontSize: 12)),
-              ],
-            ),
-            isThreeLine: true,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (status == 'pending') ...[
-                  // Botón Aceptar (verde)
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+              leading: CircleAvatar(
+                backgroundColor: RCColors.background,
+                backgroundImage: pilotImage != null ? NetworkImage(pilotImage) : null,
+                child: pilotImage == null ? Icon(Icons.person, color: RCColors.iconSecondary) : null,
+              ),
+              title: Text(pilotName, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(eventName, style: TextStyle(color: RCColors.textSecondary)),
+                  Text('${"res_category".tr}: $categoryName', style: TextStyle(color: RCColors.textSecondary, fontSize: 12)),
+                ],
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (status == 'pending') ...[
+                    // Botón Aceptar (verde)
+                    IconButton(
+                      icon: const Icon(Icons.check_circle, color: Colors.green),
+                      onPressed: () {
+                        final regId = reg['id_registration'];
+                        if (regId != null) controller.confirmRegistration(regId);
+                      },
+                      tooltip: 'Aceptar inscripción',
+                    ),
+                    // Botón Rechazar (naranja)
+                    IconButton(
+                      icon: const Icon(Icons.cancel, color: Colors.orange),
+                      onPressed: () {
+                        final regId = reg['id_registration'];
+                        if (regId != null) controller.denyRegistration(regId);
+                      },
+                      tooltip: 'Rechazar inscripción',
+                    ),
+                  ],
+                  // Botón Cancelar/Borrar (rojo) - visible siempre para admin
                   IconButton(
-                    icon: const Icon(Icons.check_circle, color: Colors.green),
+                    icon: const Icon(Icons.delete_forever, color: Colors.red),
                     onPressed: () {
                       final regId = reg['id_registration'];
-                      if (regId != null) controller.confirmRegistration(regId);
+                      if (regId != null) controller.cancelRegistration(regId);
                     },
-                    tooltip: 'Aceptar inscripción',
-                  ),
-                  // Botón Rechazar (naranja)
-                  IconButton(
-                    icon: const Icon(Icons.cancel, color: Colors.orange),
-                    onPressed: () {
-                      final regId = reg['id_registration'];
-                      if (regId != null) controller.denyRegistration(regId);
-                    },
-                    tooltip: 'Rechazar inscripción',
+                    tooltip: 'Cancelar y eliminar inscripción',
                   ),
                 ],
-                // Botón Cancelar/Borrar (rojo) - visible siempre para admin
-                // Solo mostrar si el usuario es admin (simplificado, puedes añadir verificación)
-                IconButton(
-                  icon: const Icon(Icons.delete_forever, color: Colors.red),
-                  onPressed: () {
-                    final regId = reg['id_registration'];
-                    if (regId != null) controller.cancelRegistration(regId);
-                  },
-                  tooltip: 'Cancelar y eliminar inscripción',
-                ),
-              ],
+              ),
             ),
           ),
         );
