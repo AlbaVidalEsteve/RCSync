@@ -11,8 +11,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:rcsync/app/data/models/race_event_model.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 
-
 class RegisteredPilot {
+  final String idProfile;          // Nuevo: UUID del piloto
   final String fullName;
   final String subCategory;
   final String? imageUrl;
@@ -21,6 +21,7 @@ class RegisteredPilot {
   final bool isJunior;
 
   RegisteredPilot({
+    required this.idProfile,
     required this.fullName,
     required this.subCategory,
     this.imageUrl,
@@ -147,10 +148,10 @@ class EventDetailsController extends GetxController {
 
       for (var item in data) {
         String catName = item['category_name'] ?? 'Otros';
-
         final bool isJunior = item['is_junior'] ?? false;
 
         var pilot = RegisteredPilot(
+          idProfile: item['pilot_id'] ?? '',
           fullName: item['full_name'] ?? 'Piloto',
           subCategory: item['subcategory_name'] ?? 'STOCK',
           imageUrl: item['image_url'],
@@ -167,6 +168,7 @@ class EventDetailsController extends GetxController {
         list.sort((a, b) => b.totalPoints.compareTo(a.totalPoints));
         for (int i = 0; i < list.length; i++) {
           list[i] = RegisteredPilot(
+            idProfile: list[i].idProfile,
             fullName: list[i].fullName,
             subCategory: list[i].subCategory,
             imageUrl: list[i].imageUrl,
@@ -235,27 +237,23 @@ class EventDetailsController extends GetxController {
         for (var pilot in entry.value) {
           String transponder = '';
           try {
+            // Buscar transponder activo usando el UUID del piloto
             final response = await supabase
-                .from('profiles')
-                .select('''
-                id_profile,
-                full_name,
-                transponders (number, label)
-              ''')
-                .eq('full_name', pilot.fullName)
+                .from('transponders')
+                .select('number')
+                .eq('id_profile', pilot.idProfile)
+                .eq('is_active', true)
                 .maybeSingle();
 
             if (response != null) {
-              final transpondersList = response['transponders'] as List? ?? [];
-              if (transpondersList.isNotEmpty) {
-                transponder = transpondersList.first['number']?.toString() ?? '';
-              }
+              transponder = response['number']?.toString() ?? '';
             }
           } catch (e) {
             debugPrint('Error obteniendo transponder para ${pilot.fullName}: $e');
           }
 
           categoryPilots.add({
+            'id_piloto': pilot.idProfile,
             'nombre': pilot.fullName,
             'ranking': pilot.totalPoints,
             'categoria': pilot.subCategory,
@@ -269,7 +267,7 @@ class EventDetailsController extends GetxController {
       }
 
       final StringBuffer csv = StringBuffer();
-      csv.write('\u{FEFF}');
+      csv.write('\u{FEFF}'); // BOM para UTF-8
 
       for (var entry in pilotsByCategory.entries) {
         final category = entry.key;
@@ -277,11 +275,13 @@ class EventDetailsController extends GetxController {
 
         csv.writeln('=== $category ===');
         csv.writeln();
-        csv.writeln('Nº;Nombre;Ranking;Categoría;Transponder;Junior');
+        // Cabecera con ID del piloto
+        csv.writeln('ID Piloto;Nº;Nombre;Ranking;Categoría;Transponder;Junior');
 
         for (var pilot in pilots) {
           csv.writeln(
-              '${pilot['posicion']};'
+              '${pilot['id_piloto']};'
+                  '${pilot['posicion']};'
                   '${pilot['nombre']};'
                   '${pilot['ranking']};'
                   '${pilot['categoria']};'
@@ -300,7 +300,7 @@ class EventDetailsController extends GetxController {
       final File file = File('${directory.path}/$fileName');
       await file.writeAsString(csv.toString(), encoding: utf8);
 
-      Get.back();
+      Get.back(); // cierra el diálogo de carga
 
       Get.dialog(
         Dialog(
@@ -358,6 +358,7 @@ class EventDetailsController extends GetxController {
                       Text(
                         '• Separado por categorías\n'
                             '• Cada categoría tiene su propio ranking\n'
+                            '• ID Piloto = Identificador único (UUID)\n'
                             '• Nº = Posición dentro de la categoría\n'
                             '• Ranking = Puntos totales del piloto\n'
                             '• Categoría = STOCK / SUPERSTOCK\n'
@@ -394,7 +395,7 @@ class EventDetailsController extends GetxController {
       );
 
     } catch (e) {
-      Get.back();
+      Get.back(); // cerrar diálogo de carga si estaba abierto
       Get.snackbar(
         'Error',
         'No se pudo exportar la lista: $e',
