@@ -300,40 +300,29 @@ class EventDetailsView extends GetView<EventDetailsController> {
         if (displayCategory.isEmpty) displayCategory = 'STOCK';
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 10),
+          margin: const EdgeInsets.only(bottom: 6),
           decoration: BoxDecoration(
-            color: Get.isDarkMode ? RCColors.surface : RCColors.background.withOpacity(0.7),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(Get.isDarkMode ? 0.2 : 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-            ],
+            color: RCColors.card,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: RCColors.divider.withOpacity(0.3),
+            ),
           ),
           child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             leading: Stack(
               alignment: Alignment.bottomRight,
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: RCColors.card,
+                    color: RCColors.surface,
                     border: Border.all(
-                      color: _getPositionColor(position).withOpacity(0.8),
-                      width: 2,
+                      color: _getPositionColor(position).withOpacity(0.5),
+                      width: 1.5,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _getPositionColor(position).withOpacity(0.2),
-                        blurRadius: 4,
-                        spreadRadius: 1,
-                      )
-                    ],
                   ),
                   child: ClipOval(
                     child: CachedNetworkImage(
@@ -350,26 +339,27 @@ class EventDetailsView extends GetView<EventDetailsController> {
                   right: -2,
                   bottom: -2,
                   child: Container(
-                    width: 20,
-                    height: 20,
+                    padding: const EdgeInsets.all(0),
                     decoration: BoxDecoration(
-                      color: _getPositionColor(position),
+                      color: RCColors.card,
                       shape: BoxShape.circle,
-                      border: Border.all(color: RCColors.surface, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 2,
-                        )
-                      ],
+                      border: Border.all(color: RCColors.card, width: 1),
                     ),
-                    child: Center(
-                      child: Text(
-                        '$position',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 10,
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: _getPositionColor(position),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$position',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 9,
+                          ),
                         ),
                       ),
                     ),
@@ -382,22 +372,28 @@ class EventDetailsView extends GetView<EventDetailsController> {
               style: TextStyle(
                 color: RCColors.textPrimary,
                 fontWeight: FontWeight.bold,
-                fontSize: 15,
+                fontSize: 14,
               ),
             ),
             subtitle: Padding(
-              padding: const EdgeInsets.only(top: 4.0),
+              padding: const EdgeInsets.only(top: 2.0),
               child: Wrap(
-                spacing: 6,
-                runSpacing: 4,
+                spacing: 4,
+                runSpacing: 2,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: isSuperstock
-                          ? Colors.purple.withOpacity(0.15)
-                          : Colors.blue.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(6),
+                          ? Colors.purple.withOpacity(0.2)
+                          : Colors.blue.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(
+                        color: isSuperstock
+                            ? Colors.purpleAccent
+                            : Colors.blueAccent,
+                        width: 0.5,
+                      ),
                     ),
                     child: Text(
                       displayCategory,
@@ -405,53 +401,47 @@ class EventDetailsView extends GetView<EventDetailsController> {
                         color: isSuperstock
                             ? Colors.purpleAccent
                             : Colors.lightBlueAccent,
-                        fontSize: 10,
+                        fontSize: 9,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 0.4,
+                        letterSpacing: 0.3,
                       ),
                     ),
                   ),
                   if (pilot.isJunior)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(6),
+                        color: Colors.green.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.greenAccent, width: 0.5),
                       ),
                       child: const Text(
                         "JUNIOR",
                         style: TextStyle(
                           color: Colors.greenAccent,
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.bold,
-                          letterSpacing: 0.4,
+                          letterSpacing: 0.3,
                         ),
                       ),
                     ),
                 ],
               ),
             ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${pilot.totalPoints}',
-                  style: const TextStyle(
-                    color: RCColors.orange,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+              decoration: BoxDecoration(
+                color: RCColors.orange.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '${pilot.totalPoints} pts',
+                style: TextStyle(
+                  color: RCColors.orange,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
                 ),
-                Text(
-                  'pts',
-                  style: TextStyle(
-                    color: RCColors.textSecondary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         );
