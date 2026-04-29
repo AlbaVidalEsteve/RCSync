@@ -120,7 +120,7 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
     }
   }
 
-  // Aceptar inscripción (status -> approved)
+  // Aceptar inscripcion
   Future<void> confirmRegistration(int idRegistration) async {
     try {
       await supabase
@@ -148,10 +148,10 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
     }
   }
 
-  // Rechazar inscripción (status -> denied)
+  // Rechazar inscripcion
   Future<void> denyRegistration(int idRegistration) async {
     try {
-      // Mostrar diálogo de confirmación
+      // Mostrar mensaje de confirmacion
       final result = await Get.dialog<bool>(
         Dialog(
           backgroundColor: RCColors.card,
@@ -228,10 +228,10 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
     }
   }
 
-  // Cancelar/Borrar inscripción (DELETE)
+  // Cancelar/Borrar inscripcion
   Future<void> cancelRegistration(int idRegistration) async {
     try {
-      // Verificar que el usuario es admin (solo admin puede borrar)
+      // Verificar que el usuario es admin
       final user = supabase.auth.currentUser;
       if (user != null) {
         final profile = await supabase
@@ -252,7 +252,7 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
         }
       }
 
-      // Mostrar diálogo de confirmación
+      // Mostrar dialogo de confirmacion
       final result = await Get.dialog<bool>(
         Dialog(
           backgroundColor: RCColors.card,

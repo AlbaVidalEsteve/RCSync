@@ -94,7 +94,7 @@ class CreateEventController extends GetxController {
     try {
       String? finalImageUrl = existingImageUrl.value;
       if (selectedImage.value != null && selectedImage.value!.bytes != null) {
-        // COMPRIMIR IMAGEN DEL EVENTO
+        // comprimir imagen evetno
         if (selectedImage.value!.path != null) {
           File originalFile = File(selectedImage.value!.path!);
           File? compressed = await ImageService.compressEventImage(originalFile);
@@ -103,7 +103,7 @@ class CreateEventController extends GetxController {
           await supabase.storage.from('imagenes').uploadBinary('eventosfoto/$fileName', bytesToUpload!);
           finalImageUrl = supabase.storage.from('imagenes').getPublicUrl('eventosfoto/$fileName');
         } else {
-          // Fallback si no hay path (ej. web)
+          // controlar error path
           final fileName = '${DateTime.now().millisecondsSinceEpoch}_${selectedImage.value!.name}';
           await supabase.storage.from('imagenes').uploadBinary('eventosfoto/$fileName', selectedImage.value!.bytes!);
           finalImageUrl = supabase.storage.from('imagenes').getPublicUrl('eventosfoto/$fileName');

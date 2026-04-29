@@ -1,7 +1,5 @@
-// lib/views/widgets/rc_button.dart
 import 'package:flutter/material.dart';
-
-import '../theme/rc_colors.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
 
 class RCButton extends StatelessWidget {
   final String text;

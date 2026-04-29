@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../controllers/championship_form_controller.dart';
+import 'package:rcsync/app/modules/championship_form/controllers/championship_form_controller.dart';
 
 class ChampionshipFormBinding extends Bindings {
   @override

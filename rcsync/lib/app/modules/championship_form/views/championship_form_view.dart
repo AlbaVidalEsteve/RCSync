@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
-import '../controllers/championship_form_controller.dart';
+import 'package:rcsync/app/modules/championship_form/controllers/championship_form_controller.dart';
 
 class ChampionshipFormView extends GetView<ChampionshipFormController> {
   const ChampionshipFormView({super.key});
@@ -16,7 +16,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
-            // HEADER CON GRADIENTE (igual que home_screen)
+            // Header standard
             Stack(
               children: [
                 Container(
@@ -41,7 +41,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                     ),
                   ),
                 ),
-                // Botón de volver (círculo negro)
+                // botn volver
                 Positioned(
                   top: 50,
                   left: 16,
@@ -55,14 +55,14 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                 ),
               ],
             ),
-            // CONTENIDO CON OVERLAP (offset -60)
+            // contenido
             Transform.translate(
               offset: const Offset(0, -60),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    // TARJETA DE FORMULARIO
+                    // tarjeta form
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
@@ -128,7 +128,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                             ),
                             const SizedBox(height: 20),
 
-                            // DROPDOWN para seleccionar categoría existente
+                            // desplegable categoria existente
                             _buildInputLabel("cha_select_existing".tr, icon: Icons.list_alt),
                             const SizedBox(height: 8),
                             Row(
@@ -159,7 +159,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                             ),
                             const SizedBox(height: 20),
 
-                            // INPUT para crear nueva categoría
+                            // nueva categoria
                             _buildInputLabel("cha_create_new".tr, icon: Icons.add_box_outlined),
                             const SizedBox(height: 8),
                             Row(
@@ -192,7 +192,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                         ),
                       ),
                     ),
-                    // SECCIÓN DE CATEGORÍAS CONFIGURADAS
+                    // categorias configuradas
                     _buildCategoriesSection(),
                     const SizedBox(height: 30),
                     _buildSaveButton(),

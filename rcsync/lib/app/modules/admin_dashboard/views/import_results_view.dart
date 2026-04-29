@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/data/models/race_event_model.dart';
-import '../controllers/import_results_controller.dart';
+import 'package:rcsync/app/modules/admin_dashboard/controllers/import_results_controller.dart';
 
 class ImportResultsView extends GetView<ImportResultsController> {
   const ImportResultsView({super.key});
@@ -15,7 +15,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
       backgroundColor: RCColors.background,
       body: Column(
         children: [
-          // HEADER CON GRADIENTE (Estilo Calendario/Perfil)
+          // Header standard
           Stack(
             children: [
               Container(
@@ -55,7 +55,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
             ],
           ),
 
-          // CONTENIDO CON OVERLAP
+          // Contenido
           Expanded(
             child: SingleChildScrollView(
               child: Transform.translate(
@@ -64,7 +64,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
-                      // TARJETA DE SELECCIÓN
+                      // tarjeta seleccion
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -126,7 +126,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
 
                       const SizedBox(height: 20),
 
-                      // TARJETA DE INSTRUCCIONES
+                      // tarjeta instrucciones
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -168,7 +168,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
 
                       const SizedBox(height: 30),
 
-                      // BOTÓN DE IMPORTAR (Estilo RCPrimaryButton)
+                      // boton importar (estilo rcbutton)
                       Obx(() => SizedBox(
                         width: double.infinity,
                         height: 55,

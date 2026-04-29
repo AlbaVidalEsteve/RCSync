@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../routes/app_pages.dart';
+import 'package:rcsync/app/routes/app_pages.dart';
 
 class SplashController extends GetxController {
   @override

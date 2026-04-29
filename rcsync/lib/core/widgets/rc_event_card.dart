@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../theme/rc_colors.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
 
 class RCEventCard extends StatelessWidget {
   final String title;

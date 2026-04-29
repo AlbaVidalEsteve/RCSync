@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// A primary button with a gradient background for the rcsync app.
 class RCPrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;

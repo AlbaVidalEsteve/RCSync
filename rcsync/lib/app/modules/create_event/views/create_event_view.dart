@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:intl/intl.dart';
-import '../controllers/create_event_controller.dart';
+import 'package:rcsync/app/modules/create_event/controllers/create_event_controller.dart';
 
 class CreateEventView extends GetView<CreateEventController> {
   const CreateEventView({super.key});
@@ -15,7 +15,7 @@ class CreateEventView extends GetView<CreateEventController> {
         physics: const AlwaysScrollableScrollPhysics(),
         child: Column(
           children: [
-            // HEADER CON GRADIENTE (igual que home_screen)
+            // Header standard
             Stack(
               children: [
                 Container(
@@ -54,14 +54,14 @@ class CreateEventView extends GetView<CreateEventController> {
                 ),
               ],
             ),
-            // CONTENIDO CON OVERLAP
+            // Contenido
             Transform.translate(
               offset: const Offset(0, -60),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
-                    // TARJETA DE FORMULARIO
+                    // Tarjeta form
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(

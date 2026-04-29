@@ -9,7 +9,7 @@ class Transponder {
     required this.label,
   });
 
-  // Factory para crear el objeto desde el JSON de Supabase
+  // crear el objeto desde el JSON de Supabase
   factory Transponder.fromJson(Map<String, dynamic> json) {
     return Transponder(
       id: json['id_transponder']?.toString() ?? '',
@@ -18,7 +18,7 @@ class Transponder {
     );
   }
 
-  // Método para convertir a JSON por si necesitas enviar datos
+  // Metodo para convertir a JSON
   Map<String, dynamic> toJson() {
     return {
       'id_transponder': id,

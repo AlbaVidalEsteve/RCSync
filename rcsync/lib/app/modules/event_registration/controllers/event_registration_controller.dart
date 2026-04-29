@@ -13,7 +13,7 @@ class EventRegistrationController extends GetxController {
   var isLoading = false.obs;
   var isRegistering = false.obs;
 
-  // Guardamos IDs para el INSERT
+  // Guardar ID para el INSERT
   var categoriesMap = <String, int>{}.obs;
   var availableCategories = <String>[].obs;
 
@@ -29,7 +29,7 @@ class EventRegistrationController extends GetxController {
   Future<void> fetchCategories() async {
     isLoading.value = true;
     try {
-      // Obtenemos categorías reales del campeonato actual
+      // Obtener categorías del campeonato
       final response = await supabase
           .from('championship_categories')
           .select('categories(id_category, name)')
@@ -76,8 +76,7 @@ class EventRegistrationController extends GetxController {
 
     isRegistering.value = true;
     try {
-      // --- SEGURIDAD DE DUPLICADOS ---
-      // Verificamos si ya existe el registro (id_event + id_profile + id_category)
+      //Evitar duplicados
       final checkExisting = await supabase
           .from('registrations')
           .select('id_registration')
@@ -93,7 +92,7 @@ class EventRegistrationController extends GetxController {
         return;
       }
 
-      // --- INSERCIÓN ---
+      // Insertar
       await supabase.from('registrations').insert({
         'id_event': eventId,
         'id_profile': pilotId,
@@ -103,12 +102,11 @@ class EventRegistrationController extends GetxController {
         'status': 'pending'
       });
 
-      // --- NAVEGACIÓN Y CIERRE ---
-      Get.back(); // Volvemos atrás inmediatamente
+      // Navegacion y cierre
+      Get.back();
       Get.snackbar("Éxito", "Inscripción completada correctamente",
           backgroundColor: Colors.green, colorText: Colors.white);
 
-      // Refrescamos el listado de la pantalla anterior
       eventDetailsController.fetchRegisteredPilots();
 
     } catch (e) {

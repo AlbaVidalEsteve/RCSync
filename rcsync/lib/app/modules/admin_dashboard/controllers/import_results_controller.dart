@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:rcsync/app/data/models/race_event_model.dart';
 import 'package:rcsync/app/data/models/race_result_import_model.dart';
-import '../views/import_results_preview_view.dart';
+import 'package:rcsync/app/modules/admin_dashboard/views/import_results_preview_view.dart';
 
 class ImportResultsController extends GetxController {
   final supabase = Supabase.instance.client;
@@ -104,7 +104,7 @@ class ImportResultsController extends GetxController {
         throw Exception('No se encontraron datos en el archivo');
       }
 
-      // Obtener encabezados (primera fila)
+      // Obtener encabezados excel
       var headers = <String, int>{};
       var firstRow = sheet.rows.first;
       for (var i = 0; i < firstRow.length; i++) {
@@ -125,7 +125,7 @@ class ImportResultsController extends GetxController {
         var row = sheet.rows[i];
         if (row.isEmpty) continue;
 
-        // Verificar si la fila está vacía
+        // Verificar si la fila está vacia
         bool isEmptyRow = true;
         for (var cell in row) {
           if (cell != null && cell.value != null && cell.value.toString().trim().isNotEmpty) {
@@ -143,7 +143,7 @@ class ImportResultsController extends GetxController {
           }
         });
 
-        // Buscar piloto por nombre o transponder
+        // Buscar piloto por nombre o transponder (SE DEBE CAMBIAR A UUID
         var pilotName = rowData['Nombre']?.toString() ?? rowData['Pilot Name']?.toString() ?? '';
         var transponderNumber = rowData['Transponder Nr 1']?.toString();
 
@@ -189,7 +189,7 @@ class ImportResultsController extends GetxController {
 
   Future<Map<String, dynamic>?> findPilot(String name, String? transponder) async {
     try {
-      // Buscar por transponder primero
+      // Buscar por transponder
       if (transponder != null && transponder.isNotEmpty) {
         final response = await supabase
             .from('profiles')
@@ -200,7 +200,7 @@ class ImportResultsController extends GetxController {
         if (response != null) return response;
       }
 
-      // Buscar por nombre (aproximado)
+      // Buscar por nombre
       if (name.isNotEmpty) {
         final response = await supabase
             .from('profiles')

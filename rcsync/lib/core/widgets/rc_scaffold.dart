@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/rc_colors.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
 
 class RCScaffold extends StatelessWidget {
   final String title;

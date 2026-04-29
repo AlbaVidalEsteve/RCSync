@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 import 'package:get/get.dart';
 import 'package:rcsync/app/modules/home/bindings/home_binding.dart';
 import 'package:rcsync/app/modules/home/views/home_screen.dart';
@@ -33,19 +31,16 @@ class AppPages {
       name: _Paths.SPLASH,
       page: () => const SplashView(),
       binding: SplashBinding(),
-      // Sin middleware (pública)
     ),
     GetPage(
       name: _Paths.LOGIN,
       page: () => LoginView(),
       binding: LoginBinding(),
-      // pública
     ),
     GetPage(
       name: _Paths.REGISTER,
       page: () => const RegisterView(),
       binding: RegisterBinding(),
-      // pública
     ),
     GetPage(
       name: _Paths.HOME,

@@ -188,7 +188,7 @@ class ProfileController extends GetxController {
         isLoading.value = true;
         File originalFile = File(image.path);
 
-        // COMPRIMIR IMAGEN DE PERFIL
+        // Comprimir imagen perfil
         File? compressed = await ImageService.compressProfileImage(originalFile);
         if (compressed == null) compressed = originalFile;
 

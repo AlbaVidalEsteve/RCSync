@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/theme/rc_colors.dart';
-import '../controllers/login_controller.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
+import 'package:rcsync/app/modules/login/controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
   const LoginView({super.key});
@@ -19,7 +19,7 @@ class LoginView extends GetView<LoginController> {
           children: [
             const SizedBox(height: 40),
 
-            // --- LOGO ---
+            // logo
             Hero(
               tag: 'logo',
               child: Image.asset(
@@ -30,7 +30,7 @@ class LoginView extends GetView<LoginController> {
 
             const SizedBox(height: 40),
 
-            // --- INPUT EMAIL ---
+            // input email
             _buildInputLabel("login_email_label".tr),
             TextField(
               autocorrect: false,
@@ -45,7 +45,7 @@ class LoginView extends GetView<LoginController> {
 
             const SizedBox(height: 20),
 
-            // --- INPUT PASSWORD ---
+            // input pass
             _buildInputLabel("login_password_label".tr),
             Obx(() => TextField(
               autocorrect: false,
@@ -70,7 +70,7 @@ class LoginView extends GetView<LoginController> {
 
             const SizedBox(height: 40),
 
-            // --- BOTÓN ACCEDER ---
+            // boton acceder
             Obx(() => _buildMainButton(
               label: controller.isLoading.isFalse ? "login_btn".tr : "loading".tr,
               onPressed: () {
@@ -82,7 +82,7 @@ class LoginView extends GetView<LoginController> {
 
             const SizedBox(height: 15),
 
-            // --- BOTÓN REGISTRARSE ---
+            // boton registro
             _buildMainButton(
               label: "create_account_btn".tr,
               isSecondary: true,

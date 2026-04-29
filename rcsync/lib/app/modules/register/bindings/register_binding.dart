@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
-
-import '../controllers/register_controller.dart';
+import 'package:rcsync/app/modules/register/controllers/register_controller.dart';
 
 class RegisterBinding extends Bindings {
   @override

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // Import añadido
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/core/widgets/rc_event_card.dart';
 import 'package:stylish_bottom_bar/stylish_bottom_bar.dart';
-import '../../../routes/app_pages.dart';
-import '../controllers/home_controller.dart';
+import 'package:rcsync/app/routes/app_pages.dart';
+import 'package:rcsync/app/modules/home/controllers/home_controller.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'package:rcsync/app/modules/results/views/results_view.dart';
 import 'package:rcsync/app/modules/profile/views/profile_view.dart';

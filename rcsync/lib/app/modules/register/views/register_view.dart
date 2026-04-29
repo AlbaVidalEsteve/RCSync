@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/theme/rc_colors.dart';
-import '../controllers/register_controller.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
+import 'package:rcsync/app/modules/register/controllers/register_controller.dart';
 
 class RegisterView extends GetView<RegisterController> {
   const RegisterView({super.key});
@@ -32,7 +32,7 @@ class RegisterView extends GetView<RegisterController> {
           children: [
             const SizedBox(height: 10),
             
-            // --- SELECCIÓN DE FOTO DE PERFIL ---
+            // seleccionar foto perfil
             Center(
               child: Stack(
                 children: [
@@ -73,7 +73,7 @@ class RegisterView extends GetView<RegisterController> {
 
             const SizedBox(height: 30),
 
-            // --- CAMPO NOMBRE COMPLETO ---
+            // campo nombre completo
             _buildInputLabel("register_name_label".tr),
             TextField(
               controller: controller.fullNameC,
@@ -83,7 +83,7 @@ class RegisterView extends GetView<RegisterController> {
 
             const SizedBox(height: 20),
 
-            // --- CAMPO EMAIL ---
+            // campo email
             _buildInputLabel("login_email_label".tr),
             TextField(
               controller: controller.emailC,
@@ -93,7 +93,7 @@ class RegisterView extends GetView<RegisterController> {
 
             const SizedBox(height: 20),
 
-            // --- CAMPO PASSWORD ---
+            // campo password
             _buildInputLabel("login_password_label".tr),
             Obx(() => TextField(
               controller: controller.passwordC,
@@ -114,7 +114,7 @@ class RegisterView extends GetView<RegisterController> {
 
             const SizedBox(height: 20),
 
-            // --- CAMPO CONFIRMAR PASSWORD ---
+            // campo confirmar password
             _buildInputLabel("register_confirm_password".tr),
             Obx(() => TextField(
               controller: controller.confirmPasswordC,
@@ -125,7 +125,7 @@ class RegisterView extends GetView<RegisterController> {
 
             const SizedBox(height: 40),
 
-            // --- BOTÓN REGISTRAR ---
+            // boton registrar
             Obx(() => _buildMainButton(
               label: controller.isLoading.isFalse ? "register_btn".tr : "registering".tr,
               onPressed: () => controller.signUp(),

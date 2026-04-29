@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
-import '../controllers/results_controller.dart';
+import 'package:rcsync/app/modules/results/controllers/results_controller.dart';
 
 class ResultsView extends GetView<ResultsController> {
   const ResultsView({super.key});

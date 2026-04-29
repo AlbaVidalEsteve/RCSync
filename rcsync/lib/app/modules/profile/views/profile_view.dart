@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/theme/rc_colors.dart';
-import '../controllers/profile_controller.dart';
+import 'package:rcsync/core/theme/rc_colors.dart';
+import 'package:rcsync/app/modules/profile/controllers/profile_controller.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -9,7 +9,7 @@ class ProfileView extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchar cambios de tema
+    // Escuchar cambio de tema
     Theme.of(context);
 
     return Obx(() => Scaffold(
@@ -17,7 +17,7 @@ class ProfileView extends GetView<ProfileController> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // HEADER CON GRADIENTE
+            // Header standard
             Container(
               width: double.infinity,
               height: 200,
@@ -46,12 +46,12 @@ class ProfileView extends GetView<ProfileController> {
               ),
             ),
 
-            // CUERPO DEL PERFIL
+            // cuerpo perfil
             Transform.translate(
               offset: const Offset(0, -70),
               child: Column(
                 children: [
-                  // TARJETA DE DATOS DE PERFIL
+                  // tarjeta datos perfil
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     padding: const EdgeInsets.all(20),
@@ -68,7 +68,7 @@ class ProfileView extends GetView<ProfileController> {
                     ),
                     child: Column(
                       children: [
-                        // FOTO DE PERFIL
+                        // foto perfil
                         Stack(
                           children: [
                             Container(
@@ -109,7 +109,7 @@ class ProfileView extends GetView<ProfileController> {
                         ),
                         const SizedBox(height: 20),
 
-                        // CAMPOS DE TEXTO
+                        // campos de texto
                         _buildInputField(
                           label: "full_name".tr,
                           controller: controller.nameC,
@@ -124,12 +124,12 @@ class ProfileView extends GetView<ProfileController> {
 
                         Divider(color: RCColors.divider, height: 25),
 
-                        // SECCIÓN TRANSPONDERS DESPLEGABLE
+                        // seccion transponder desplegable
                         _buildTranspondersCollapsible(),
 
                         const SizedBox(height: 25),
 
-                        // BOTONES DE ACCIÓN (EDITAR / GUARDAR-CANCELAR)
+                        // Botones editar guardar
                         controller.isEditMode.value
                             ? Row(
                                 children: [
@@ -159,12 +159,11 @@ class ProfileView extends GetView<ProfileController> {
 
                   const SizedBox(height: 20),
 
-                  // TARJETA DE SETTINGS
                   _buildSettingsCard(),
 
                   const SizedBox(height: 20),
 
-                  // CERRAR SESIÓN
+                  //boton cerrar sesion
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: SizedBox(
@@ -228,7 +227,7 @@ class ProfileView extends GetView<ProfileController> {
           ),
           const SizedBox(height: 20),
           
-          // IDIOMA
+          // idioma
           _buildDropdownField(
             label: "language".tr,
             icon: Icons.language,
@@ -239,7 +238,7 @@ class ProfileView extends GetView<ProfileController> {
           
           const SizedBox(height: 20),
 
-          // TEMA
+          // tema
           _buildDropdownField(
             label: "theme".tr,
             icon: Icons.brightness_6_outlined,

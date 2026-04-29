@@ -5,10 +5,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:rcsync/app/data/models/race_event_model.dart';
 import 'package:rcsync/app/data/models/profiles_model.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
-import '../../../routes/app_pages.dart';
-import '../../admin_dashboard/controllers/admin_dashboard_controller.dart';
-import '../../results/controllers/results_controller.dart';
-import '../../profile/controllers/profile_controller.dart';
+import 'package:rcsync/app/routes/app_pages.dart';
+import 'package:rcsync/app/modules/admin_dashboard/controllers/admin_dashboard_controller.dart';
+import 'package:rcsync/app/modules/results/controllers/results_controller.dart';
+import 'package:rcsync/app/modules/profile/controllers/profile_controller.dart';
 
 class HomeController extends GetxController {
   RxBool isLoading = false.obs;
@@ -19,10 +19,10 @@ class HomeController extends GetxController {
   final RxList<RaceEventModel> rawEvents = <RaceEventModel>[].obs;
   final RxList<NeatCleanCalendarEvent> eventList = <NeatCleanCalendarEvent>[].obs;
 
-  // Perfil del usuario actual
+  // Perfil usuario
   final Rxn<ProfileModel> userProfile = Rxn<ProfileModel>();
 
-  // New states for the filtering logic
+  // nuevo stado y filtro
   var selectedDate = DateTime.now().obs;
   var isDaySelected = false.obs;
   var currentMonth = DateTime.now().obs;
@@ -35,25 +35,24 @@ class HomeController extends GetxController {
     getCurrentUserProfile();
   }
 
-  // Getter para verificar si es admin u organizador
+  // verificar si es admin/org/piloto
   bool get isAdminOrOrganizer {
     final role = userProfile.value?.rol.toLowerCase() ?? 'piloto';
     return role == 'admin' || role == 'organizador';
   }
 
-  // Cambiar índice y actualizar datos según la pestaña seleccionada
   void changeIndex(int index) {
     selectedIndex.value = index;
     _refreshDataByTab(index);
   }
 
-  // Actualizar datos según la pestaña seleccionada
+  // Actualizar datos
   void _refreshDataByTab(int index) {
     switch (index) {
-      case 0: // Eventos
+      case 0:
         getEvents();
         break;
-      case 1: // Admin Dashboard (solo si es admin/organizador)
+      case 1: // Admin Dash
         if (isAdminOrOrganizer && Get.isRegistered<AdminDashboardController>()) {
           Get.find<AdminDashboardController>().loadAllData();
         }
@@ -74,7 +73,7 @@ class HomeController extends GetxController {
     }
   }
 
-  // Refrescar todos los datos (útil cuando la app vuelve a primer plano)
+  // Refrescar todos los datos
   void refreshAllData() {
     getEvents();
     getCurrentUserProfile();
@@ -145,7 +144,7 @@ class HomeController extends GetxController {
       for (var eventJson in response) {
         int categoriesCount = 0;
 
-        // Si el evento tiene campeonato, obtener sus categorías
+        // Si el evento tiene campeonato, coge categorias
         if (eventJson['id_championship'] != null) {
           final champCategories = await client
               .from('championship_categories')
@@ -180,7 +179,7 @@ class HomeController extends GetxController {
     }
   }
 
-  // Helper to get events for the currently shown month
+  // eventos del mes
   List<RaceEventModel> get eventsOfCurrentMonth {
     return rawEvents.where((e) {
       if (e.eventDateIni == null) return false;
@@ -189,7 +188,7 @@ class HomeController extends GetxController {
     }).toList();
   }
 
-  // Helper to get all future events
+  // futuros eventos
   List<RaceEventModel> get futureEvents {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -199,7 +198,7 @@ class HomeController extends GetxController {
     }).toList();
   }
 
-  // Helper to get events for a specific day
+  // eventos del dia
   List<RaceEventModel> eventsOfDay(DateTime date) {
     return rawEvents.where((e) {
       if (e.eventDateIni == null) return false;
@@ -226,7 +225,6 @@ class HomeController extends GetxController {
         selectedDate.value.year == date.year &&
         selectedDate.value.month == date.month &&
         selectedDate.value.day == date.day) {
-      // Toggle off if same day clicked
       isDaySelected.value = false;
     } else {
       selectedDate.value = date;

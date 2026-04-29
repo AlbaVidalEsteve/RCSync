@@ -43,7 +43,6 @@ class RaceEventModel {
   });
 
   factory RaceEventModel.fromJson(Map<String, dynamic> json) {
-    // Nested data from Supabase joins
     final circuit = json['circuits'];
     final championship = json['championships'];
     final organizer = championship != null ? championship['profiles'] : null;
@@ -61,8 +60,7 @@ class RaceEventModel {
       description: json['description'],
       imageEvent: json['image_event'],
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
-      
-      // Map joined fields
+
       circuitName: circuit != null ? circuit['name'] : null,
       circuitLat: circuit != null ? (circuit['location_lat'] as num?)?.toDouble() : null,
       circuitLng: circuit != null ? (circuit['location_lng'] as num?)?.toDouble() : null,

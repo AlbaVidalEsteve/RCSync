@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'rc_colors.dart';
 
 class RCTheme {
-  // Tipografía base
+  // Tipografia base
   static const _textTheme = TextTheme(
     displayLarge: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
     displayMedium: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),

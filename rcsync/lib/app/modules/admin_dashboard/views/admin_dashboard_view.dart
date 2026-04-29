@@ -3,9 +3,8 @@ import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/routes/app_pages.dart';
 import 'package:intl/intl.dart';
-import '../controllers/admin_dashboard_controller.dart';
-import '../controllers/import_results_controller.dart';
-import 'import_results_view.dart';
+import 'package:rcsync/app/modules/admin_dashboard/controllers/admin_dashboard_controller.dart';
+import 'package:rcsync/app/modules/admin_dashboard/views/import_results_view.dart';
 
 class AdminDashboardView extends StatelessWidget {
   const AdminDashboardView({super.key});
@@ -166,7 +165,7 @@ class AdminDashboardView extends StatelessWidget {
     return Obx(() {
       if (controller.isLoadingRegs.value) return const Center(child: CircularProgressIndicator(color: RCColors.orange));
 
-      // Verificar si hay inscripciones
+      // verificar si hay inscripciones
       final hasPending = controller.pendingRegistrationsList.isNotEmpty;
       final hasApproved = controller.approvedRegistrationsList.isNotEmpty;
       final hasDenied = controller.deniedRegistrationsList.isNotEmpty;
@@ -200,7 +199,7 @@ class AdminDashboardView extends StatelessWidget {
             ),
           ),
 
-          // Lista según el tab seleccionado
+          // Lista segun pestaña
           Expanded(
             child: IndexedStack(
               index: controller.regTabIndex.value,
@@ -325,7 +324,7 @@ class AdminDashboardView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if (status == 'pending') ...[
-                    // Botón Aceptar (verde)
+                    // Boton aceptar verde
                     IconButton(
                       icon: const Icon(Icons.check_circle, color: Colors.green),
                       onPressed: () {
@@ -334,7 +333,7 @@ class AdminDashboardView extends StatelessWidget {
                       },
                       tooltip: 'Aceptar inscripción',
                     ),
-                    // Botón Rechazar (naranja)
+                    // Boton rechazar naranja
                     IconButton(
                       icon: const Icon(Icons.cancel, color: Colors.orange),
                       onPressed: () {
@@ -344,7 +343,7 @@ class AdminDashboardView extends StatelessWidget {
                       tooltip: 'Rechazar inscripción',
                     ),
                   ],
-                  // Botón Cancelar/Borrar (rojo) - visible siempre para admin
+                  // Boton cancelar/Borrar rojo
                   IconButton(
                     icon: const Icon(Icons.delete_forever, color: Colors.red),
                     onPressed: () {

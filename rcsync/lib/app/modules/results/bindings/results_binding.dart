@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../controllers/results_controller.dart';
+import 'package:rcsync/app/modules/results/controllers/results_controller.dart';
 
 class ResultsBinding extends Bindings {
   @override

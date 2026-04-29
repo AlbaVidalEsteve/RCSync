@@ -35,7 +35,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
             children: [
               Stack(
                 children: [
-                  // Header con Imagen y Degradado
+                  // Header standard
                   Container(
                     width: double.infinity,
                     height: 250,
@@ -57,7 +57,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
                             child: const Icon(Icons.image, size: 100, color: Colors.white24),
                           ),
                         ),
-                        // Degradado sutil: oscuro arriba para el botón y fondo abajo para fundirse
+                        // degradado
                         Container(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(

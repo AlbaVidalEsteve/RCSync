@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
-import '../controllers/import_results_controller.dart';
+import 'package:rcsync/app/modules/admin_dashboard/controllers/import_results_controller.dart';
 
 class ImportResultsPreviewView extends StatelessWidget {
   final ImportResultsController controller;
@@ -21,7 +21,7 @@ class ImportResultsPreviewView extends StatelessWidget {
       backgroundColor: RCColors.background,
       body: Column(
         children: [
-          // HEADER CON GRADIENTE
+          // header standard
           Container(
             width: double.infinity,
             height: 180,
@@ -45,7 +45,7 @@ class ImportResultsPreviewView extends StatelessWidget {
             ),
           ),
 
-          // CONTENIDO CON OVERLAP
+          // Contenido
           Expanded(
             child: Transform.translate(
               offset: const Offset(0, -60),
@@ -199,7 +199,7 @@ class ImportResultsPreviewView extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // Botones de acción
+                    // Botones de accion
                     Row(
                       children: [
                         Expanded(

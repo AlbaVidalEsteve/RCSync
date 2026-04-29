@@ -11,7 +11,6 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchar cambios de tema
     Theme.of(context);
 
     final profileController = Get.find<ProfileController>();
@@ -81,7 +80,7 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
                       : Text("reg_btn_confirm".tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 )),
                 const SizedBox(height: 12),
-                // BOTÓN CANCELAR
+                // boton cancelar
                 TextButton(
                   onPressed: () => Get.back(),
                   child: Text("reg_cancel".tr, style: TextStyle(color: RCColors.textSecondary, fontWeight: FontWeight.bold)),

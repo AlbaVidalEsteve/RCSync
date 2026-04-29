@@ -11,7 +11,7 @@ import 'package:rcsync/app/data/models/race_event_model.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 
 class RegisteredPilot {
-  final String idProfile;          // Nuevo: UUID del piloto
+  final String idProfile;
   final String fullName;
   final String subCategory;
   final String? imageUrl;
@@ -91,7 +91,7 @@ class EventDetailsController extends GetxController {
     } catch (e) {
       Get.snackbar(
           'Error',
-          'No se pudo abrir el archivo PDF. Asegúrate de tener una app para leer PDFs.',
+          'No se pudo abrir el archivo PDF.',
           backgroundColor: Colors.red,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM
@@ -266,7 +266,7 @@ class EventDetailsController extends GetxController {
       }
 
       final StringBuffer csv = StringBuffer();
-      csv.write('\u{FEFF}'); // BOM para UTF-8
+      csv.write('\u{FEFF}');
 
       for (var entry in pilotsByCategory.entries) {
         final category = entry.key;
@@ -299,7 +299,7 @@ class EventDetailsController extends GetxController {
       final File file = File('${directory.path}/$fileName');
       await file.writeAsString(csv.toString(), encoding: utf8);
 
-      Get.back(); // cierra el diálogo de carga
+      Get.back(); // cierra el dialogo de carga
 
       Get.dialog(
         Dialog(
@@ -394,7 +394,7 @@ class EventDetailsController extends GetxController {
       );
 
     } catch (e) {
-      Get.back(); // cerrar diálogo de carga si estaba abierto
+      Get.back(); // cerrar dialogo de carga si estaba abierto
       Get.snackbar(
         'Error',
         'No se pudo exportar la lista: $e',

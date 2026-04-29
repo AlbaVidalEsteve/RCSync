@@ -42,7 +42,7 @@ class RegisterController extends GetxController {
 
     isLoading.value = true;
     try {
-      // 1. Crear el usuario en Auth pasándole 'full_name' en 'data'
+      // Crear usuario en auth
       final AuthResponse res = await client.auth.signUp(
         email: email,
         password: password,
@@ -54,7 +54,7 @@ class RegisterController extends GetxController {
       if (res.user == null) throw "Error al crear el usuario";
       final String userId = res.user!.id;
 
-      // 2. Subida de imagen opcional
+      // subir imagen opc
       String? imageUrl;
       if (profileImage.value != null) {
         try {
@@ -69,8 +69,7 @@ class RegisterController extends GetxController {
         }
       }
 
-      // 3. Completar el perfil (Añadimos la foto)
-      // Usamos UPSERT porque el Trigger ya habrá insertado el registro básico
+      // Completar perfil
       await client.from("profiles").upsert({
         "id_profile": userId,
         "full_name": name,

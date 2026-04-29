@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Si es web (ancho mayor a 600 píxeles)
+        // Si es web ancho mayor a 600 px
         if (constraints.maxWidth > 600) {
           return Center(
             child: Container(
@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
             ),
           );
         }
-        // Para móviles o pantallas pequeñas, comportamiento normal
+        // Para móviles comportamiento normal
         return _buildApp();
       },
     );

@@ -11,16 +11,16 @@ class ChampionshipFormController extends GetxController {
   var selectedYear = DateTime.now().year.obs;
   var isActive = true.obs;
 
-  // Controlador para nueva categoría
+  // Controlador para nueva categoria
   final newCategoryController = TextEditingController();
 
   // Lista de categorías disponibles en la BD
   var availableCategories = <Map<String, dynamic>>[].obs;
 
-  // Categorías seleccionadas para este campeonato
+  // Categorias seleccionadas para este campeonato
   var selectedCategories = <Map<String, dynamic>>[].obs;
 
-  // Control para el dropdown de categorías existentes
+  // Control para el dropdown de categorias existentes
   var selectedExistingCategory = Rxn<Map<String, dynamic>>();
 
   var isLoading = false.obs;
@@ -44,7 +44,7 @@ class ChampionshipFormController extends GetxController {
     }
   }
 
-  // Cargar todas las categorías disponibles en la BD
+  // Cargar todas las categoriss disponibles en la BD
   Future<void> loadAvailableCategories() async {
     try {
       final response = await supabase
@@ -58,7 +58,7 @@ class ChampionshipFormController extends GetxController {
     }
   }
 
-  // Cargar las categorías ya seleccionadas si estamos editando
+  // Cargar las categorias ya seleccionadas
   Future<void> _loadSelectedCategories() async {
     if (editingChampionshipId == null) return;
     try {
@@ -109,7 +109,7 @@ class ChampionshipFormController extends GetxController {
     }
   }
 
-  // Crear y añadir nueva categoría
+  // Crear y añadir nueva categoria
   Future<void> addNewCategory() async {
     final catName = newCategoryController.text.trim().toUpperCase();
     if (catName.isEmpty) {
@@ -138,7 +138,7 @@ class ChampionshipFormController extends GetxController {
         Get.snackbar('Info', 'La categoría ya existe, se añadirá al campeonato',
             backgroundColor: Colors.blue, colorText: Colors.white);
       } else {
-        // Crear nueva categoría
+        // Crear nueva categoria
         final newCat = await supabase
             .from('categories')
             .insert({'name': catName})
@@ -146,7 +146,7 @@ class ChampionshipFormController extends GetxController {
             .single();
         categoryId = newCat['id_category'];
         isNew = true;
-        // Recargar lista de categorías disponibles
+        // Recargar lista de categorias
         await loadAvailableCategories();
       }
 
@@ -174,7 +174,7 @@ class ChampionshipFormController extends GetxController {
     selectedCategories.removeAt(index);
   }
 
-  // Permite seleccionar un PDF para una categoría específica
+  // Seleccionar pdf para la categoria
   Future<void> pickPdfForCategory(int index) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -210,7 +210,7 @@ class ChampionshipFormController extends GetxController {
       if (isEditing.value && editingChampionshipId != null) {
         await supabase.from('championships').update(champData).eq('id_championship', editingChampionshipId!);
         champId = editingChampionshipId!;
-        // Eliminar las asociaciones antiguas
+        // Eliminar asociaciones antiguas
         await supabase.from('championship_categories').delete().eq('id_championship', champId);
       } else {
         final insertData = Map.from(champData);
@@ -219,13 +219,13 @@ class ChampionshipFormController extends GetxController {
         champId = response['id_championship'];
       }
 
-      // Procesar cada categoría seleccionada
+      // Procesar cada categoria seleccionada
       for (var cat in selectedCategories) {
         final categoryId = cat['id_category'];
         String? finalRulebookUrl = cat['rulebook_url'];
         PlatformFile? pdfFile = cat['pdf_file'];
 
-        // Si se seleccionó un nuevo PDF, lo subimos a Supabase Storage
+        // si hay pdf subimos el reglamento a supabase
         if (pdfFile != null && pdfFile.path != null) {
           final file = File(pdfFile.path!);
           final fileName = 'reglamento_${champId}_${categoryId}_${DateTime.now().millisecondsSinceEpoch}.pdf';
@@ -239,7 +239,7 @@ class ChampionshipFormController extends GetxController {
           }
         }
 
-        // Crear la relación campeonato <-> categoría
+        // Crear relación campeonato <-> categoría bbdd
         await supabase.from('championship_categories').insert({
           'id_championship': champId,
           'id_category': categoryId,

@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../data/models/ranking_model.dart';
+import 'package:rcsync/app/data/models/ranking_model.dart';
 
 class ResultsController extends GetxController {
   final _supabase = Supabase.instance.client;
 
-  // Selecciones del usuario
+  // Seleccion usuario
   RxString selectedChampionshipName = "".obs;
   RxString selectedYear = "".obs;
   RxString selectedCategory = "".obs;
@@ -13,7 +13,7 @@ class ResultsController extends GetxController {
 
   RxBool isChampionshipActive = true.obs;
 
-  // Opciones disponibles para los combos
+  // Opciones de combos
   RxList<String> availableChampionships = <String>[].obs;
   RxList<String> availableYears = <String>[].obs;
   RxList<String> availableCategories = <String>[].obs;
@@ -150,7 +150,7 @@ class ResultsController extends GetxController {
             isJunior: data['is_junior'] ?? false,
             calculatedLevel: data['calculated_level']?.toString() ?? 'STOCK',
             imageProfile: data['image_profile']?.toString(),
-            // BLINDAJE ANDROID: Usamos la función extractora segura
+            // parse numero enteros
             points: _parseToIntList(data['points']),
             positions: _parseToIntList(data['positions']),
           );
@@ -191,12 +191,9 @@ class ResultsController extends GetxController {
     filteredEntries.clear();
   }
 
-  // --- FUNCIÓN SALVAVIDAS PARA EL PARSEO EN ANDROID/IOS ---
   List<int> _parseToIntList(dynamic value) {
     if (value == null) return [];
     if (value is List) {
-      // Extrae cada elemento, lo pasa a texto y luego a entero,
-      // ignorando cualquier error estricto de tipos de Android.
       return value.map((e) => int.tryParse(e.toString()) ?? 0).toList();
     }
     return [];

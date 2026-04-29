@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/splash_controller.dart';
+import 'package:rcsync/app/modules/splash/controllers/splash_controller.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 
 class SplashView extends GetView<SplashController> {
@@ -28,7 +28,6 @@ class SplashView extends GetView<SplashController> {
                       height: 200,
                     ),
                     const SizedBox(height: 20),
-                    // Opcional: una barra de progreso sutil o un texto
                   ],
                 ),
               ),
