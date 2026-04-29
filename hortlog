@@ -1,0 +1,228 @@
+[33mcommit 168771124a3818b0eff7b7cdbae2c7e538b1beca[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/styleChanges[m[33m)[m
+Merge: 0368706 cf47817
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Mon Apr 27 22:36:07 2026 +0200
+
+    Merge branch 'master' into styleChanges
+
+[33mcommit 03687061c25ad847e7a9251acb3a0a57ddfbfc7d[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Mon Apr 27 22:35:04 2026 +0200
+
+    estilo cards incritos event_details_view.dart
+
+[33mcommit cf4781766fd4780662071723ab021a931935421f[m[33m ([m[1;31morigin/devel_op[m[33m, [m[1;32mdevel_op[m[33m)[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Sat Apr 25 08:55:23 2026 +0200
+
+    Cambios en el csv que genera el event details para añadir el UUID del piloto
+
+[33mcommit a3815ad4a381d68c251bc11df524ba4eefc77c8a[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Fri Apr 24 18:26:52 2026 +0200
+
+    estilo cards incritos event_details_view.dart
+
+[33mcommit 08703f3990cd3d4b5596e3dc9879fa2a294efe09[m
+Merge: 9ebe2ab d9b0ef2
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Fri Apr 24 18:17:23 2026 +0200
+
+    Merge branch 'styleChanges'
+
+[33mcommit d9b0ef240795e8083f3b3a288db9b4bdc2374111[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Fri Apr 24 18:14:21 2026 +0200
+
+    estilo header evento recuperado
+
+[33mcommit ada8e415665499b36bc7aab275ad435715dff7f2[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Fri Apr 24 18:09:02 2026 +0200
+
+    estilo inscripciones admin
+
+[33mcommit 9ebe2ab3656ddeca8da02d2f767031520b97ab3e[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Fri Apr 24 14:06:15 2026 +0200
+
+    cambio de resoluciones de compresion de imagenes y compatibilidad con web y windows
+
+[33mcommit 218f06fdfbbf53446d52ae6df73b7d84b176f347[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Fri Apr 24 10:49:45 2026 +0200
+
+    cambios para optimizacion de image_cache y compresión de imagenes
+    
+    (perfil a 200x200 85%)
+    (Evento a 800x800 85%)
+
+[33mcommit 04ea4b706964dae2ed37d0e738abfa129bcb2a99[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Fri Apr 24 10:00:24 2026 +0200
+
+    cambio en details view
+
+[33mcommit 46427e5352b18ae2eab78df64fcbc12f2d4b9646[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Thu Apr 23 19:22:06 2026 +0200
+
+    cambios visuales aplicados en varios modulos de admin y home
+
+[33mcommit 954000a1ac67aacf24ff02c961e32fbe85f0adbe[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Thu Apr 23 14:37:04 2026 +0200
+
+    algunos cambios de compilado win y web
+
+[33mcommit 7cafb88837bfabd89c4bb10890c610c39bbd0dc8[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Thu Apr 23 11:39:47 2026 +0200
+
+    Modificaciones varias de pequeños bugs y nuevas funcionalidades
+    
+    añadido importar resultados, exportar inscritos, y modificaciones de pequeños bugs
+
+[33mcommit 9710379b2138734e4fa77c275badbb89ebc0c09c[m
+Merge: 086b3d9 4b3e438
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Wed Apr 22 17:39:27 2026 +0200
+
+    Merge branch 'splash' into devel_op
+
+[33mcommit 4b3e438f5badc2b0e40da9dccd4ee88bb3786087[m[33m ([m[1;31morigin/splash[m[33m, [m[1;32msplash[m[33m)[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Wed Apr 22 17:08:58 2026 +0200
+
+    arreglo homescreen splash y transponders
+
+[33mcommit 086b3d996432e64fbcb713abf559905b36ac06f6[m[33m ([m[1;31morigin/traducciones2[m[33m, [m[1;31morigin/14-Pantalla-Ranking[m[33m, [m[1;32m14-Pantalla-Ranking[m[33m)[m
+Author: JDiiaZ <jl.diaz@sarria.salesians.cat>
+Date:   Tue Apr 21 17:57:30 2026 +0200
+
+    ImplementacionTraducciones
+
+[33mcommit 92f3962f68c87f41c1161102d441c40bd4d141de[m
+Author: JDiiaZ <jl.diaz@sarria.salesians.cat>
+Date:   Mon Apr 20 11:33:20 2026 +0200
+
+    ImplementaciónTraducciones2
+
+[33mcommit 0c717626c9ad9694529fbe330ee5daec39a4f927[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Fri Apr 17 17:19:50 2026 +0200
+
+    arreglo tema osucro y claro
+
+[33mcommit f2be844b9e484ce18591349c11cda6ec2eb3f496[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Wed Apr 15 09:27:03 2026 +0200
+
+    codemagic
+
+[33mcommit 749697b97dda241bd2fe27f89020670163e4a7c6[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Mon Apr 13 17:53:32 2026 +0200
+
+    editar estilo
+
+[33mcommit 907933b4960d3b7d132471ebbdd6c45caf4445b8[m
+Merge: e526c7e 0155d38
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Mon Apr 13 17:52:58 2026 +0200
+
+    Merge branch 'master' into theme
+
+[33mcommit e526c7eec287e78f64e47fa3b0c9e59967f00baa[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Fri Apr 10 17:57:52 2026 +0200
+
+    tema osucro y claro
+
+[33mcommit 0155d38189af3ca601ac907b770ecda414a98f74[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Wed Apr 8 14:42:16 2026 +0200
+
+    algunos cambios personalizados para ver pdf con reglamento
+
+[33mcommit 560ffd51e9a9ef995183eb77a88cf0272e81ded8[m
+Merge: ec6ba23 b9a59fb
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Wed Apr 8 12:01:05 2026 +0200
+
+    Merge branch '14-Pantalla-Ranking'
+
+[33mcommit b9a59fb113e684ba36f9801418aa5c75144a4981[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Wed Apr 8 12:00:38 2026 +0200
+
+    creado menu Admin para la gestion de eventos, campeonatos e inscritos
+
+[33mcommit ec6ba231b8c41cf0202f54a1b5fa52a9c5afb0c7[m[33m ([m[1;31morigin/fixes[m[33m)[m
+Merge: d2791e1 fcfd188
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Thu Mar 26 17:56:56 2026 +0100
+
+    Merge branch 'master' into fixes
+
+[33mcommit d2791e11259ca6e93d305500f7ff776bb688731f[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Thu Mar 26 17:52:46 2026 +0100
+
+    arreglo perfil guardado y transponders
+
+[33mcommit fcfd1883ba7552fcdb9f7bc872f4bd486e189705[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Wed Mar 25 18:36:31 2026 +0100
+
+    creacion vista evento-registro y actualización de vista evento-detalle
+
+[33mcommit e468d2469305e6d18829b6b2d2d738f3bc2f2d4d[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Wed Mar 25 08:29:30 2026 +0100
+
+    update grade bar
+
+[33mcommit 148e31ba4540abf723b55ac0ae82ddb3c5b551ff[m
+Merge: fb916d3 fbef4ab
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Tue Mar 24 18:24:31 2026 +0100
+
+    Merge branch 'master' of https://github.com/AlbaVidalEsteve/RCSync
+
+[33mcommit fb916d3c24b5da098f5708e6cdd0c46e819c0a2a[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Tue Mar 24 18:24:17 2026 +0100
+
+    Nombre transponders
+
+[33mcommit 439ade32c08ff8e2a984684bcef45692663f5963[m
+Author: AlbaVidalEsteve <66486832+AlbaVidalEsteve@users.noreply.github.com>
+Date:   Tue Mar 24 18:24:03 2026 +0100
+
+    Borro backup
+
+[33mcommit fbef4abc9361ab82d031b22695948ea6386e068c[m
+Merge: e8a7967 49d70b5
+Author: JDiiaZ <jl.diaz@sarria.salesians.cat>
+Date:   Tue Mar 24 18:20:16 2026 +0100
+
+    Merge branch 'master' into pantalla-crearEvento
+
+[33mcommit e8a79670a973953a6ac64a243f3fe77a157764a1[m
+Author: JDiiaZ <jl.diaz@sarria.salesians.cat>
+Date:   Tue Mar 24 18:20:01 2026 +0100
+
+    Pantalla_CrearEvento3
+
+[33mcommit 49d70b50ad9c2769ac79c64a08813e12be2aa88e[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Tue Mar 24 16:34:54 2026 +0100
+
+    modificacion yaml
+
+[33mcommit 8f7677dd2693a713c49f8dcaed00e3c657ea7384[m
+Author: Danicar-git <daniel.carballido@sarria.salesians.cat>
+Date:   Tue Mar 24 11:29:03 2026 +0100
+
+    aplicados estilo de mi perfil, con tarjetas f

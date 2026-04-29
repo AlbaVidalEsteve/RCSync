@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:rcsync/app/data/models/race_event_model.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 

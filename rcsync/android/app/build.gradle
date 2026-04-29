@@ -10,12 +10,12 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8
+        jvmTarget = "17"
     }
 
     defaultConfig {
@@ -37,21 +37,4 @@ android {
 
 flutter {
     source = "../.."
-}
-
-configurations.all {
-    resolutionStrategy {
-        // Forzamos las librerías de Kotlin a la versión 2.1.0 para evitar el error de metadatos
-        force "org.jetbrains.kotlin:kotlin-stdlib:2.1.0"
-        force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.1.0"
-        force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.0"
-
-        // Versiones de AndroidX forzadas para evitar errores del plugin de Gradle
-        force 'androidx.core:core-ktx:1.15.0'
-        force 'androidx.core:core:1.15.0'
-        force 'androidx.browser:browser:1.8.0'
-        force 'androidx.activity:activity-ktx:1.9.3'
-        force 'androidx.activity:activity:1.9.3'
-        force 'androidx.navigationevent:navigationevent-android:1.0.0'        
-    }
 }
