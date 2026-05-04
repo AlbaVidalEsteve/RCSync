@@ -180,13 +180,15 @@ class Languages extends Translations {
       'reg_cancel': 'Cancelar',
       'reg_select': 'Selecciona...',
 
-      // Importar Resultados
+      // Importar Resultados (MODIFICADO)
       'import_results': 'Importar resultados',
       'select_event': 'Seleccionar evento',
       'select_category': 'Seleccionar categoría',
-      'select_excel_file': 'Seleccionar archivo excel',
+      'import_file': 'Seleccionar archivo (Excel/CSV)',
       'import_instructions': 'Instrucciones',
-      'file_format_info': 'El archivo debe estar en formato excel (.xlsx o .xls)',
+      'file_format_info': '• Formatos aceptados: .xlsx, .xls y .csv',
+      'csv_format_info': '• CSV: requiere columna "ID Piloto" (UUID) y opcional "Clasificacion" para la pole.',
+      'excel_format_info': '• Excel: requiere columnas Nombre/Pilot Name y Transponder Nr 1.',
       'headers_info': 'La primera fila debe contener los encabezados',
       'columns_info': 'Columnas requeridas: nombre/pilot name, transponder nr 1',
       'matching_info': 'Los pilotos se emparejarán automáticamente por nombre o transponder',
@@ -368,13 +370,15 @@ class Languages extends Translations {
       'reg_cancel': 'Cancel',
       'reg_select': 'Select...',
 
-      // Import Results
+      // Import Results (MODIFIED)
       'import_results': 'Import results',
       'select_event': 'Select event',
       'select_category': 'Select category',
-      'select_excel_file': 'Select excel file',
+      'import_file': 'Select file (Excel/CSV)',
       'import_instructions': 'Instructions',
-      'file_format_info': 'File must be in excel format (.xlsx or .xls)',
+      'file_format_info': '• Supported formats: .xlsx, .xls and .csv',
+      'csv_format_info': '• CSV: requires "ID Piloto" (UUID) column and optional "Clasificacion" for pole.',
+      'excel_format_info': '• Excel: requires Nombre/Pilot Name and Transponder Nr 1 columns.',
       'headers_info': 'First row must contain headers',
       'columns_info': 'Required columns: nombre/pilot name, transponder nr 1',
       'matching_info': 'Pilots will be automatically matched by name or transponder',
@@ -556,13 +560,15 @@ class Languages extends Translations {
       'reg_cancel': 'Cancel·lar',
       'reg_select': 'Selecciona...',
 
-      // Importar Resultats
+      // Importar Resultats (MODIFICAT)
       'import_results': 'Importar resultats',
       'select_event': 'Seleccionar esdeveniment',
       'select_category': 'Seleccionar categoria',
-      'select_excel_file': 'Seleccionar fitxer excel',
+      'import_file': 'Seleccionar fitxer (Excel/CSV)',
       'import_instructions': 'Instruccions',
-      'file_format_info': 'El fitxer ha d\'estar en format excel (.xlsx o .xls)',
+      'file_format_info': '• Formats acceptats: .xlsx, .xls i .csv',
+      'csv_format_info': '• CSV: requereix columna "ID Piloto" (UUID) i opcional "Clasificacion" per a la pole.',
+      'excel_format_info': '• Excel: requereix columnes Nombre/Pilot Name i Transponder Nr 1.',
       'headers_info': 'La primera fila ha de contenir les capçaleres',
       'columns_info': 'Columnes requerides: nombre/pilot name, transponder nr 1',
       'matching_info': 'Els pilots s\'emparellaran automàticament per nom o transponder',

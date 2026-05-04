@@ -15,7 +15,6 @@ class ImportResultsView extends GetView<ImportResultsController> {
       backgroundColor: RCColors.background,
       body: Column(
         children: [
-          // Header standard
           Stack(
             children: [
               Container(
@@ -40,7 +39,6 @@ class ImportResultsView extends GetView<ImportResultsController> {
                   ),
                 ),
               ),
-              // Botón de volver
               Positioned(
                 top: 50,
                 left: 16,
@@ -54,8 +52,6 @@ class ImportResultsView extends GetView<ImportResultsController> {
               ),
             ],
           ),
-
-          // Contenido
           Expanded(
             child: SingleChildScrollView(
               child: Transform.translate(
@@ -64,7 +60,6 @@ class ImportResultsView extends GetView<ImportResultsController> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
-                      // tarjeta seleccion
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -80,7 +75,6 @@ class ImportResultsView extends GetView<ImportResultsController> {
                         ),
                         child: Column(
                           children: [
-                            // Seleccionar Evento
                             _buildSelectionField(
                               label: 'select_event'.tr,
                               icon: Icons.event,
@@ -100,8 +94,6 @@ class ImportResultsView extends GetView<ImportResultsController> {
                               )),
                             ),
                             const SizedBox(height: 20),
-
-                            // Seleccionar Categoría
                             _buildSelectionField(
                               label: 'select_category'.tr,
                               icon: Icons.category,
@@ -123,10 +115,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 20),
-
-                      // tarjeta instrucciones
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
@@ -158,17 +147,15 @@ class ImportResultsView extends GetView<ImportResultsController> {
                               ],
                             ),
                             const SizedBox(height: 15),
-                            _buildInstructionItem('• ${'file_format_info'.tr}'),
-                            _buildInstructionItem('• ${'headers_info'.tr}'),
-                            _buildInstructionItem('• ${'columns_info'.tr}'),
-                            _buildInstructionItem('• ${'matching_info'.tr}'),
+                            _buildInstructionItem('${'file_format_info'.tr}'),
+                            _buildInstructionItem('${'csv_format_info'.tr}'),
+                            _buildInstructionItem('${'excel_format_info'.tr}'),
+                            _buildInstructionItem('${'headers_info'.tr}'),
+                            _buildInstructionItem('${'matching_info'.tr}'),
                           ],
                         ),
                       ),
-
                       const SizedBox(height: 30),
-
-                      // boton importar (estilo rcbutton)
                       Obx(() => SizedBox(
                         width: double.infinity,
                         height: 55,
@@ -193,7 +180,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
                           ),
                           child: ElevatedButton.icon(
                             onPressed: controller.selectedEvent.value != null && controller.selectedCategory.value != null && !controller.isLoading.value
-                                ? () => controller.pickAndImportExcel()
+                                ? () => controller.pickAndImportFile()
                                 : null,
                             icon: controller.isLoading.value
                                 ? const SizedBox(
@@ -203,7 +190,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
                             )
                                 : Icon(Icons.upload_file, color: Colors.white),
                             label: Text(
-                              controller.isLoading.value ? 'loading'.tr : 'select_excel_file'.tr,
+                              controller.isLoading.value ? 'loading'.tr : 'import_file'.tr,
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.white,
@@ -219,7 +206,6 @@ class ImportResultsView extends GetView<ImportResultsController> {
                           ),
                         ),
                       )),
-
                       const SizedBox(height: 50),
                     ],
                   ),

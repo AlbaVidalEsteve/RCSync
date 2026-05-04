@@ -15,13 +15,18 @@ class ImportResultsPreviewView extends StatelessWidget {
     required this.preview,
   });
 
+  String _truncateId(String id) {
+    if (id.length <= 8) return id;
+    return '${id.substring(0, 8)}…';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: RCColors.background,
       body: Column(
         children: [
-          // header standard
+          // header
           Container(
             width: double.infinity,
             height: 180,
@@ -45,7 +50,6 @@ class ImportResultsPreviewView extends StatelessWidget {
             ),
           ),
 
-          // Contenido
           Expanded(
             child: Transform.translate(
               offset: const Offset(0, -60),
@@ -128,6 +132,8 @@ class ImportResultsPreviewView extends StatelessWidget {
                             itemCount: preview.length,
                             itemBuilder: (context, index) {
                               var item = preview[index];
+                              final bool isPole = item['qualy_position'] == 1;
+                              final String pilotId = item['id_profile'] ?? '';
                               return Container(
                                 margin: const EdgeInsets.only(bottom: 8),
                                 padding: const EdgeInsets.all(12),
@@ -143,12 +149,14 @@ class ImportResultsPreviewView extends StatelessWidget {
                                   ),
                                 ),
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    // Posición circular
                                     Container(
                                       width: 40,
                                       height: 40,
                                       decoration: BoxDecoration(
-                                        color: item['matched'] == true ? Colors.green : Colors.orange,
+                                        color: isPole ? RCColors.gold : (item['matched'] == true ? Colors.green : Colors.orange),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Center(
@@ -166,19 +174,70 @@ class ImportResultsPreviewView extends StatelessWidget {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            item['pilot_name'] ?? '',
-                                            style: TextStyle(
-                                              color: RCColors.textPrimary,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                          Row(
+                                            children: [
+                                              Flexible(
+                                                child: Text(
+                                                  item['pilot_name'] ?? '',
+                                                  style: TextStyle(
+                                                    color: RCColors.textPrimary,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                              if (isPole) ...[
+                                                const SizedBox(width: 6),
+                                                const Icon(Icons.flag, color: RCColors.gold, size: 16),
+                                              ],
+                                            ],
                                           ),
-                                          Text(
-                                            'Transponder: ${item['transponder']} | Vueltas: ${item['laps']} | Pts: ${item['points']}',
-                                            style: TextStyle(
-                                              color: RCColors.textSecondary,
-                                              fontSize: 11,
-                                            ),
+                                          const SizedBox(height: 4),
+                                          Wrap(
+                                            spacing: 8,
+                                            runSpacing: 2,
+                                            children: [
+                                              if (pilotId.isNotEmpty)
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: RCColors.surface,
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                  child: Text(
+                                                    'ID: ${_truncateId(pilotId)}',
+                                                    style: TextStyle(
+                                                      color: RCColors.textSecondary,
+                                                      fontSize: 10,
+                                                      fontFamily: 'monospace',
+                                                    ),
+                                                  ),
+                                                ),
+                                              if (item['laps'] != null && item['laps'].toString().isNotEmpty && item['laps'].toString() != 'null')
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: RCColors.surface,
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                  child: Text(
+                                                    'Vueltas: ${item['laps']}',
+                                                    style: TextStyle(color: RCColors.textSecondary, fontSize: 10),
+                                                  ),
+                                                ),
+                                              if (item['points'] != null && item['points'].toString().isNotEmpty && item['points'].toString() != 'null')
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: RCColors.surface,
+                                                    borderRadius: BorderRadius.circular(4),
+                                                  ),
+                                                  child: Text(
+                                                    'Pts: ${item['points']}',
+                                                    style: TextStyle(color: RCColors.textSecondary, fontSize: 10),
+                                                  ),
+                                                ),
+                                            ],
                                           ),
                                         ],
                                       ),
@@ -199,7 +258,7 @@ class ImportResultsPreviewView extends StatelessWidget {
 
                     const SizedBox(height: 20),
 
-                    // Botones de accion
+                    // Botones
                     Row(
                       children: [
                         Expanded(
@@ -255,9 +314,9 @@ class ImportResultsPreviewView extends StatelessWidget {
                                   shadowColor: Colors.transparent,
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                                 ),
-                                child: Text(
+                                child: const Text(
                                   'Guardar Resultados',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 14,
