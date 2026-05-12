@@ -8,6 +8,7 @@ class RaceEventModel {
   final DateTime? eventRegIni;
   final DateTime? eventRegFin;
   final int prize;
+  final int bonusPoints;
   final String? description;
   final String? imageEvent;
   final DateTime? createdAt;
@@ -31,6 +32,7 @@ class RaceEventModel {
     this.eventRegIni,
     this.eventRegFin,
     required this.prize,
+    this.bonusPoints = 0,
     this.description,
     this.imageEvent,
     this.createdAt,
@@ -57,6 +59,7 @@ class RaceEventModel {
       eventRegIni: json['event_reg_ini'] != null ? DateTime.parse(json['event_reg_ini']) : null,
       eventRegFin: json['event_reg_fin'] != null ? DateTime.parse(json['event_reg_fin']) : null,
       prize: json['prize'] ?? 0,
+      bonusPoints: json['bonus_points'] ?? 0,
       description: json['description'],
       imageEvent: json['image_event'],
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,

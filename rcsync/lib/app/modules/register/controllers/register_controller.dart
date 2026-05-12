@@ -1,4 +1,5 @@
-import 'dart:io';
+﻿import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,7 +8,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class RegisterController extends GetxController {
   RxBool isLoading = false.obs;
   RxBool isHidden = true.obs;
-  
+  RxInt passwordStrength = 0.obs;
+
   final fullNameC = TextEditingController();
   final emailC = TextEditingController();
   final passwordC = TextEditingController();
@@ -17,6 +19,22 @@ class RegisterController extends GetxController {
   final ImagePicker _picker = ImagePicker();
   final SupabaseClient client = Supabase.instance.client;
 
+  static final _emailRegex = RegExp(r'^[\w\-.]+@([\w\-]+\.)+[\w\-]{2,}$');
+  static final _digitOrSymbolRegex = RegExp(r'[0-9!@#\$%^&*()\-_=+,.?":{}|<>]');
+
+  @override
+  void onInit() {
+    super.onInit();
+    passwordC.addListener(_updatePasswordStrength);
+  }
+
+  void _updatePasswordStrength() {
+    final p = passwordC.text;
+    if (p.isEmpty) { passwordStrength.value = 0; return; }
+    if (p.length < 8) { passwordStrength.value = 1; return; }
+    passwordStrength.value = _digitOrSymbolRegex.hasMatch(p) ? 3 : 2;
+  }
+
   Future<void> pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
@@ -25,19 +43,25 @@ class RegisterController extends GetxController {
   }
 
   Future<void> signUp() async {
-    final name = fullNameC.text.trim();
-    final email = emailC.text.trim();
-    final password = passwordC.text.trim();
-    final confirm = confirmPasswordC.text.trim();
+    final name     = fullNameC.text.trim();
+    final email    = emailC.text.trim();
+    final password = passwordC.text;
+    final confirm  = confirmPasswordC.text;
 
-    if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      Get.snackbar("Error", "Todos los campos son obligatorios");
-      return;
+    if (name.length < 2) {
+      Get.snackbar('Error', 'reg_name_too_short'.tr); return;
     }
-
+    if (!_emailRegex.hasMatch(email)) {
+      Get.snackbar('Error', 'reg_email_invalid'.tr); return;
+    }
+    if (password.length < 8) {
+      Get.snackbar('Error', 'reg_pass_too_short'.tr); return;
+    }
+    if (!_digitOrSymbolRegex.hasMatch(password)) {
+      Get.snackbar('Error', 'reg_pass_needs_number'.tr); return;
+    }
     if (password != confirm) {
-      Get.snackbar("Error", "Las contraseñas no coinciden");
-      return;
+      Get.snackbar('Error', 'reg_pass_mismatch'.tr); return;
     }
 
     isLoading.value = true;
@@ -46,9 +70,8 @@ class RegisterController extends GetxController {
       final AuthResponse res = await client.auth.signUp(
         email: email,
         password: password,
-        data: {
-          'full_name': name,
-        },
+        data: {'full_name': name},
+        emailRedirectTo: kIsWeb ? null : 'rcsync://login',
       );
 
       if (res.user == null) throw "Error al crear el usuario";
@@ -65,7 +88,7 @@ class RegisterController extends GetxController {
           await client.storage.from('profiles').upload(filePath, profileImage.value!);
           imageUrl = client.storage.from('profiles').getPublicUrl(filePath);
         } catch (e) {
-          print("Error subiendo imagen: $e");
+          debugPrint("Error subiendo imagen: $e");
         }
       }
 
@@ -94,7 +117,7 @@ class RegisterController extends GetxController {
     } on AuthException catch (e) {
       Get.snackbar("Error de Registro", e.message);
     } catch (e) {
-      print("Error: $e");
+      debugPrint("Error: $e");
       Get.snackbar("Error", "Error inesperado al crear el perfil.");
     } finally {
       isLoading.value = false;
@@ -103,6 +126,7 @@ class RegisterController extends GetxController {
 
   @override
   void onClose() {
+    passwordC.removeListener(_updatePasswordStrength);
     fullNameC.dispose();
     emailC.dispose();
     passwordC.dispose();

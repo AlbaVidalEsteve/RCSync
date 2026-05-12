@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/modules/profile/controllers/profile_controller.dart';
+import 'package:rcsync/app/routes/app_pages.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ProfileView extends GetView<ProfileController> {
@@ -20,7 +21,7 @@ class ProfileView extends GetView<ProfileController> {
             // Header standard
             Container(
               width: double.infinity,
-              height: 200,
+              height: 180,
               padding: const EdgeInsets.only(top: 60),
               alignment: Alignment.topCenter,
               decoration: const BoxDecoration(
@@ -60,7 +61,7 @@ class ProfileView extends GetView<ProfileController> {
                       borderRadius: BorderRadius.circular(30),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 10),
                         )
@@ -159,6 +160,10 @@ class ProfileView extends GetView<ProfileController> {
 
                   const SizedBox(height: 20),
 
+                  _buildMyResultsButton(),
+
+                  const SizedBox(height: 20),
+
                   _buildSettingsCard(),
 
                   const SizedBox(height: 20),
@@ -177,8 +182,34 @@ class ProfileView extends GetView<ProfileController> {
                           style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         style: TextButton.styleFrom(
-                          backgroundColor: Colors.redAccent.withOpacity(0.1),
+                          backgroundColor: Colors.redAccent.withValues(alpha: 0.1),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // boton eliminar cuenta
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 55,
+                      child: TextButton.icon(
+                        onPressed: () => controller.deleteAccount(),
+                        icon: const Icon(Icons.delete_forever_outlined, color: Colors.red),
+                        label: Text(
+                          "delete_account".tr,
+                          style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.red.withValues(alpha: 0.08),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                            side: BorderSide(color: Colors.red.withValues(alpha: 0.3)),
+                          ),
                         ),
                       ),
                     ),
@@ -193,6 +224,57 @@ class ProfileView extends GetView<ProfileController> {
     ));
   }
 
+  Widget _buildMyResultsButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: InkWell(
+        onTap: () => Get.toNamed(Routes.MY_RESULTS),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: BoxDecoration(
+            color: RCColors.card,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: RCColors.orange.withValues(alpha: 0.4), width: 1),
+            boxShadow: [
+              BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 12, offset: const Offset(0, 6)),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: RCColors.orange.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.bar_chart_rounded, color: RCColors.orange, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'myres_title'.tr,
+                      style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 15),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'myres_subtitle'.tr,
+                      style: TextStyle(color: RCColors.textSecondary, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: RCColors.textSecondary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSettingsCard() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -202,7 +284,7 @@ class ProfileView extends GetView<ProfileController> {
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 15,
             offset: const Offset(0, 10),
           )
@@ -245,6 +327,7 @@ class ProfileView extends GetView<ProfileController> {
             value: controller.selectedThemeName.value,
             items: controller.themeModes.keys.toList(),
             onChanged: (val) => controller.changeTheme(val),
+            labelBuilder: (k) => k.tr,
           ),
         ],
       ),
@@ -256,7 +339,8 @@ class ProfileView extends GetView<ProfileController> {
     required IconData icon,
     required String value,
     required List<String> items,
-    required Function(String?) onChanged
+    required Function(String?) onChanged,
+    String Function(String)? labelBuilder,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,7 +356,7 @@ class ProfileView extends GetView<ProfileController> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: RCColors.background.withOpacity(0.5),
+            color: RCColors.background.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(15),
           ),
           child: DropdownButtonHideUnderline(
@@ -285,7 +369,7 @@ class ProfileView extends GetView<ProfileController> {
               items: items.map((String item) {
                 return DropdownMenuItem<String>(
                   value: item,
-                  child: Text(item),
+                  child: Text(labelBuilder != null ? labelBuilder(item) : item),
                 );
               }).toList(),
               onChanged: onChanged,
@@ -310,7 +394,7 @@ class ProfileView extends GetView<ProfileController> {
           border: isSecondary ? Border.all(color: RCColors.divider) : null,
           boxShadow: isSecondary ? null : [
             BoxShadow(
-              color: RCColors.orange.withOpacity(0.3),
+              color: RCColors.orange.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 6),
             )
@@ -355,7 +439,7 @@ class ProfileView extends GetView<ProfileController> {
           style: TextStyle(color: RCColors.textPrimary),
           decoration: InputDecoration(
             filled: true,
-            fillColor: RCColors.background.withOpacity(0.5),
+            fillColor: RCColors.background.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,
@@ -381,14 +465,14 @@ class ProfileView extends GetView<ProfileController> {
         ),
         const SizedBox(height: 8),
         Builder(builder: (context) {
-          String role = controller.profileData['rol'] ?? 'Piloto';
+          String role = controller.profileData['rol'] ?? 'fallback_pilot'.tr;
           return Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             decoration: BoxDecoration(
-              color: Colors.blueAccent.withOpacity(0.1),
+              color: Colors.blueAccent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.blueAccent.withOpacity(0.3)),
+              border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -446,9 +530,9 @@ class ProfileView extends GetView<ProfileController> {
                     style: TextStyle(color: RCColors.textPrimary, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: "ts_number".tr,
-                      hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.4)),
+                      hintStyle: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.4)),
                       filled: true,
-                      fillColor: RCColors.background.withOpacity(0.5),
+                      fillColor: RCColors.background.withValues(alpha: 0.5),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     ),
@@ -461,9 +545,9 @@ class ProfileView extends GetView<ProfileController> {
                     style: TextStyle(color: RCColors.textPrimary, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: "ts_name".tr,
-                      hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.4)),
+                      hintStyle: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.4)),
                       filled: true,
-                      fillColor: RCColors.background.withOpacity(0.5),
+                      fillColor: RCColors.background.withValues(alpha: 0.5),
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     ),
@@ -488,7 +572,7 @@ class ProfileView extends GetView<ProfileController> {
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: RCColors.background.withOpacity(0.5),
+                  color: RCColors.background.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: RCColors.divider),
                 ),

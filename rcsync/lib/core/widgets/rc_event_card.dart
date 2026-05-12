@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -61,20 +61,20 @@ class RCEventCard extends StatelessWidget {
                     placeholder: (context, url) => Container(
                       height: 160,
                       width: double.infinity,
-                      color: RCColors.background.withOpacity(0.1),
+                      color: RCColors.background.withValues(alpha: 0.1),
                       child: const Center(child: CircularProgressIndicator()),
                     ),
                     errorWidget: (context, url, error) => Container(
                       height: 160,
                       width: double.infinity,
-                      color: RCColors.background.withOpacity(0.1),
+                      color: RCColors.background.withValues(alpha: 0.1),
                       child: Icon(Icons.image, color: RCColors.iconSecondary, size: 50),
                     ),
                   )
                       : Container(
                     height: 160,
                     width: double.infinity,
-                    color: RCColors.background.withOpacity(0.1),
+                    color: RCColors.background.withValues(alpha: 0.1),
                     child: Icon(Icons.image, color: RCColors.iconSecondary, size: 50),
                   ),
                 ),

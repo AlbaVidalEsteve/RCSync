@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
@@ -49,11 +49,11 @@ class EventDetailsView extends GetView<EventDetailsController> {
                           imageUrl: event.imageEvent ?? '',
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Container(
-                            color: RCColors.orange.withOpacity(0.1),
+                            color: RCColors.orange.withValues(alpha: 0.1),
                             child: const Center(child: CircularProgressIndicator()),
                           ),
                           errorWidget: (context, url, error) => Container(
-                            color: RCColors.orange.withOpacity(0.1),
+                            color: RCColors.orange.withValues(alpha: 0.1),
                             child: const Icon(Icons.image, size: 100, color: Colors.white24),
                           ),
                         ),
@@ -65,7 +65,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
                               end: Alignment.bottomCenter,
                               stops: const [0.0, 0.4, 1.0],
                               colors: [
-                                Colors.black.withOpacity(0.5),
+                                Colors.black.withValues(alpha: 0.5),
                                 Colors.transparent,
                                 RCColors.background,
                               ],
@@ -137,7 +137,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
         ),
         boxShadow: [
           BoxShadow(
-            color: RCColors.orange.withOpacity(0.3),
+            color: RCColors.orange.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           )
@@ -305,7 +305,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
             color: RCColors.card,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: RCColors.divider.withOpacity(0.3),
+              color: RCColors.divider.withValues(alpha: 0.3),
             ),
           ),
           child: ListTile(
@@ -320,7 +320,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
                     shape: BoxShape.circle,
                     color: RCColors.surface,
                     border: Border.all(
-                      color: _getPositionColor(position).withOpacity(0.5),
+                      color: _getPositionColor(position).withValues(alpha: 0.5),
                       width: 1.5,
                     ),
                   ),
@@ -385,8 +385,8 @@ class EventDetailsView extends GetView<EventDetailsController> {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: isSuperstock
-                          ? Colors.purple.withOpacity(0.2)
-                          : Colors.blue.withOpacity(0.2),
+                          ? Colors.purple.withValues(alpha: 0.2)
+                          : Colors.blue.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(5),
                       border: Border.all(
                         color: isSuperstock
@@ -411,7 +411,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.2),
+                        color: Colors.green.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(5),
                         border: Border.all(color: Colors.greenAccent, width: 0.5),
                       ),
@@ -431,7 +431,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
             trailing: Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               decoration: BoxDecoration(
-                color: RCColors.orange.withOpacity(0.15),
+                color: RCColors.orange.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -463,7 +463,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
               ? EventLocationMap(
             lat: event.circuitLat!,
             lng: event.circuitLng!,
-            title: event.circuitName ?? "Carrera RC",
+            title: event.circuitName ?? 'fallback_circuit'.tr,
           )
               : _buildNoMapPlaceholder(),
         ),
@@ -472,16 +472,48 @@ class EventDetailsView extends GetView<EventDetailsController> {
   ));
 
   Widget _buildBottomAction() {
-    final event = controller.event.value;
-    final bool isInscriptionsOpen = event.eventRegFin != null && event.eventRegFin!.isAfter(DateTime.now());
-    return Container(
-      padding: const EdgeInsets.all(20),
-      color: RCColors.background,
-      child: RCPrimaryButton(
-        label: isInscriptionsOpen ? 'det_register_now'.tr : 'det_register_closed'.tr,
-        onPressed: isInscriptionsOpen ? () => Get.toNamed(Routes.EVENT_REGISTRATION, arguments: event) : null,
-      ),
-    );
+    return Obx(() {
+      final event = controller.event.value;
+      final bool isOpen = event.eventRegFin != null && event.eventRegFin!.isAfter(DateTime.now());
+      final bool hasRegistrations = controller.userRegistrations.isNotEmpty;
+
+      return Container(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+        color: RCColors.background,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            RCPrimaryButton(
+              label: isOpen ? 'det_register_now'.tr : 'det_register_closed'.tr,
+              onPressed: isOpen ? () => Get.toNamed(Routes.EVENT_REGISTRATION, arguments: event) : null,
+            ),
+            if (hasRegistrations) ...[
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                height: 55,
+                child: OutlinedButton.icon(
+                  onPressed: () => controller.unregisterFromEvent(),
+                  icon: const Icon(Icons.person_remove_outlined, color: Colors.redAccent, size: 18),
+                  label: Text(
+                    'det_unregister'.tr.toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.redAccent, width: 1.5),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildSection({required String title, required Widget child}) => Container(

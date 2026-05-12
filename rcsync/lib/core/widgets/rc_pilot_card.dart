@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 
 class RCPilotCard extends StatelessWidget {
@@ -49,7 +49,7 @@ class RCPilotCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isSuper ? RCColors.orange : Colors.grey.withOpacity(0.2),
+        color: isSuper ? RCColors.orange : Colors.grey.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

@@ -344,4 +344,135 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
       loadAllData();
     }
   }
+
+  Future<int> _countResults(List<int> eventIds) async {
+    if (eventIds.isEmpty) return 0;
+    try {
+      final res = await supabase
+          .from('registrations')
+          .select('id_registration')
+          .filter('id_event', 'in', eventIds)
+          .not('position_final', 'is', null);
+      return (res as List).length;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  Future<bool?> _showDeleteDialog({
+    required String title,
+    required String content,
+    required String confirmLabel,
+    required Color confirmColor,
+  }) {
+    return Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: RCColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: confirmColor),
+            const SizedBox(width: 10),
+            Expanded(child: Text(title, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold))),
+          ],
+        ),
+        content: Text(content, style: TextStyle(color: RCColors.textSecondary, height: 1.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('adm_cancel'.tr, style: TextStyle(color: RCColors.textSecondary)),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: confirmColor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Text(confirmLabel, style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> deleteEvent(int idEvent, String eventName) async {
+    final resultCount = await _countResults([idEvent]);
+    final hasResults  = resultCount > 0;
+
+    final content = hasResults
+        ? 'adm_delete_event_results'.tr
+            .replaceFirst('%n', '$resultCount')
+            .replaceFirst('%e', eventName)
+        : 'adm_delete_event_confirm'.tr.replaceFirst('%e', eventName);
+
+    final confirmed = await _showDeleteDialog(
+      title:         hasResults ? 'adm_delete_event_with_results_title'.tr : 'adm_delete_event_title'.tr,
+      content:       content,
+      confirmLabel:  hasResults ? 'adm_delete_anyway'.tr : 'adm_delete_confirm'.tr,
+      confirmColor:  Colors.red,
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await supabase.from('registrations').delete().eq('id_event', idEvent);
+      await supabase.from('events').delete().eq('id_event', idEvent);
+      Get.snackbar('adm_success'.tr, 'adm_delete_event_ok'.tr,
+          backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
+      loadAllData();
+    } catch (e) {
+      debugPrint('Error deleting event: $e');
+      Get.snackbar('Error', 'adm_err_delete_event'.tr,
+          backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
+    }
+  }
+
+  Future<void> deleteChampionship(int idChampionship, String champName) async {
+    // Obtener eventos del campeonato antes del diálogo para la comprobación
+    List<int> eventIds = [];
+    try {
+      final events = await supabase
+          .from('events')
+          .select('id_event')
+          .eq('id_championship', idChampionship);
+      eventIds = (events as List).map((e) => e['id_event'] as int).toList();
+    } catch (e) {
+      debugPrint('Error fetching events for championship: $e');
+    }
+
+    final resultCount = await _countResults(eventIds);
+    final hasResults  = resultCount > 0;
+
+    final content = hasResults
+        ? 'adm_delete_champ_results'.tr
+            .replaceFirst('%n', '$resultCount')
+            .replaceFirst('%c', champName)
+        : 'adm_delete_champ_confirm'.tr.replaceFirst('%c', champName);
+
+    final confirmed = await _showDeleteDialog(
+      title:        hasResults ? 'adm_delete_champ_with_results_title'.tr : 'adm_delete_champ_title'.tr,
+      content:      content,
+      confirmLabel: hasResults ? 'adm_delete_anyway'.tr : 'adm_delete_confirm'.tr,
+      confirmColor: Colors.red,
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      if (eventIds.isNotEmpty) {
+        await supabase.from('registrations').delete().filter('id_event', 'in', eventIds);
+      }
+      await supabase.from('events').delete().eq('id_championship', idChampionship);
+      await supabase.from('championship_categories').delete().eq('id_championship', idChampionship);
+      await supabase.from('championships').delete().eq('id_championship', idChampionship);
+
+      Get.snackbar('adm_success'.tr, 'adm_delete_champ_ok'.tr,
+          backgroundColor: Colors.green, colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
+      loadAllData();
+    } catch (e) {
+      debugPrint('Error deleting championship: $e');
+      Get.snackbar('Error', 'adm_err_delete_champ'.tr,
+          backgroundColor: Colors.red, colorText: Colors.white, snackPosition: SnackPosition.BOTTOM);
+    }
+  }
 }

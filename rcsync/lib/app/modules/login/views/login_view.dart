@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/modules/login/controllers/login_controller.dart';
@@ -68,7 +68,29 @@ class LoginView extends GetView<LoginController> {
               ),
             )),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 8),
+
+            // forgot password link
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Get.toNamed('/forgot-password'),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  'forgot_password_link'.tr,
+                  style: TextStyle(
+                    color: RCColors.orange,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
 
             // boton acceder
             Obx(() => _buildMainButton(
@@ -114,7 +136,7 @@ class LoginView extends GetView<LoginController> {
   InputDecoration _inputDecoration({required String hint, required IconData icon, Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.4)),
+      hintStyle: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.4)),
       prefixIcon: Icon(icon, color: RCColors.orange, size: 20),
       suffixIcon: suffix,
       filled: true,
@@ -149,7 +171,7 @@ class LoginView extends GetView<LoginController> {
           border: isSecondary ? Border.all(color: RCColors.divider) : null,
           boxShadow: isSecondary ? null : [
             BoxShadow(
-              color: RCColors.orange.withOpacity(0.3),
+              color: RCColors.orange.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 6),
             )

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/modules/admin_dashboard/controllers/import_results_controller.dart';
@@ -65,7 +65,7 @@ class ImportResultsPreviewView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(Get.isDarkMode ? 0.3 : 0.1),
+                            color: Colors.black.withValues(alpha: Get.isDarkMode ? 0.3 : 0.1),
                             blurRadius: 15,
                             offset: const Offset(0, 10),
                           )
@@ -103,7 +103,7 @@ class ImportResultsPreviewView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(Get.isDarkMode ? 0.3 : 0.1),
+                            color: Colors.black.withValues(alpha: Get.isDarkMode ? 0.3 : 0.1),
                             blurRadius: 15,
                             offset: const Offset(0, 10),
                           )
@@ -139,13 +139,13 @@ class ImportResultsPreviewView extends StatelessWidget {
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   color: item['matched'] == true
-                                      ? RCColors.background.withOpacity(0.5)
-                                      : RCColors.background.withOpacity(0.3),
+                                      ? RCColors.background.withValues(alpha: 0.5)
+                                      : RCColors.background.withValues(alpha: 0.3),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: item['matched'] == true
-                                        ? Colors.green.withOpacity(0.3)
-                                        : Colors.orange.withOpacity(0.3),
+                                        ? Colors.green.withValues(alpha: 0.3)
+                                        : Colors.orange.withValues(alpha: 0.3),
                                   ),
                                 ),
                                 child: Row(
@@ -301,7 +301,7 @@ class ImportResultsPreviewView extends StatelessWidget {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: RCColors.orange.withOpacity(0.3),
+                                    color: RCColors.orange.withValues(alpha: 0.3),
                                     blurRadius: 12,
                                     offset: const Offset(0, 6),
                                   )

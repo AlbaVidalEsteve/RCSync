@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/routes/app_pages.dart';
@@ -30,6 +30,11 @@ class AdminDashboardView extends StatelessWidget {
             )
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.people_outline),
+            onPressed: () => Get.toNamed(Routes.USER_STATS),
+            tooltip: 'stats_title'.tr,
+          ),
           IconButton(
             icon: const Icon(Icons.upload_file),
             onPressed: () => Get.to(() => const ImportResultsView()),
@@ -111,18 +116,29 @@ class AdminDashboardView extends StatelessWidget {
                 final locale = Get.locale?.toLanguageTag() ?? 'es-ES';
                 final dateStr = event.eventDateIni != null ? DateFormat.yMMMd(locale).format(event.eventDateIni!) : '---';
                 return Card(
-                    color: RCColors.card,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    child: ListTile(
-                        title: Text(event.name, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
-                        subtitle: Text(dateStr, style: TextStyle(color: RCColors.textSecondary)),
-                        trailing: IconButton(
-                            icon: const Icon(Icons.edit, color: RCColors.orange),
-                            onPressed: () => controller.editEvent(event)
-                        )
-                    )
+                  color: RCColors.card,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  child: ListTile(
+                    title: Text(event.name, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
+                    subtitle: Text(dateStr, style: TextStyle(color: RCColors.textSecondary)),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: RCColors.orange),
+                          onPressed: () => controller.editEvent(event),
+                          tooltip: 'adm_edit'.tr,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.red),
+                          onPressed: () => controller.deleteEvent(event.idEvent, event.name),
+                          tooltip: 'adm_delete'.tr,
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               }),
             ],
@@ -143,18 +159,32 @@ class AdminDashboardView extends StatelessWidget {
         itemBuilder: (context, index) {
           final champ = controller.activeChampionshipsList[index];
           return Card(
-              color: RCColors.card,
-              margin: const EdgeInsets.only(bottom: 10),
-              elevation: 2,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              child: ListTile(
-                  title: Text(champ['name'] ?? '---', style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
-                  subtitle: Text('${"adm_year".tr}: ${champ['year']}', style: TextStyle(color: RCColors.textSecondary)),
-                  trailing: IconButton(
-                      icon: const Icon(Icons.edit, color: RCColors.orange),
-                      onPressed: () => controller.editChampionship(champ)
-                  )
-              )
+            color: RCColors.card,
+            margin: const EdgeInsets.only(bottom: 10),
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            child: ListTile(
+              title: Text(champ['name'] ?? '---', style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
+              subtitle: Text('${"adm_year".tr}: ${champ['year']}', style: TextStyle(color: RCColors.textSecondary)),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: RCColors.orange),
+                    onPressed: () => controller.editChampionship(champ),
+                    tooltip: 'adm_edit'.tr,
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, color: Colors.red),
+                    onPressed: () => controller.deleteChampionship(
+                      champ['id_championship'] as int,
+                      champ['name'] ?? '---',
+                    ),
+                    tooltip: 'adm_delete'.tr,
+                  ),
+                ],
+              ),
+            ),
           );
         },
       );
@@ -190,11 +220,11 @@ class AdminDashboardView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
             child: Row(
               children: [
-                _buildStatusPill(0, 'Pendientes', Icons.pending_actions, Colors.amber, controller),
+                _buildStatusPill(0, 'adm_reg_pending'.tr, Icons.pending_actions, Colors.amber, controller),
                 const SizedBox(width: 8),
-                _buildStatusPill(1, 'Aprobados', Icons.check_circle, Colors.green, controller),
+                _buildStatusPill(1, 'adm_reg_approved'.tr, Icons.check_circle, Colors.green, controller),
                 const SizedBox(width: 8),
-                _buildStatusPill(2, 'Rechazados', Icons.cancel, Colors.red, controller),
+                _buildStatusPill(2, 'adm_reg_denied'.tr, Icons.cancel, Colors.red, controller),
               ],
             ),
           ),
@@ -224,7 +254,7 @@ class AdminDashboardView extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.15) : RCColors.card,
+            color: isSelected ? color.withValues(alpha: 0.15) : RCColors.card,
             borderRadius: BorderRadius.circular(25),
             border: Border.all(
               color: isSelected ? color : RCColors.divider,
@@ -270,8 +300,8 @@ class AdminDashboardView extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              status == 'pending' ? 'No hay inscripciones pendientes' :
-              (status == 'approved' ? 'No hay inscripciones aprobadas' : 'No hay inscripciones rechazadas'),
+              status == 'pending' ? 'adm_no_pending'.tr :
+              (status == 'approved' ? 'adm_no_approved'.tr : 'adm_no_denied'.tr),
               style: TextStyle(color: RCColors.textSecondary),
             ),
           ],
@@ -324,33 +354,30 @@ class AdminDashboardView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   if (status == 'pending') ...[
-                    // Boton aceptar verde
                     IconButton(
                       icon: const Icon(Icons.check_circle, color: Colors.green),
                       onPressed: () {
                         final regId = reg['id_registration'];
                         if (regId != null) controller.confirmRegistration(regId);
                       },
-                      tooltip: 'Aceptar inscripción',
+                      tooltip: 'adm_reg_accept'.tr,
                     ),
-                    // Boton rechazar naranja
                     IconButton(
                       icon: const Icon(Icons.cancel, color: Colors.orange),
                       onPressed: () {
                         final regId = reg['id_registration'];
                         if (regId != null) controller.denyRegistration(regId);
                       },
-                      tooltip: 'Rechazar inscripción',
+                      tooltip: 'adm_reg_reject'.tr,
                     ),
                   ],
-                  // Boton cancelar/Borrar rojo
                   IconButton(
                     icon: const Icon(Icons.delete_forever, color: Colors.red),
                     onPressed: () {
                       final regId = reg['id_registration'];
                       if (regId != null) controller.cancelRegistration(regId);
                     },
-                    tooltip: 'Cancelar y eliminar inscripción',
+                    tooltip: 'adm_reg_cancel'.tr,
                   ),
                 ],
               ),

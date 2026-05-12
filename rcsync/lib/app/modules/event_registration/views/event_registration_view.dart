@@ -17,7 +17,7 @@ class EventRegistrationView extends GetView<EventRegistrationController> {
     final eventDetailsController = Get.find<EventDetailsController>();
 
     final profileData = profileController.profileData;
-    final String fullName = profileData.isNotEmpty ? (profileData['full_name'] ?? 'Piloto') : 'Piloto';
+    final String fullName = profileData.isNotEmpty ? (profileData['full_name'] ?? 'fallback_pilot'.tr) : 'fallback_pilot'.tr;
     final userTransponders = profileController.transponders.map((t) => Transponder.fromJson(Map<String, dynamic>.from(t))).toList();
     final eventName = eventDetailsController.event.value.name;
 

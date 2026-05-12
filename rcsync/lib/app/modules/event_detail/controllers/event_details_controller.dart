@@ -1,7 +1,6 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -47,6 +46,7 @@ class EventDetailsController extends GetxController {
   var isLocationExpanded = false.obs;
 
   var isAdminOrOrganizer = false.obs;
+  var userRegistrations = <Map<String, dynamic>>[].obs;
 
   @override
   void onInit() {
@@ -56,6 +56,7 @@ class EventDetailsController extends GetxController {
       fetchRegisteredPilots();
       fetchRulebooks();
       _checkAdminOrOrganizer();
+      checkUserRegistration();
     }
   }
 
@@ -151,7 +152,7 @@ class EventDetailsController extends GetxController {
 
         var pilot = RegisteredPilot(
           idProfile: item['pilot_id'] ?? '',
-          fullName: item['full_name'] ?? 'Piloto',
+          fullName: item['full_name'] ?? 'fallback_pilot'.tr,
           subCategory: item['subcategory_name'] ?? 'STOCK',
           imageUrl: item['image_url'],
           totalPoints: (item['total_points_previo'] as num).toInt(),
@@ -339,7 +340,7 @@ class EventDetailsController extends GetxController {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: RCColors.background.withOpacity(0.5),
+                    color: RCColors.background.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -394,14 +395,121 @@ class EventDetailsController extends GetxController {
       );
 
     } catch (e) {
-      Get.back(); // cerrar dialogo de carga si estaba abierto
+      Get.back();
+      debugPrint('Error exporting: $e');
       Get.snackbar(
         'Error',
-        'No se pudo exportar la lista: $e',
+        'evt_export_error'.tr,
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-      debugPrint('Error exporting: $e');
+    }
+  }
+
+  Future<void> checkUserRegistration() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return;
+    try {
+      final res = await supabase
+          .from('registrations')
+          .select('id_registration, id_category, categories(name)')
+          .eq('id_event', event.value.idEvent)
+          .eq('id_profile', user.id);
+      userRegistrations.value = List<Map<String, dynamic>>.from(res);
+    } catch (e) {
+      debugPrint('Error checking user registration: $e');
+    }
+  }
+
+  Future<void> unregisterFromEvent() async {
+    if (userRegistrations.isEmpty) return;
+
+    Map<String, dynamic>? targetReg;
+
+    if (userRegistrations.length == 1) {
+      final catName = userRegistrations[0]['categories']?['name'] ?? '---';
+      final confirmed = await Get.dialog<bool>(
+        AlertDialog(
+          backgroundColor: RCColors.card,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            'det_unregister_title'.tr,
+            style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            '${'det_unregister_msg'.tr}\n\n${'res_category'.tr}: $catName',
+            style: TextStyle(color: RCColors.textSecondary, height: 1.5),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: Text('cancel'.tr, style: TextStyle(color: RCColors.textSecondary)),
+            ),
+            TextButton(
+              onPressed: () => Get.back(result: true),
+              child: Text(
+                'det_unregister_confirm'.tr,
+                style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+      targetReg = userRegistrations[0];
+    } else {
+      targetReg = await Get.dialog<Map<String, dynamic>>(
+        AlertDialog(
+          backgroundColor: RCColors.card,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            'det_unregister_select'.tr,
+            style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: userRegistrations.map((reg) {
+              final catName = reg['categories']?['name'] ?? '---';
+              return ListTile(
+                leading: const Icon(Icons.sports_motorsports, color: RCColors.orange),
+                title: Text(catName, style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.w600)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                onTap: () => Get.back(result: reg),
+              );
+            }).toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: null),
+              child: Text('cancel'.tr, style: TextStyle(color: RCColors.textSecondary)),
+            ),
+          ],
+        ),
+      );
+      if (targetReg == null) return;
+    }
+
+    isLoading.value = true;
+    try {
+      await supabase
+          .from('registrations')
+          .delete()
+          .eq('id_registration', targetReg['id_registration']);
+      await checkUserRegistration();
+      await fetchRegisteredPilots();
+      Get.snackbar(
+        'det_unregister_success'.tr,
+        '',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      debugPrint('Error unregistering: $e');
+      Get.snackbar('Error', 'det_unregister_error'.tr,
+          backgroundColor: Colors.red, colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
     }
   }
 

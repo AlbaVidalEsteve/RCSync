@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/modules/results/controllers/results_controller.dart';
+import 'package:rcsync/app/routes/app_pages.dart';
 
 class ResultsView extends GetView<ResultsController> {
   const ResultsView({super.key});
@@ -16,6 +17,7 @@ class ResultsView extends GetView<ResultsController> {
       body: Column(
         children: [
           Stack(
+            clipBehavior: Clip.none,
             children: [
               Container(
                 width: double.infinity,
@@ -39,12 +41,15 @@ class ResultsView extends GetView<ResultsController> {
                   ),
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.only(top: 110),
+              Positioned(
+                top: 110,
+                left: 20,
+                right: 20,
                 child: _buildFiltersCard(),
               ),
             ],
           ),
+          const SizedBox(height: 155),
           _buildStatusBanner(),
           Expanded(child: _buildList()),
         ],
@@ -54,14 +59,13 @@ class ResultsView extends GetView<ResultsController> {
 
   Widget _buildFiltersCard() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: RCColors.card,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(Get.isDarkMode ? 0.3 : 0.1),
+            color: Colors.black.withValues(alpha: Get.isDarkMode ? 0.3 : 0.1),
             blurRadius: 15,
             offset: const Offset(0, 10),
           )
@@ -180,7 +184,7 @@ class ResultsView extends GetView<ResultsController> {
           style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
           decoration: InputDecoration(
             filled: true,
-            fillColor: RCColors.background.withOpacity(0.5),
+            fillColor: RCColors.background.withValues(alpha: 0.5),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(15),
               borderSide: BorderSide.none,
@@ -202,7 +206,7 @@ class ResultsView extends GetView<ResultsController> {
               child: Text(e, style: TextStyle(color: RCColors.textPrimary))
           )).toList(),
           onChanged: items.isEmpty ? null : onChanged,
-          hint: items.isEmpty ? Text("res_loading".tr, style: TextStyle(color: RCColors.textSecondary.withOpacity(0.3), fontSize: 13)) : null,
+          hint: items.isEmpty ? Text("res_loading".tr, style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.3), fontSize: 13)) : null,
         ),
       ],
     );
@@ -217,9 +221,9 @@ class ResultsView extends GetView<ResultsController> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: statusColor.withOpacity(0.1),
+          color: statusColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: statusColor.withOpacity(0.3)),
+          border: Border.all(color: statusColor.withValues(alpha: 0.3)),
         ),
         child: Text(
           isActive ? "res_active".tr : "res_finished".tr,
@@ -241,7 +245,7 @@ class ResultsView extends GetView<ResultsController> {
         return Center(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Text("res_select_filters".tr, style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
+            child: Text("res_select_filters".tr, style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5))),
           ),
         );
       }
@@ -277,6 +281,11 @@ class ResultsView extends GetView<ResultsController> {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: ListTile(
+                onTap: () => Get.toNamed(Routes.PILOT_DETAIL, arguments: {
+                  'entry': entry,
+                  'position': index + 1,
+                  'category': controller.selectedCategory.value,
+                }),
                 leading: Stack(
                   alignment: Alignment.bottomRight,
                   children: [
@@ -335,8 +344,8 @@ class ResultsView extends GetView<ResultsController> {
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
                             color: entry.calculatedLevel == 'SUPERSTOCK'
-                                ? Colors.purple.withOpacity(0.2)
-                                : Colors.blue.withOpacity(0.2),
+                                ? Colors.purple.withValues(alpha: 0.2)
+                                : Colors.blue.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
                               color: entry.calculatedLevel == 'SUPERSTOCK' ? Colors.purpleAccent : Colors.blueAccent,
@@ -358,7 +367,7 @@ class ResultsView extends GetView<ResultsController> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.2),
+                              color: Colors.green.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(6),
                               border: Border.all(color: Colors.greenAccent, width: 0.5)
                           ),

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:rcsync/app/routes/app_pages.dart';
-import 'package:rcsync/core/theme/rc_colors.dart';
-
 
 class LoginController extends GetxController {
   RxBool isLoading = false.obs;
@@ -14,35 +12,24 @@ class LoginController extends GetxController {
   SupabaseClient client = Supabase.instance.client;
 
   Future<bool?> login() async {
-    if (emailC.text.isNotEmpty && passwordC.text.isNotEmpty) {
-      isLoading.value = true;
-      try {
-        await client.auth
-            .signInWithPassword(email: emailC.text, password: passwordC.text);
-        isLoading.value = false;
+    if (emailC.text.isEmpty || passwordC.text.isEmpty) {
+      Get.snackbar('login_error_title'.tr, 'login_fields_required'.tr);
+      return null;
+    }
 
-        Get.defaultDialog(
-            barrierDismissible: false,
-            title: "Login success",
-            middleText: "Will be redirect to Home Page",
-            backgroundColor: RCColors.orange);
-
-        await Future.delayed(const Duration(milliseconds: 1500));
-
-        if (Get.isDialogOpen == true) {
-          Get.back();
-        }
-
-        Get.offAllNamed(Routes.HOME);
-
-        return true;
-
-      } catch (e) {
-        isLoading.value = false;
-        Get.snackbar("ERROR", e.toString());
-      }
-    } else {
-      Get.snackbar("ERROR", "Email and password are required");
+    isLoading.value = true;
+    try {
+      await client.auth.signInWithPassword(email: emailC.text.trim(), password: passwordC.text);
+      Get.offAllNamed(Routes.HOME);
+      return true;
+    } on AuthException catch (e) {
+      debugPrint('AuthException on login: ${e.message}');
+      Get.snackbar('login_error_title'.tr, 'login_wrong_credentials'.tr);
+    } catch (e) {
+      debugPrint('Error on login: $e');
+      Get.snackbar('login_error_title'.tr, 'error_generic'.tr);
+    } finally {
+      isLoading.value = false;
     }
     return null;
   }

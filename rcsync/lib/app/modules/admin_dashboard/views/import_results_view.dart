@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/data/models/race_event_model.dart';
@@ -67,7 +67,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
                           borderRadius: BorderRadius.circular(30),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(Get.isDarkMode ? 0.3 : 0.1),
+                              color: Colors.black.withValues(alpha: Get.isDarkMode ? 0.3 : 0.1),
                               blurRadius: 15,
                               offset: const Offset(0, 10),
                             )
@@ -79,7 +79,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
                               label: 'select_event'.tr,
                               icon: Icons.event,
                               child: Obx(() => DropdownButtonFormField<RaceEventModel>(
-                                value: controller.selectedEvent.value,
+                                initialValue: controller.selectedEvent.value,
                                 dropdownColor: RCColors.card,
                                 style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
                                 decoration: _inputDecoration(),
@@ -90,7 +90,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
                                   );
                                 }).toList(),
                                 onChanged: (value) => controller.onEventSelected(value),
-                                hint: Text('select_event'.tr, style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
+                                hint: Text('select_event'.tr, style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5))),
                               )),
                             ),
                             const SizedBox(height: 20),
@@ -98,7 +98,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
                               label: 'select_category'.tr,
                               icon: Icons.category,
                               child: Obx(() => DropdownButtonFormField<Map<String, dynamic>>(
-                                value: controller.selectedCategory.value,
+                                initialValue: controller.selectedCategory.value,
                                 dropdownColor: RCColors.card,
                                 style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
                                 decoration: _inputDecoration(),
@@ -109,7 +109,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
                                   );
                                 }).toList(),
                                 onChanged: (value) => controller.selectedCategory.value = value,
-                                hint: Text('select_category'.tr, style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
+                                hint: Text('select_category'.tr, style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5))),
                               )),
                             ),
                           ],
@@ -123,7 +123,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
                           borderRadius: BorderRadius.circular(30),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(Get.isDarkMode ? 0.3 : 0.1),
+                              color: Colors.black.withValues(alpha: Get.isDarkMode ? 0.3 : 0.1),
                               blurRadius: 15,
                               offset: const Offset(0, 10),
                             )
@@ -147,11 +147,11 @@ class ImportResultsView extends GetView<ImportResultsController> {
                               ],
                             ),
                             const SizedBox(height: 15),
-                            _buildInstructionItem('${'file_format_info'.tr}'),
-                            _buildInstructionItem('${'csv_format_info'.tr}'),
-                            _buildInstructionItem('${'excel_format_info'.tr}'),
-                            _buildInstructionItem('${'headers_info'.tr}'),
-                            _buildInstructionItem('${'matching_info'.tr}'),
+                            _buildInstructionItem('file_format_info'.tr),
+                            _buildInstructionItem('csv_format_info'.tr),
+                            _buildInstructionItem('excel_format_info'.tr),
+                            _buildInstructionItem('headers_info'.tr),
+                            _buildInstructionItem('matching_info'.tr),
                           ],
                         ),
                       ),
@@ -166,13 +166,13 @@ class ImportResultsView extends GetView<ImportResultsController> {
                                 ? null
                                 : const LinearGradient(colors: [RCColors.orange, Color(0xFFF68B28)]),
                             color: controller.isLoading.value || controller.selectedEvent.value == null || controller.selectedCategory.value == null
-                                ? RCColors.card.withOpacity(0.5)
+                                ? RCColors.card.withValues(alpha: 0.5)
                                 : null,
                             boxShadow: controller.isLoading.value || controller.selectedEvent.value == null || controller.selectedCategory.value == null
                                 ? null
                                 : [
                               BoxShadow(
-                                color: RCColors.orange.withOpacity(0.3),
+                                color: RCColors.orange.withValues(alpha: 0.3),
                                 blurRadius: 12,
                                 offset: const Offset(0, 6),
                               )
@@ -249,7 +249,7 @@ class ImportResultsView extends GetView<ImportResultsController> {
   InputDecoration _inputDecoration() {
     return InputDecoration(
       filled: true,
-      fillColor: RCColors.background.withOpacity(0.5),
+      fillColor: RCColors.background.withValues(alpha: 0.5),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
         borderSide: BorderSide.none,

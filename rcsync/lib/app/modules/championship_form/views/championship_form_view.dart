@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/modules/championship_form/controllers/championship_form_controller.dart';
@@ -70,7 +70,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(Get.isDarkMode ? 0.3 : 0.1),
+                            color: Colors.black.withValues(alpha: Get.isDarkMode ? 0.3 : 0.1),
                             blurRadius: 15,
                             offset: const Offset(0, 10),
                           )
@@ -120,7 +120,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                                       value: controller.isActive.value,
                                       onChanged: (v) => controller.isActive.value = v,
                                       activeThumbColor: RCColors.orange,
-                                      activeTrackColor: RCColors.orange.withOpacity(0.3),
+                                      activeTrackColor: RCColors.orange.withValues(alpha: 0.3),
                                     )),
                                   ],
                                 )
@@ -135,7 +135,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                               children: [
                                 Expanded(
                                   child: Obx(() => DropdownButtonFormField<Map<String, dynamic>>(
-                                    value: controller.selectedExistingCategory.value,
+                                    initialValue: controller.selectedExistingCategory.value,
                                     dropdownColor: RCColors.card,
                                     style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
                                     decoration: _inputDecoration(),
@@ -146,7 +146,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                                       );
                                     }).toList(),
                                     onChanged: (value) => controller.selectedExistingCategory.value = value,
-                                    hint: Text("cha_select_cat".tr, style: TextStyle(color: RCColors.textSecondary.withOpacity(0.5))),
+                                    hint: Text("cha_select_cat".tr, style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.5))),
                                   )),
                                 ),
                                 const SizedBox(width: 10),
@@ -170,9 +170,9 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                                     style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
                                     decoration: InputDecoration(
                                       hintText: 'cha_cat_hint'.tr,
-                                      hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.4)),
+                                      hintStyle: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.4)),
                                       filled: true,
-                                      fillColor: RCColors.background.withOpacity(0.5),
+                                      fillColor: RCColors.background.withValues(alpha: 0.5),
                                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
                                       enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: RCColors.divider)),
@@ -210,7 +210,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
   InputDecoration _inputDecoration() {
     return InputDecoration(
       filled: true,
-      fillColor: RCColors.background.withOpacity(0.5),
+      fillColor: RCColors.background.withValues(alpha: 0.5),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(15),
         borderSide: BorderSide.none,
@@ -261,7 +261,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
         _buildInputLabel(label, icon: icon),
         const SizedBox(height: 8),
         DropdownButtonFormField<T>(
-          value: value,
+          initialValue: value,
           dropdownColor: RCColors.card,
           style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
           decoration: _inputDecoration(),
@@ -304,7 +304,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(Get.isDarkMode ? 0.3 : 0.1),
+                  color: Colors.black.withValues(alpha: Get.isDarkMode ? 0.3 : 0.1),
                   blurRadius: 15,
                   offset: const Offset(0, 10),
                 )
@@ -333,7 +333,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                   bool hasExistingUrl = cat['rulebook_url'] != null;
 
                   return Card(
-                    color: RCColors.background.withOpacity(0.5),
+                    color: RCColors.background.withValues(alpha: 0.5),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
@@ -350,7 +350,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                         hasNewPdf ? 'cha_pdf_ready'.tr
                             : (hasExistingUrl ? 'cha_pdf_ok'.tr : 'cha_pdf_no'.tr),
                         style: TextStyle(
-                            color: hasNewPdf ? RCColors.orange : (hasExistingUrl ? Colors.green : RCColors.textSecondary.withOpacity(0.6)),
+                            color: hasNewPdf ? RCColors.orange : (hasExistingUrl ? Colors.green : RCColors.textSecondary.withValues(alpha: 0.6)),
                             fontSize: 11
                         ),
                       ),
@@ -358,7 +358,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            tooltip: 'Adjuntar Reglamento (PDF)',
+                            tooltip: 'champ_attach_pdf'.tr,
                             icon: Icon(hasExistingUrl && !hasNewPdf ? Icons.edit_document : Icons.picture_as_pdf,
                                 color: RCColors.orange, size: 20),
                             onPressed: () => controller.pickPdfForCategory(index),
@@ -392,7 +392,7 @@ class ChampionshipFormView extends GetView<ChampionshipFormController> {
         color: controller.isLoading.value ? RCColors.card : null,
         boxShadow: controller.isLoading.value ? null : [
           BoxShadow(
-            color: RCColors.orange.withOpacity(0.3),
+            color: RCColors.orange.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 6),
           )

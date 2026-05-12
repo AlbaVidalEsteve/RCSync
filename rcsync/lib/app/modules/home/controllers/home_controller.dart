@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -9,6 +9,7 @@ import 'package:rcsync/app/routes/app_pages.dart';
 import 'package:rcsync/app/modules/admin_dashboard/controllers/admin_dashboard_controller.dart';
 import 'package:rcsync/app/modules/results/controllers/results_controller.dart';
 import 'package:rcsync/app/modules/profile/controllers/profile_controller.dart';
+import 'package:rcsync/core/services/presence_service.dart';
 
 class HomeController extends GetxController {
   RxBool isLoading = false.obs;
@@ -101,9 +102,14 @@ class HomeController extends GetxController {
             .eq('id_profile', user.id)
             .single();
         userProfile.value = ProfileModel.fromJson(response);
+        PresenceService.instance.startTracking(
+          user.id,
+          userProfile.value!.fullName,
+          imageUrl: userProfile.value!.imageProfile,
+        );
       }
     } catch (e) {
-      print("Error fetching user profile: $e");
+      debugPrint("Error fetching user profile: $e");
     }
   }
 
@@ -173,7 +179,7 @@ class HomeController extends GetxController {
       )).toList());
 
     } catch (e) {
-      print("Error fetching events: $e");
+      debugPrint("Error fetching events: $e");
     } finally {
       isLoading.value = false;
     }

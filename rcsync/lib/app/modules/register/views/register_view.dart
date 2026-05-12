@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/modules/register/controllers/register_controller.dart';
@@ -100,17 +100,44 @@ class RegisterView extends GetView<RegisterController> {
               obscureText: controller.isHidden.value,
               style: TextStyle(color: RCColors.textPrimary),
               decoration: _inputDecoration(
-                hint: "••••••••", 
+                hint: "••••••••",
                 icon: Icons.lock_outline,
                 suffix: IconButton(
                   onPressed: () => controller.isHidden.toggle(),
                   icon: Icon(
-                    controller.isHidden.isTrue ? Icons.visibility_off_outlined : Icons.visibility_outlined, 
+                    controller.isHidden.isTrue ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                     color: RCColors.iconSecondary
                   ),
                 ),
               ),
             )),
+            Obx(() {
+              final s = controller.passwordStrength.value;
+              if (s == 0) return const SizedBox.shrink();
+              final colors  = [Colors.red, Colors.orange, Colors.green];
+              final labels  = ['reg_pass_weak'.tr, 'reg_pass_medium'.tr, 'reg_pass_strong'.tr];
+              final color   = colors[s - 1];
+              final label   = labels[s - 1];
+              return Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: s / 3,
+                        minHeight: 4,
+                        backgroundColor: RCColors.divider,
+                        valueColor: AlwaysStoppedAnimation<Color>(color),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(label, style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w500)),
+                  ],
+                ),
+              );
+            }),
 
             const SizedBox(height: 20),
 
@@ -128,7 +155,7 @@ class RegisterView extends GetView<RegisterController> {
             // boton registrar
             Obx(() => _buildMainButton(
               label: controller.isLoading.isFalse ? "register_btn".tr : "registering".tr,
-              onPressed: () => controller.signUp(),
+              onPressed: controller.isLoading.isTrue ? null : () => controller.signUp(),
             )),
 
             const SizedBox(height: 15),
@@ -164,7 +191,7 @@ class RegisterView extends GetView<RegisterController> {
   InputDecoration _inputDecoration({required String hint, required IconData icon, Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(color: RCColors.textSecondary.withOpacity(0.4)),
+      hintStyle: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.4)),
       prefixIcon: Icon(icon, color: RCColors.orange, size: 20),
       suffixIcon: suffix,
       filled: true,
@@ -182,8 +209,8 @@ class RegisterView extends GetView<RegisterController> {
   }
 
   Widget _buildMainButton({
-    required String label, 
-    required VoidCallback onPressed, 
+    required String label,
+    VoidCallback? onPressed,
     bool isSecondary = false
   }) {
     return SizedBox(
@@ -199,7 +226,7 @@ class RegisterView extends GetView<RegisterController> {
           border: isSecondary ? Border.all(color: RCColors.divider) : null,
           boxShadow: isSecondary ? null : [
             BoxShadow(
-              color: RCColors.orange.withOpacity(0.3),
+              color: RCColors.orange.withValues(alpha: 0.3),
               blurRadius: 12,
               offset: const Offset(0, 6),
             )

@@ -9,6 +9,7 @@ import 'package:csv/csv.dart';
 import 'package:rcsync/app/data/models/race_event_model.dart';
 import 'package:rcsync/app/data/models/race_result_import_model.dart';
 import 'package:rcsync/app/modules/admin_dashboard/views/import_results_preview_view.dart';
+import 'package:rcsync/app/modules/admin_dashboard/views/import_column_selector.dart';
 
 class ImportResultsController extends GetxController {
   final supabase = Supabase.instance.client;
@@ -20,6 +21,16 @@ class ImportResultsController extends GetxController {
   var availableCategories = <Map<String, dynamic>>[].obs;
   var importResults = <RaceResultImport>[].obs;
   var previewData = <Map<String, dynamic>>[].obs;
+
+  // Column selection state
+  var fileHeaders     = <String>[].obs;
+  var filePreviewRows = <List<String>>[].obs;
+  var colUuid     = Rxn<int>();
+  var colPosition = Rxn<int>();
+  var colPole     = Rxn<int>();
+  var hasHeader   = true.obs;
+  List<List<String>> _allRawRows  = [];
+  List<List<String>> _pendingRows = [];
 
   @override
   void onInit() {
@@ -103,122 +114,207 @@ class ImportResultsController extends GetxController {
     }
   }
 
-  // Importacion desde CSV
+  // ── Detección de separador CSV ────────────────────────────────────────────────
+  String _detectDelimiter(String firstLine) {
+    const candidates = [';', '\t', ',', '|'];
+    int maxCount = 0;
+    String best = ',';
+    for (final c in candidates) {
+      final count = c.allMatches(firstLine).length;
+      if (count > maxCount) { maxCount = count; best = c; }
+    }
+    return best;
+  }
+
+  // ── Lectura CSV ──────────────────────────────────────────────────────────────
   Future<void> importCsvFile(String filePath) async {
     isLoading.value = true;
     try {
       String input;
       try {
-        input = File(filePath).readAsStringSync(encoding: utf8);
-      } catch (e) {
-        input = File(filePath).readAsStringSync(encoding: latin1);
+        input = await File(filePath).readAsString(encoding: utf8);
+      } catch (_) {
+        input = await File(filePath).readAsString(encoding: latin1);
       }
 
-      final csvRows = const CsvToListConverter(
+      // Yield so the UI can render the loading indicator before parsing
+      await Future<void>.delayed(Duration.zero);
+
+      final firstNl = input.indexOf('\n');
+      final firstLine = firstNl >= 0 ? input.substring(0, firstNl) : input;
+      final delimiter = _detectDelimiter(firstLine);
+
+      final csvRows = CsvToListConverter(
         eol: '\n',
         shouldParseNumbers: false,
+        fieldDelimiter: delimiter,
       ).convert(input);
-
       if (csvRows.isEmpty) throw Exception('El archivo CSV está vacío');
 
-      final headers = csvRows.first.map((e) => e?.toString().trim() ?? '').toList();
-      final dataRows = csvRows.skip(1).toList();
+      final allRows = csvRows
+          .map((r) => r.map((c) => c?.toString().trim() ?? '').toList())
+          .toList();
 
-      // Detectar columnas
-      int? idPilotoCol;
-      int? nombreCol;
-      int? transponderCol;
-      int? clasificacionCol;
-      int? vueltasCol;
-      int? puntosCol;
+      _loadAllRowsAndPreview(allRows);
+    } catch (e) {
+      Get.snackbar('Error', 'import_err_csv'.tr);
+      debugPrint('Error reading CSV: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
-      for (int i = 0; i < headers.length; i++) {
-        final lowerHeader = headers[i].toLowerCase();
-        if (lowerHeader.contains('id piloto') || lowerHeader == 'id_piloto') idPilotoCol = i;
-        if (lowerHeader.contains('piloto') || lowerHeader.contains('nombre')) nombreCol = i;
-        if (lowerHeader.contains('transponder')) transponderCol = i;
-        if (lowerHeader == 'clasificacion') clasificacionCol = i;
-        if (lowerHeader.contains('vuelta') || lowerHeader == 'laps') vueltasCol = i;
-        if (lowerHeader.contains('puntos') || lowerHeader == 'points') puntosCol = i;
+  // ── Lectura Excel ─────────────────────────────────────────────────────────────
+  Future<void> importExcelFile(String filePath) async {
+    isLoading.value = true;
+    try {
+      final bytes = await File(filePath).readAsBytes();
+
+      await Future<void>.delayed(Duration.zero);
+
+      final excel = Excel.decodeBytes(bytes);
+      final sheet = excel.tables[excel.tables.keys.first];
+      if (sheet == null || sheet.rows.isEmpty) throw Exception('No se encontraron datos en el archivo');
+
+      final allRows = sheet.rows
+          .map((r) => r.map((c) => c?.value?.toString().trim() ?? '').toList())
+          .toList();
+
+      _loadAllRowsAndPreview(allRows);
+    } catch (e) {
+      Get.snackbar('Error', 'import_err_file'.tr);
+      debugPrint('Error reading Excel: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ── Todas las filas + preview + selector ─────────────────────────────────────
+  void _loadAllRowsAndPreview(List<List<String>> allRows) {
+    _allRawRows   = allRows;
+    hasHeader.value = true;
+    rebuildFromRaw();
+    _showColumnSelector();
+  }
+
+  void rebuildFromRaw() {
+    if (_allRawRows.isEmpty) return;
+    if (hasHeader.value) {
+      fileHeaders.value = _allRawRows.first;
+      _pendingRows = _allRawRows.skip(1)
+          .where((r) => r.any((c) => c.isNotEmpty))
+          .toList();
+    } else {
+      final colCount = _allRawRows.first.length;
+      fileHeaders.value = List.generate(colCount, (i) => 'Col $i');
+      _pendingRows = _allRawRows
+          .where((r) => r.any((c) => c.isNotEmpty))
+          .toList();
+    }
+    filePreviewRows.value = _pendingRows.take(4).toList();
+    colUuid.value     = null;
+    colPosition.value = null;
+    colPole.value     = null;
+    _autoDetectColumns(fileHeaders);
+  }
+
+  void _autoDetectColumns(List<String> headers) {
+    for (int i = 0; i < headers.length; i++) {
+      final h = headers[i].toLowerCase();
+      if (h.contains('id piloto') || h == 'id_piloto' || h == 'uuid') colUuid.value = i;
+      if (h == 'clasificacion' || h.contains('clasif') || h == 'pole') colPole.value = i;
+      if (h.contains('posici') || h == 'pos' || h == 'position' || h == 'finish') colPosition.value = i;
+    }
+  }
+
+  void _showColumnSelector() {
+    Get.bottomSheet(
+      ImportColumnSelectorSheet(controller: this),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      ignoreSafeArea: false,
+    );
+  }
+
+  Future<void> processWithSelectedColumns() async {
+    if (colUuid.value == null) return;
+    Get.back();
+
+    isLoading.value = true;
+    try {
+      final uuidIdx = colUuid.value!;
+      final posIdx  = colPosition.value;
+      final poleIdx = colPole.value;
+
+      // Primera pasada: recoger solo las filas con UUID válido
+      final validIds    = <String>[];
+      final validRowsData = <List<String>>[];
+      final validOrders = <int>[];
+      int rowOrder = 0;
+      for (final row in _pendingRows) {
+        final rawId = uuidIdx < row.length ? row[uuidIdx].trim() : '';
+        if (rawId.isEmpty || !_isValidUuid(rawId)) continue;
+        rowOrder++;
+        validIds.add(rawId);
+        validRowsData.add(row);
+        validOrders.add(rowOrder);
       }
 
-      if (idPilotoCol == null) {
-        throw Exception('No se encontró la columna "ID Piloto" en el CSV.');
+      if (validIds.isEmpty) {
+        Get.snackbar('Aviso', 'import_err_csv'.tr);
+        return;
       }
 
+      // Una sola consulta para todos los UUIDs
+      final uuids    = validIds.toSet().toList();
+      final response = await supabase
+          .from('profiles')
+          .select('id_profile, full_name')
+          .inFilter('id_profile', uuids);
+
+      final pilotMap = <String, Map<String, dynamic>>{
+        for (final p in response)
+          p['id_profile'] as String: Map<String, dynamic>.from(p as Map),
+      };
+
+      // Segunda pasada: construir resultados sin más llamadas a la BD
       final results = <RaceResultImport>[];
       final preview = <Map<String, dynamic>>[];
-      int globalPosition = 0;
 
-      for (var row in dataRows) {
-        final rawId = row.length > idPilotoCol! ? row[idPilotoCol]?.toString().trim() : null;
-        if (rawId == null || rawId.isEmpty) continue;
+      for (int i = 0; i < validIds.length; i++) {
+        final rawId = validIds[i];
+        final row   = validRowsData[i];
+        final order = validOrders[i];
 
-        if (!_isValidUuid(rawId)) {
-          debugPrint('ID inválido: $rawId');
-          continue;
-        }
+        final position = (posIdx != null && posIdx < row.length)
+            ? int.tryParse(row[posIdx]) ?? order
+            : order;
 
-        globalPosition++;
-
-        final pilotName = (nombreCol != null && row.length > nombreCol)
-            ? row[nombreCol]?.toString().trim() ?? ''
-            : '';
-        final transponderStr = (transponderCol != null && row.length > transponderCol)
-            ? row[transponderCol]?.toString().trim()
-            : null;
-        final vueltasStr = (vueltasCol != null && row.length > vueltasCol)
-            ? row[vueltasCol]?.toString().trim()
-            : null;
-        final puntosStr = (puntosCol != null && row.length > puntosCol)
-            ? row[puntosCol]?.toString().trim()
-            : null;
-
-        int? qualyPos;
-        if (clasificacionCol != null && row.length > clasificacionCol) {
-          final rawQualy = row[clasificacionCol]?.toString().trim();
-          if (rawQualy != null && rawQualy.isNotEmpty) {
-            qualyPos = int.tryParse(rawQualy);
-            if (qualyPos != 1) qualyPos = null;
-          }
-        }
-
-        final pilot = await _fetchPilotById(rawId);
+        final qualyPos = (poleIdx != null && poleIdx < row.length && row[poleIdx] == '1') ? 1 : null;
+        final pilot    = pilotMap[rawId];
 
         results.add(RaceResultImport(
-          position: globalPosition,
-          pilotName: pilotName.isNotEmpty ? pilotName : (pilot?['full_name'] ?? ''),
-          transponderNumber: int.tryParse(transponderStr ?? '0'),
-          laps: int.tryParse(vueltasStr ?? '0'),
-          points: int.tryParse(puntosStr ?? '0'),
-          idProfile: rawId,
+          position:      position,
+          pilotName:     pilot?['full_name'] ?? '',
+          idProfile:     rawId,
           qualyPosition: qualyPos,
         ));
-
         preview.add({
-          'position': globalPosition,
-          'pilot_name': pilotName.isNotEmpty ? pilotName : (pilot?['full_name'] ?? ''),
-          'transponder': transponderStr,
-          'laps': vueltasStr,
-          'points': puntosStr,
-          'matched': pilot != null,
-          'id_profile': rawId,
+          'position':       position,
+          'pilot_name':     pilot?['full_name'] ?? '',
+          'matched':        pilot != null,
+          'id_profile':     rawId,
           'qualy_position': qualyPos,
         });
       }
 
       importResults.value = results;
-      previewData.value = preview;
+      previewData.value   = preview;
 
-      Get.to(() => ImportResultsPreviewView(
-        controller: this,
-        results: results,
-        preview: preview,
-      ));
-
+      Get.to(() => ImportResultsPreviewView(controller: this, results: results, preview: preview));
     } catch (e) {
-      Get.snackbar('Error', 'Error al leer el CSV: $e');
-      debugPrint('Error importing CSV: $e');
+      debugPrint('Error processing rows: $e');
+      Get.snackbar('Error', 'import_err_csv'.tr);
     } finally {
       isLoading.value = false;
     }
@@ -245,117 +341,37 @@ class ImportResultsController extends GetxController {
     }
   }
 
-  // Importación desde Excel
-  Future<void> importExcelFile(String filePath) async {
-    isLoading.value = true;
-    try {
-      var bytes = File(filePath).readAsBytesSync();
-      var excel = Excel.decodeBytes(bytes);
-      var sheet = excel.tables[excel.tables.keys.first];
-      if (sheet == null) {
-        throw Exception('No se encontraron datos en el archivo');
-      }
-
-      var headers = <String, int>{};
-      var firstRow = sheet.rows.first;
-      for (var i = 0; i < firstRow.length; i++) {
-        final cell = firstRow[i];
-        if (cell != null) {
-          var cellValue = cell.value?.toString().trim() ?? '';
-          if (cellValue.isNotEmpty) {
-            headers[cellValue] = i;
-          }
-        }
-      }
-
-      var results = <RaceResultImport>[];
-      var preview = <Map<String, dynamic>>[];
-
-      for (var i = 1; i < sheet.rows.length; i++) {
-        var row = sheet.rows[i];
-        if (row.isEmpty) continue;
-
-        bool isEmptyRow = true;
-        for (var cell in row) {
-          if (cell != null && cell.value != null && cell.value.toString().trim().isNotEmpty) {
-            isEmptyRow = false;
-            break;
-          }
-        }
-        if (isEmptyRow) continue;
-
-        var rowData = <String, dynamic>{};
-        headers.forEach((key, colIndex) {
-          if (colIndex < row.length) {
-            final cell = row[colIndex];
-            rowData[key] = cell?.value?.toString() ?? '';
-          }
-        });
-
-        var pilotName = rowData['Nombre']?.toString() ?? rowData['Pilot Name']?.toString() ?? '';
-        var transponderNumber = rowData['Transponder Nr 1']?.toString();
-
-        var pilot = await findPilot(pilotName, transponderNumber);
-
-        var result = RaceResultImport(
-          position: i,
-          pilotName: pilotName,
-          transponderNumber: int.tryParse(transponderNumber ?? '0'),
-          laps: int.tryParse(rowData['Laps']?.toString() ?? rowData['Vueltas']?.toString() ?? '0'),
-          bestLap: rowData['Best Lap']?.toString() ?? rowData['Mejor Vuelta']?.toString(),
-          points: int.tryParse(rowData['Points']?.toString() ?? rowData['Puntos']?.toString() ?? '0'),
-          idProfile: pilot?['id_profile'],
-          qualyPosition: null,
-        );
-
-        results.add(result);
-        preview.add({
-          'position': result.position,
-          'pilot_name': result.pilotName,
-          'transponder': result.transponderNumber,
-          'laps': result.laps,
-          'points': result.points,
-          'matched': pilot != null,
-        });
-      }
-
-      importResults.value = results;
-      previewData.value = preview;
-
-      Get.to(() => ImportResultsPreviewView(
-        controller: this,
-        results: results,
-        preview: preview,
-      ));
-
-    } catch (e) {
-      Get.snackbar('Error', 'Error al leer el archivo: $e');
-      debugPrint('Error importing Excel: $e');
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   Future<Map<String, dynamic>?> findPilot(String name, String? transponder) async {
     try {
+      // Buscar por número de transponder en la tabla transponders
       if (transponder != null && transponder.isNotEmpty) {
-        final response = await supabase
-            .from('profiles')
-            .select('id_profile, full_name')
-            .eq('id_profile', transponder)
+        final transRes = await supabase
+            .from('transponders')
+            .select('id_profile, profiles(id_profile, full_name)')
+            .eq('number', transponder)
             .maybeSingle();
 
-        if (response != null) return response;
+        if (transRes != null && transRes['profiles'] != null) {
+          return Map<String, dynamic>.from(transRes['profiles'] as Map);
+        }
       }
 
+      // Fallback: buscar por nombre (con límite para evitar matches ambiguos)
       if (name.isNotEmpty) {
-        final response = await supabase
+        final nameRes = await supabase
             .from('profiles')
             .select('id_profile, full_name')
             .ilike('full_name', '%${name.trim()}%')
-            .maybeSingle();
+            .limit(2);
 
-        return response;
+        final matches = nameRes as List;
+        if (matches.length == 1) {
+          return Map<String, dynamic>.from(matches.first as Map);
+        }
+        // Si hay más de un match, no asumir — devolver null para que quede sin asignar
+        if (matches.length > 1) {
+          debugPrint('findPilot: múltiples coincidencias para "$name", se omite la asignación automática');
+        }
       }
 
       return null;
@@ -425,7 +441,7 @@ class ImportResultsController extends GetxController {
       Get.snackbar('Éxito', 'Se importaron $updated resultados correctamente');
 
     } catch (e) {
-      Get.snackbar('Error', 'Error al guardar resultados: $e');
+      Get.snackbar('Error', 'import_err_save'.tr);
       debugPrint('Error saving results: $e');
     } finally {
       isLoading.value = false;

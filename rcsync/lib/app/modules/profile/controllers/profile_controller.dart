@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,14 +24,19 @@ class ProfileController extends GetxController {
   var transponderControllers = <String, Map<String, TextEditingController>>{}.obs;
 
   RxString selectedLanguage = "Español".obs;
-  final List<String> languages = ["Español", "English", "Català"];
+  final List<String> languages = ["Español", "English", "Català", "Français", "Português", "Deutsch", "Galego", "Euskara"];
 
-  RxString selectedThemeName = "Sistema".obs;
+  RxString selectedThemeName = "theme_dark".obs;
   final Map<String, ThemeMode> themeModes = {
-    "Claro": ThemeMode.light,
-    "Oscuro": ThemeMode.dark,
-    "Sistema": ThemeMode.system,
+    "theme_light": ThemeMode.light,
+    "theme_dark": ThemeMode.dark,
+    "theme_system": ThemeMode.system,
   };
+
+  static const _themeToDb = {"theme_light": "light", "theme_dark": "dark", "theme_system": "system"};
+  static const _dbToTheme = {"light": "theme_light", "dark": "theme_dark", "system": "theme_system"};
+  static const _langToDb  = {"Español": "es", "English": "en", "Català": "ca", "Français": "fr", "Português": "pt", "Deutsch": "de", "Galego": "gl", "Euskara": "eu"};
+  static const _dbToLang  = {"es": "Español", "en": "English", "ca": "Català", "fr": "Français", "pt": "Português", "de": "Deutsch", "gl": "Galego", "eu": "Euskara"};
 
   SupabaseClient client = Supabase.instance.client;
   final ImagePicker _picker = ImagePicker();
@@ -49,26 +54,38 @@ class ProfileController extends GetxController {
   }
 
   void _initThemeName() {
-    selectedThemeName.value = "Sistema";
+    selectedThemeName.value = "theme_dark";
+    selectedLanguage.value = "Español";
   }
 
-  void changeTheme(String? themeName) {
-    if (themeName != null && themeModes.containsKey(themeName)) {
-      selectedThemeName.value = themeName;
-      Get.changeThemeMode(themeModes[themeName]!);
+  Future<void> changeTheme(String? themeName) async {
+    if (themeName == null || !themeModes.containsKey(themeName)) return;
+    selectedThemeName.value = themeName;
+    Get.changeThemeMode(themeModes[themeName]!);
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) return;
+    try {
+      await client.from('profiles').update({
+        'theme': _themeToDb[themeName],
+      }).eq('id_profile', uid);
+    } catch (e) {
+      debugPrint('Error saving theme: $e');
     }
   }
 
-  void changeLanguage(String? lang) {
-    if (lang != null) {
-      selectedLanguage.value = lang;
-      if (lang == "Español") {
-        Get.updateLocale(const Locale('es'));
-      } else if (lang == "English") {
-        Get.updateLocale(const Locale('en'));
-      } else if (lang == "Català") {
-        Get.updateLocale(const Locale('ca'));
-      }
+  Future<void> changeLanguage(String? lang) async {
+    if (lang == null) return;
+    selectedLanguage.value = lang;
+    final code = _langToDb[lang];
+    if (code != null) Get.updateLocale(Locale(code));
+    final uid = client.auth.currentUser?.id;
+    if (uid == null) return;
+    try {
+      await client.from('profiles').update({
+        'language': _langToDb[lang],
+      }).eq('id_profile', uid);
+    } catch (e) {
+      debugPrint('Error saving language: $e');
     }
   }
 
@@ -106,7 +123,7 @@ class ProfileController extends GetxController {
       ),
       boxShadows: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.3),
+          color: Colors.black.withValues(alpha: 0.3),
           blurRadius: 10,
           offset: const Offset(0, 5),
         )
@@ -117,17 +134,20 @@ class ProfileController extends GetxController {
   Future<void> getProfile() async {
     try {
       isLoading.value = true;
-      final userId = client.auth.currentUser!.id;
+      final user = client.auth.currentUser;
+      if (user == null) return;
 
       final res = await client
           .from("profiles")
           .select()
-          .eq("id_profile", userId)
+          .eq("id_profile", user.id)
           .single();
 
       profileData.value = res;
       nameC.text = res["full_name"] ?? "";
-      emailC.text = client.auth.currentUser!.email ?? "";
+      emailC.text = user.email ?? "";
+      selectedThemeName.value = _dbToTheme[res["theme"] ?? "dark"] ?? "theme_dark";
+      selectedLanguage.value  = _dbToLang[res["language"] ?? "es"] ?? "Español";
 
     } catch (e) {
       debugPrint("Error fetching profile: $e");
@@ -190,7 +210,7 @@ class ProfileController extends GetxController {
 
         // Comprimir imagen perfil
         File? compressed = await ImageService.compressProfileImage(originalFile);
-        if (compressed == null) compressed = originalFile;
+        compressed ??= originalFile;
 
         final userId = client.auth.currentUser!.id;
         final fileExt = 'jpg';
@@ -331,5 +351,49 @@ class ProfileController extends GetxController {
   Future<void> logout() async {
     await client.auth.signOut();
     Get.offAllNamed(Routes.LOGIN);
+  }
+
+  Future<void> deleteAccount() async {
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        backgroundColor: RCColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'delete_account_title'.tr,
+          style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'delete_account_msg'.tr,
+          style: TextStyle(color: RCColors.textSecondary, height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('cancel'.tr, style: TextStyle(color: RCColors.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text(
+              'delete_account_confirm'.tr,
+              style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    isLoading.value = true;
+    try {
+      await client.rpc('delete_user');
+      await client.auth.signOut();
+      Get.offAllNamed(Routes.LOGIN);
+    } catch (e) {
+      debugPrint("Error deleting account: $e");
+      _showSnackbar('Error', 'delete_account_error'.tr, isError: true);
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

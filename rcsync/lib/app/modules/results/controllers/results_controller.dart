@@ -1,3 +1,4 @@
+﻿import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:rcsync/app/data/models/ranking_model.dart';
@@ -44,7 +45,7 @@ class ResultsController extends GetxController {
       }
       fetchAvailableYears();
         } catch (e) {
-      print("❌ Error fetching championship names: $e");
+      debugPrint("❌ Error fetching championship names: $e");
     }
   }
 
@@ -74,7 +75,7 @@ class ResultsController extends GetxController {
 
       fetchCategoriesForChampionship();
         } catch (e) {
-      print("❌ Error fetching available years: $e");
+      debugPrint("❌ Error fetching available years: $e");
     }
   }
 
@@ -123,7 +124,7 @@ class ResultsController extends GetxController {
         _limpiarDatos();
       }
     } catch (e) {
-      print("❌ Error fetching categories via N:M: $e");
+      debugPrint("❌ Error fetching categories via N:M: $e");
       _limpiarDatos();
     }
   }
@@ -160,7 +161,7 @@ class ResultsController extends GetxController {
         applyFilters();
       }
     } catch (e) {
-      print("❌ Error en fetchRanking: $e");
+      debugPrint("❌ Error en fetchRanking: $e");
     }
   }
 
@@ -177,9 +178,26 @@ class ResultsController extends GetxController {
 
     final sortedList = temp.toList();
 
-    sortedList.sort((a, b) => !isChampionshipActive.value
-        ? b.totalNet.compareTo(a.totalNet)
-        : b.totalGross.compareTo(a.totalGross));
+    sortedList.sort((a, b) {
+      final ptsA = !isChampionshipActive.value ? a.totalNet : a.totalGross;
+      final ptsB = !isChampionshipActive.value ? b.totalNet : b.totalGross;
+      final ptsCmp = ptsB.compareTo(ptsA);
+      if (ptsCmp != 0) return ptsCmp;
+
+      // Desempate: mejor resultado cronológico primero (posición más baja = mejor)
+      final len = a.positions.length < b.positions.length
+          ? a.positions.length
+          : b.positions.length;
+      for (int i = 0; i < len; i++) {
+        final cmp = a.positions[i].compareTo(b.positions[i]);
+        if (cmp != 0) return cmp;
+      }
+      // Más carreras disputadas = mejor
+      if (a.positions.length != b.positions.length) {
+        return b.positions.length.compareTo(a.positions.length);
+      }
+      return a.fullName.compareTo(b.fullName);
+    });
 
     filteredEntries.assignAll(sortedList);
   }

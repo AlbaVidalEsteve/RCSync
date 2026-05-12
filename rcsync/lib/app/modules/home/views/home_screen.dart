@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/core/widgets/rc_event_card.dart';
@@ -124,7 +124,7 @@ class HomeScreen extends GetView<HomeController> {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(Get.isDarkMode ? 0.3 : 0.1),
+                            color: Colors.black.withValues(alpha: Get.isDarkMode ? 0.3 : 0.1),
                             blurRadius: 15,
                             offset: const Offset(0, 10),
                           )
@@ -208,7 +208,7 @@ class HomeScreen extends GetView<HomeController> {
                                   child: Text(
                                     "no_events_scheduled".tr,
                                     style: TextStyle(
-                                      color: RCColors.textSecondary.withOpacity(0.5),
+                                      color: RCColors.textSecondary.withValues(alpha: 0.5),
                                     ),
                                   ),
                                 ),

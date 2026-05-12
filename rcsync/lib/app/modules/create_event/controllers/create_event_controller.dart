@@ -1,19 +1,20 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:rcsync/app/data/models/race_event_model.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:rcsync/app/modules/home/controllers/home_controller.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:rcsync/core/services/image_service.dart';
 
 class CreateEventController extends GetxController {
   final supabase = Supabase.instance.client;
   final formKey = GlobalKey<FormState>();
 
-  final nameController = TextEditingController();
-  final prizeController = TextEditingController(text: '0');
+  final nameController        = TextEditingController();
+  final prizeController       = TextEditingController(text: '0');
+  final bonusPointsController = TextEditingController(text: '0');
   final descriptionController = TextEditingController();
 
   var eventDateIni = Rxn<DateTime>();
@@ -55,8 +56,9 @@ class CreateEventController extends GetxController {
       isEditing.value = true;
       final event = Get.arguments as RaceEventModel;
       editingEventId = event.idEvent;
-      nameController.text = event.name;
-      prizeController.text = event.prize.toString();
+      nameController.text        = event.name;
+      prizeController.text       = event.prize.toString();
+      bonusPointsController.text = event.bonusPoints.toString();
       descriptionController.text = event.description ?? '';
       eventDateIni.value = event.eventDateIni;
       eventDateFin.value = event.eventDateFin;
@@ -85,7 +87,6 @@ class CreateEventController extends GetxController {
 
   Future<void> saveEvent() async {
     if (isLoading.value) return;
-
     if (!formKey.currentState!.validate()) return;
 
     isLoading.value = true;
@@ -93,26 +94,29 @@ class CreateEventController extends GetxController {
 
     try {
       String? finalImageUrl = existingImageUrl.value;
+
       if (selectedImage.value != null && selectedImage.value!.bytes != null) {
-        // comprimir imagen evetno
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${selectedImage.value!.name}';
+        Uint8List bytesToUpload;
+
         if (selectedImage.value!.path != null) {
-          File originalFile = File(selectedImage.value!.path!);
-          File? compressed = await ImageService.compressEventImage(originalFile);
-          final bytesToUpload = compressed != null ? await compressed.readAsBytes() : selectedImage.value!.bytes;
-          final fileName = '${DateTime.now().millisecondsSinceEpoch}_${selectedImage.value!.name}';
-          await supabase.storage.from('imagenes').uploadBinary('eventosfoto/$fileName', bytesToUpload!);
-          finalImageUrl = supabase.storage.from('imagenes').getPublicUrl('eventosfoto/$fileName');
+          final originalFile = File(selectedImage.value!.path!);
+          final compressed = await ImageService.compressEventImage(originalFile);
+          bytesToUpload = compressed != null
+              ? await compressed.readAsBytes()
+              : selectedImage.value!.bytes!;
         } else {
-          // controlar error path
-          final fileName = '${DateTime.now().millisecondsSinceEpoch}_${selectedImage.value!.name}';
-          await supabase.storage.from('imagenes').uploadBinary('eventosfoto/$fileName', selectedImage.value!.bytes!);
-          finalImageUrl = supabase.storage.from('imagenes').getPublicUrl('eventosfoto/$fileName');
+          bytesToUpload = selectedImage.value!.bytes!;
         }
+
+        await supabase.storage.from('imagenes').uploadBinary('eventosfoto/$fileName', bytesToUpload);
+        finalImageUrl = supabase.storage.from('imagenes').getPublicUrl('eventosfoto/$fileName');
       }
 
       final eventData = {
         'name': nameController.text,
         'prize': int.tryParse(prizeController.text) ?? 0,
+        'bonus_points': int.tryParse(bonusPointsController.text) ?? 0,
         'image_event': finalImageUrl,
         'description': descriptionController.text,
         'id_championship': selectedChampionshipId.value,
@@ -129,17 +133,18 @@ class CreateEventController extends GetxController {
         await supabase.from('events').insert(eventData);
       }
 
+      Get.back(result: true);
+
       if (Get.isRegistered<HomeController>()) {
-        await Get.find<HomeController>().getEvents();
+        Get.find<HomeController>().getEvents();
       }
 
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        Get.back(result: true);
-      });
-
     } catch (e) {
+      debugPrint('Error saving event: $e');
+      Get.snackbar('Error', 'No se pudo guardar el evento. Inténtalo de nuevo.',
+          snackPosition: SnackPosition.BOTTOM);
+    } finally {
       isLoading.value = false;
-      Get.snackbar('Error', 'No se pudo guardar: $e', snackPosition: SnackPosition.BOTTOM);
     }
   }
 }

@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:rcsync/app/controllers/auth_controller.dart';
+import 'package:rcsync/core/services/notification_service.dart';
 import 'package:rcsync/core/theme/rc_theme.dart';
 import 'package:rcsync/core/values/languages.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -26,6 +27,8 @@ void main() async {
       url: supabaseUrl,
       anonKey: supabaseAnonKey,
     );
+
+    await NotificationService.instance.initialize();
 
     Get.put(AuthController(), permanent: true);
     runApp(const MyApp());
@@ -60,7 +63,7 @@ class MyApp extends StatelessWidget {
                 color: RCColors.background,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                     offset: Offset(0, 0),
                   ),

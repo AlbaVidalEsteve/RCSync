@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -35,7 +35,7 @@ class EventLocationMap extends StatelessWidget {
       decoration: BoxDecoration(
         color: RCColors.cardDark,
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: RCColors.orange.withOpacity(0.5), width: 1),
+        border: Border.all(color: RCColors.orange.withValues(alpha: 0.5), width: 1),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),

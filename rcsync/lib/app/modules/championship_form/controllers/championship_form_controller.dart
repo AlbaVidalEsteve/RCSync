@@ -163,7 +163,7 @@ class ChampionshipFormController extends GetxController {
           backgroundColor: Colors.green, colorText: Colors.white);
 
     } catch (e) {
-      Get.snackbar('Error', 'No se pudo crear la categoría: $e',
+      Get.snackbar('Error', 'champ_err_category'.tr,
           backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading.value = false;
@@ -253,7 +253,8 @@ class ChampionshipFormController extends GetxController {
 
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar('Error', 'No se pudo guardar: $e',
+      debugPrint('Error saving championship: $e');
+      Get.snackbar('Error', 'champ_err_save'.tr,
           backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading.value = false;

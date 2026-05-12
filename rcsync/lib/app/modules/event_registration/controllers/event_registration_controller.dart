@@ -108,9 +108,16 @@ class EventRegistrationController extends GetxController {
           backgroundColor: Colors.green, colorText: Colors.white);
 
       eventDetailsController.fetchRegisteredPilots();
+      eventDetailsController.checkUserRegistration();
 
     } catch (e) {
-      Get.snackbar("Error", "Hubo un problema con el registro: $e");
+      if (e is PostgrestException && e.code == '23505') {
+        Get.snackbar("Aviso", "Ya estás inscrito en esta categoría para este evento",
+            backgroundColor: Colors.amber, colorText: Colors.black);
+      } else {
+        Get.snackbar("Error", "Hubo un problema con el registro. Inténtalo de nuevo.",
+            backgroundColor: Colors.redAccent, colorText: Colors.white);
+      }
     } finally {
       isRegistering.value = false;
     }

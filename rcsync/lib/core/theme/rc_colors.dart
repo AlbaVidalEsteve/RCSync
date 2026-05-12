@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class RCColors {
@@ -33,7 +33,7 @@ class RCColors {
   static Color get white => Get.isDarkMode ? textPrimaryDark : whiteRc;
   static Color get black => Get.isDarkMode ? blackRc : textPrimaryLight;
   static Color get iconPrimary => Get.isDarkMode ? textPrimaryDark : textSecondaryLight;
-  static Color get iconSecondary => Get.isDarkMode ? textSecondaryDark : textSecondaryLight.withOpacity(0.7);
+  static Color get iconSecondary => Get.isDarkMode ? textSecondaryDark : textSecondaryLight.withValues(alpha: 0.7);
   static Color get divider => Get.isDarkMode ? Colors.white10 : Colors.black12;
 
 

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:intl/intl.dart';
@@ -69,7 +69,7 @@ class CreateEventView extends GetView<CreateEventController> {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(Get.isDarkMode ? 0.3 : 0.1),
+                            color: Colors.black.withValues(alpha: Get.isDarkMode ? 0.3 : 0.1),
                             blurRadius: 15,
                             offset: const Offset(0, 10),
                           )
@@ -84,6 +84,8 @@ class CreateEventView extends GetView<CreateEventController> {
                             _buildTextField("evt_desc".tr, controller.descriptionController, Icons.description, maxLines: 3),
                             const SizedBox(height: 15),
                             _buildTextField("evt_price".tr, controller.prizeController, Icons.monetization_on, keyboardType: TextInputType.number),
+                            const SizedBox(height: 15),
+                            _buildTextField("evt_bonus_points".tr, controller.bonusPointsController, Icons.star_outline, keyboardType: TextInputType.number),
                             const SizedBox(height: 20),
                             Text("evt_img".tr, style: TextStyle(color: RCColors.textPrimary, fontSize: 16, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 10),
@@ -178,7 +180,7 @@ class CreateEventView extends GetView<CreateEventController> {
           style: TextStyle(color: RCColors.textPrimary),
           decoration: InputDecoration(
             filled: true,
-            fillColor: RCColors.background.withOpacity(0.5),
+            fillColor: RCColors.background.withValues(alpha: 0.5),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: RCColors.divider)),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: const BorderSide(color: RCColors.orange, width: 1)),
@@ -202,12 +204,12 @@ class CreateEventView extends GetView<CreateEventController> {
         ),
         const SizedBox(height: 8),
         Obx(() => DropdownButtonFormField<int>(
-          value: selectedValue.value,
+          initialValue: selectedValue.value,
           dropdownColor: RCColors.card,
           style: TextStyle(color: RCColors.textPrimary),
           decoration: InputDecoration(
             filled: true,
-            fillColor: RCColors.background.withOpacity(0.5),
+            fillColor: RCColors.background.withValues(alpha: 0.5),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: RCColors.divider)),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: const BorderSide(color: RCColors.orange, width: 1)),
@@ -248,7 +250,7 @@ class CreateEventView extends GetView<CreateEventController> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: RCColors.background.withOpacity(0.5),
+                color: RCColors.background.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: RCColors.divider),
               ),
@@ -267,32 +269,45 @@ class CreateEventView extends GetView<CreateEventController> {
   }
 
   Widget _buildSaveButton() {
-    return Container(
-      width: double.infinity,
-      height: 55,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        gradient: const LinearGradient(colors: [RCColors.orange, Color(0xFFF68B28)]),
-        boxShadow: [
-          BoxShadow(
-            color: RCColors.orange.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          )
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: () => controller.saveEvent(),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+    return Obx(() {
+      final loading = controller.isLoading.value;
+      return Container(
+        width: double.infinity,
+        height: 55,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          gradient: LinearGradient(colors: [
+            loading ? RCColors.orange.withValues(alpha: 0.5) : RCColors.orange,
+            loading ? const Color(0xFFF68B28).withValues(alpha: 0.5) : const Color(0xFFF68B28),
+          ]),
+          boxShadow: loading ? [] : [
+            BoxShadow(
+              color: RCColors.orange.withValues(alpha: 0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            )
+          ],
         ),
-        child: Obx(() => Text(
-          controller.isEditing.value ? "evt_save".tr : "evt_create_btn".tr,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.1),
-        )),
-      ),
-    );
+        child: ElevatedButton(
+          onPressed: loading ? null : () => controller.saveEvent(),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            disabledBackgroundColor: Colors.transparent,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          ),
+          child: loading
+              ? const SizedBox(
+                  height: 22,
+                  width: 22,
+                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                )
+              : Text(
+                  controller.isEditing.value ? "evt_save".tr : "evt_create_btn".tr,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.1),
+                ),
+        ),
+      );
+    });
   }
 }

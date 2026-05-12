@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:rcsync/app/controllers/auth_controller.dart';
 import 'package:rcsync/app/routes/app_pages.dart';
 
 class SplashController extends GetxController {
@@ -10,6 +11,9 @@ class SplashController extends GetxController {
 
   void _navigateToNext() async {
     await Future.delayed(const Duration(milliseconds: 2500));
-    Get.offAllNamed(Routes.HOME);
+    final auth = Get.find<AuthController>();
+    if (!auth.isPasswordRecoveryMode.value) {
+      Get.offAllNamed(Routes.HOME);
+    }
   }
 }
