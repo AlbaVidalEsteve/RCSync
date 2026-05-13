@@ -53,4 +53,4 @@ msix_config:
   display_name: RCSync
   publisher_display_name: RCSync
   identity_name: com.rcsync.app
-  msix_version: 26.6.0.0
+  msix_version: 26.6.1.0

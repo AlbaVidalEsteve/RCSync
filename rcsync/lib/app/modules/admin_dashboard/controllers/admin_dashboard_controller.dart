@@ -11,6 +11,11 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
 
   final supabase = Supabase.instance.client;
 
+  String currentUserId = '';
+  final RxString currentUserRole = ''.obs;
+
+  bool get isAdmin => currentUserRole.value == 'admin';
+
   var eventsList = <RaceEventModel>[].obs;
   var groupedEvents = <String, List<RaceEventModel>>{}.obs;
   var championshipsList = <Map<String, dynamic>>[].obs;
@@ -32,13 +37,25 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
     super.onInit();
     tabController = TabController(length: 3, vsync: this);
     tabController.addListener(() => currentTabIndex.value = tabController.index);
-    loadAllData();
+    _loadUserInfo().then((_) => loadAllData());
+  }
+
+  Future<void> _loadUserInfo() async {
+    final user = supabase.auth.currentUser;
+    if (user == null) return;
+    currentUserId = user.id;
+    try {
+      final role = await supabase.rpc('get_my_role');
+      currentUserRole.value = role?.toString() ?? '';
+    } catch (e) {
+      debugPrint('Error loading user role: $e');
+    }
   }
 
   Future<void> loadAllData() async {
     await fetchChampionships();
     await fetchEvents();
-    fetchPendingRegistrations();
+    await fetchPendingRegistrations();
   }
 
   @override
@@ -50,7 +67,9 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
   Future<void> fetchChampionships() async {
     isLoadingChamps.value = true;
     try {
-      final response = await supabase.from('championships').select('*').order('year', ascending: false);
+      final response = isAdmin
+          ? await supabase.from('championships').select('*').order('year', ascending: false)
+          : await supabase.from('championships').select('*').eq('id_profile_org', currentUserId).order('year', ascending: false);
       championshipsList.value = response;
       activeChampionshipsList.value = response.where((c) => c['is_active'] == true).toList();
     } catch (e) {
@@ -63,7 +82,21 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
   Future<void> fetchEvents() async {
     isLoadingEvents.value = true;
     try {
-      final response = await supabase.from('events').select('*, circuits(name)');
+      late List<dynamic> response;
+      if (isAdmin) {
+        response = await supabase.from('events').select('*, circuits(name)');
+      } else {
+        final ownChampIds = championshipsList.map((c) => c['id_championship']).toList();
+        if (ownChampIds.isEmpty) {
+          eventsList.value = [];
+          groupedEvents.value = {};
+          return;
+        }
+        response = await supabase
+            .from('events')
+            .select('*, circuits(name)')
+            .filter('id_championship', 'in', '(${ownChampIds.join(",")})');
+      }
       eventsList.value = response.map((e) => RaceEventModel.fromJson(e)).toList();
       _groupEventsByChampionship();
     } catch (e) {
@@ -92,27 +125,26 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
   Future<void> fetchPendingRegistrations() async {
     isLoadingRegs.value = true;
     try {
-      // Pendientes
-      final pending = await supabase
-          .from('registrations')
-          .select('*, profiles(full_name, image_profile), events(name), categories(name)')
-          .eq('status', 'pending');
-      pendingRegistrationsList.value = pending;
+      const sel = '*, profiles(full_name, image_profile), events(name), categories(name)';
 
-      // Aprobados
-      final approved = await supabase
-          .from('registrations')
-          .select('*, profiles(full_name, image_profile), events(name), categories(name)')
-          .eq('status', 'approved');
-      approvedRegistrationsList.value = approved;
-
-      // Rechazados
-      final denied = await supabase
-          .from('registrations')
-          .select('*, profiles(full_name, image_profile), events(name), categories(name)')
-          .eq('status', 'denied');
-      deniedRegistrationsList.value = denied;
-
+      if (!isAdmin) {
+        // Organizador: solo inscripciones de eventos de su campeonato
+        final ownEventIds = eventsList.map((e) => e.idEvent).whereType<int>().toList();
+        if (ownEventIds.isEmpty) {
+          pendingRegistrationsList.value = [];
+          approvedRegistrationsList.value = [];
+          deniedRegistrationsList.value = [];
+          return;
+        }
+        final eventFilter = '(${ownEventIds.join(",")})';
+        pendingRegistrationsList.value  = await supabase.from('registrations').select(sel).eq('status', 'pending').filter('id_event', 'in', eventFilter);
+        approvedRegistrationsList.value = await supabase.from('registrations').select(sel).eq('status', 'approved').filter('id_event', 'in', eventFilter);
+        deniedRegistrationsList.value   = await supabase.from('registrations').select(sel).eq('status', 'denied').filter('id_event', 'in', eventFilter);
+      } else {
+        pendingRegistrationsList.value  = await supabase.from('registrations').select(sel).eq('status', 'pending');
+        approvedRegistrationsList.value = await supabase.from('registrations').select(sel).eq('status', 'approved');
+        deniedRegistrationsList.value   = await supabase.from('registrations').select(sel).eq('status', 'denied');
+      }
     } catch (e) {
       debugPrint("Error: $e");
     } finally {
@@ -231,26 +263,6 @@ class AdminDashboardController extends GetxController with GetSingleTickerProvid
   // Cancelar/Borrar inscripcion
   Future<void> cancelRegistration(int idRegistration) async {
     try {
-      // Verificar que el usuario es admin
-      final user = supabase.auth.currentUser;
-      if (user != null) {
-        final profile = await supabase
-            .from('profiles')
-            .select('rol')
-            .eq('id_profile', user.id)
-            .maybeSingle();
-
-        if (profile != null && profile['rol'] != 'admin') {
-          Get.snackbar(
-            'Error',
-            'Solo administradores pueden eliminar inscripciones',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-          );
-          return;
-        }
-      }
 
       // Mostrar dialogo de confirmacion
       final result = await Get.dialog<bool>(

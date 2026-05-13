@@ -30,11 +30,14 @@ class AdminDashboardView extends StatelessWidget {
             )
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.people_outline),
-            onPressed: () => Get.toNamed(Routes.USER_STATS),
-            tooltip: 'stats_title'.tr,
-          ),
+          // Estadísticas de usuarios: solo admin
+          Obx(() => controller.isAdmin
+              ? IconButton(
+                  icon: const Icon(Icons.people_outline),
+                  onPressed: () => Get.toNamed(Routes.USER_STATS),
+                  tooltip: 'stats_title'.tr,
+                )
+              : const SizedBox.shrink()),
           IconButton(
             icon: const Icon(Icons.upload_file),
             onPressed: () => Get.to(() => const ImportResultsView()),
@@ -67,7 +70,11 @@ class AdminDashboardView extends StatelessWidget {
         ],
       ),
       floatingActionButton: Obx(() {
-        if (controller.currentTabIndex.value == 2) return const SizedBox.shrink();
+        final tab = controller.currentTabIndex.value;
+        // Inscripciones: sin FAB
+        if (tab == 2) return const SizedBox.shrink();
+        // Campeonatos: solo admin puede crear
+        if (tab == 1 && !controller.isAdmin) return const SizedBox.shrink();
         return Padding(
           padding: const EdgeInsets.only(bottom: 90.0),
           child: FloatingActionButton(
@@ -76,9 +83,9 @@ class AdminDashboardView extends StatelessWidget {
             elevation: 4,
             onPressed: () async {
               dynamic result;
-              if (controller.currentTabIndex.value == 0) {
+              if (tab == 0) {
                 result = await Get.toNamed(Routes.CREATE_EVENT);
-              } else if (controller.currentTabIndex.value == 1) {
+              } else if (tab == 1) {
                 result = await Get.toNamed(Routes.CREATE_CHAMPIONSHIP);
               }
               if (result == true) {
@@ -166,7 +173,7 @@ class AdminDashboardView extends StatelessWidget {
             child: ListTile(
               title: Text(champ['name'] ?? '---', style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.bold)),
               subtitle: Text('${"adm_year".tr}: ${champ['year']}', style: TextStyle(color: RCColors.textSecondary)),
-              trailing: Row(
+              trailing: Obx(() => Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
@@ -174,16 +181,17 @@ class AdminDashboardView extends StatelessWidget {
                     onPressed: () => controller.editChampionship(champ),
                     tooltip: 'adm_edit'.tr,
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () => controller.deleteChampionship(
-                      champ['id_championship'] as int,
-                      champ['name'] ?? '---',
+                  if (controller.isAdmin)
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline, color: Colors.red),
+                      onPressed: () => controller.deleteChampionship(
+                        champ['id_championship'] as int,
+                        champ['name'] ?? '---',
+                      ),
+                      tooltip: 'adm_delete'.tr,
                     ),
-                    tooltip: 'adm_delete'.tr,
-                  ),
                 ],
-              ),
+              )),
             ),
           );
         },
