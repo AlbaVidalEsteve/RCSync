@@ -15,6 +15,7 @@ class Languages extends Translations {
       'cal_today': 'Hoy',
       'cal_month': 'Abril',
       'events_of_month': 'Eventos de',
+      'events_two_months': 'Próximos 2 meses',
       'events_of_day': 'Eventos del día',
       'no_events_scheduled': 'No hay carreras programadas',
       'categories': 'categorías',
@@ -344,6 +345,7 @@ class Languages extends Translations {
       'cal_today': 'Today',
       'cal_month': 'April',
       'events_of_month': 'Events of',
+      'events_two_months': 'Next 2 months',
       'events_of_day': "Day's events",
       'no_events_scheduled': 'No scheduled races',
       'categories': 'categories',
@@ -673,6 +675,7 @@ class Languages extends Translations {
       'cal_today': 'Avui',
       'cal_month': 'Abril',
       'events_of_month': 'Esdeveniments de',
+      'events_two_months': 'Pròxims 2 mesos',
       'events_of_day': 'Esdeveniments del dia',
       'no_events_scheduled': 'No hi ha curses programades',
       'categories': 'categories',
@@ -993,7 +996,7 @@ class Languages extends Translations {
     'fr': {
       'nav_events': 'Événements', 'nav_mgmt': 'Gestion', 'nav_results': 'Résultats', 'nav_profile': 'Profil',
       'cal_title': 'Calendrier', 'cal_today': 'Aujourd\'hui', 'cal_month': 'Avril',
-      'events_of_month': 'Événements de', 'events_of_day': 'Événements du jour',
+      'events_of_month': 'Événements de', 'events_two_months': '2 prochains mois', 'events_of_day': 'Événements du jour',
       'no_events_scheduled': 'Aucune course programmée', 'categories': 'catégories',
       'no_location': 'Emplacement à définir', 'fallback_pilot': 'Pilote', 'fallback_circuit': 'Course RC',
       'champ_attach_pdf': 'Joindre le règlement (PDF)', 'trend_per_race': '/course',
@@ -1100,7 +1103,7 @@ class Languages extends Translations {
     'pt': {
       'nav_events': 'Eventos', 'nav_mgmt': 'Gestão', 'nav_results': 'Resultados', 'nav_profile': 'Perfil',
       'cal_title': 'Calendário', 'cal_today': 'Hoje', 'cal_month': 'Abril',
-      'events_of_month': 'Eventos de', 'events_of_day': 'Eventos do dia',
+      'events_of_month': 'Eventos de', 'events_two_months': 'Próximos 2 meses', 'events_of_day': 'Eventos do dia',
       'no_events_scheduled': 'Nenhuma corrida programada', 'categories': 'categorias',
       'no_location': 'Localização por definir', 'fallback_pilot': 'Piloto', 'fallback_circuit': 'Corrida RC',
       'champ_attach_pdf': 'Anexar Regulamento (PDF)', 'trend_per_race': '/corrida',
@@ -1207,7 +1210,7 @@ class Languages extends Translations {
     'de': {
       'nav_events': 'Veranstaltungen', 'nav_mgmt': 'Verwaltung', 'nav_results': 'Ergebnisse', 'nav_profile': 'Profil',
       'cal_title': 'Kalender', 'cal_today': 'Heute', 'cal_month': 'April',
-      'events_of_month': 'Veranstaltungen im', 'events_of_day': 'Veranstaltungen des Tages',
+      'events_of_month': 'Veranstaltungen im', 'events_two_months': 'Nächste 2 Monate', 'events_of_day': 'Veranstaltungen des Tages',
       'no_events_scheduled': 'Keine Rennen geplant', 'categories': 'Kategorien',
       'no_location': 'Standort noch festzulegen', 'fallback_pilot': 'Fahrer', 'fallback_circuit': 'RC-Rennen',
       'champ_attach_pdf': 'Reglement anhängen (PDF)', 'trend_per_race': '/Rennen',
@@ -1314,7 +1317,7 @@ class Languages extends Translations {
     'gl': {
       'nav_events': 'Eventos', 'nav_mgmt': 'Xestión', 'nav_results': 'Resultados', 'nav_profile': 'Perfil',
       'cal_title': 'Calendario', 'cal_today': 'Hoxe', 'cal_month': 'Abril',
-      'events_of_month': 'Eventos de', 'events_of_day': 'Eventos do día',
+      'events_of_month': 'Eventos de', 'events_two_months': 'Próximos 2 meses', 'events_of_day': 'Eventos do día',
       'no_events_scheduled': 'Non hai carreiras programadas', 'categories': 'categorías',
       'no_location': 'Localización por definir', 'fallback_pilot': 'Piloto', 'fallback_circuit': 'Carreira RC',
       'champ_attach_pdf': 'Engadir Regulamento (PDF)', 'trend_per_race': '/carreira',
@@ -1421,7 +1424,7 @@ class Languages extends Translations {
     'eu': {
       'nav_events': 'Ekitaldiak', 'nav_mgmt': 'Kudeaketa', 'nav_results': 'Emaitzak', 'nav_profile': 'Profila',
       'cal_title': 'Egutegia', 'cal_today': 'Gaur', 'cal_month': 'Apirila',
-      'events_of_month': 'Ekitaldiak', 'events_of_day': 'Eguneko ekitaldiak',
+      'events_of_month': 'Ekitaldiak', 'events_two_months': 'Hurrengo 2 hilabeteak', 'events_of_day': 'Eguneko ekitaldiak',
       'no_events_scheduled': 'Ez dago lastaketarik programatuta', 'categories': 'kategoriak',
       'no_location': 'Kokapena zehaztu gabe', 'fallback_pilot': 'Pilotua', 'fallback_circuit': 'RC Lasterketa',
       'champ_attach_pdf': 'Araudia erantsi (PDF)', 'trend_per_race': '/lasterketa',

@@ -182,12 +182,14 @@ class HomeController extends GetxController {
     }
   }
 
-  // eventos del mes
+  // eventos de los próximos 2 meses desde hoy
   List<RaceEventModel> get eventsOfCurrentMonth {
+    final now   = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final limit = DateTime(now.year, now.month + 2, now.day);
     return rawEvents.where((e) {
       if (e.eventDateIni == null) return false;
-      return e.eventDateIni!.year == currentMonth.value.year &&
-          e.eventDateIni!.month == currentMonth.value.month;
+      return !e.eventDateIni!.isBefore(today) && !e.eventDateIni!.isAfter(limit);
     }).toList();
   }
 
@@ -218,7 +220,7 @@ class HomeController extends GetxController {
     if (isDaySelected.value) {
       return "${'events_of_day'.tr} ${DateFormat('dd MMMM', Get.locale?.languageCode ?? 'es').format(selectedDate.value)}";
     } else {
-      return "${'events_of_month'.tr} ${DateFormat('MMMM', Get.locale?.languageCode ?? 'es').format(currentMonth.value)}";
+      return 'events_two_months'.tr;
     }
   }
 
