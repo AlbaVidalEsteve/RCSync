@@ -43,15 +43,23 @@ class AuthController extends GetxController {
     _authSubscription = client.auth.onAuthStateChange.listen((data) {
       if (data.event == AuthChangeEvent.passwordRecovery) {
         isPasswordRecoveryMode.value = true;
-        Get.offAllNamed(Routes.RESET_PASSWORD);
+        // Esperar al siguiente frame para que el navigator de GetX esté montado.
+        // Sin esto, en cold start desde deep link Get.offAllNamed falla silenciosamente
+        // y el usuario ve pantalla blanca.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Get.offAllNamed(Routes.RESET_PASSWORD);
+        });
+        return;
       }
       if ((data.event == AuthChangeEvent.signedIn ||
               data.event == AuthChangeEvent.initialSession) &&
-          data.session?.user != null) {
+          data.session?.user != null &&
+          !isPasswordRecoveryMode.value) {
         NotificationService.instance.subscribeToNotifications(data.session!.user.id);
         _applyPreferences(data.session!.user.id);
       }
       if (data.event == AuthChangeEvent.signedOut) {
+        isPasswordRecoveryMode.value = false;
         NotificationService.instance.unsubscribeFromNotifications();
       }
     });

@@ -150,7 +150,6 @@ class HomeController extends GetxController {
       for (var eventJson in response) {
         int categoriesCount = 0;
 
-        // Si el evento tiene campeonato, coge categorias
         if (eventJson['id_championship'] != null) {
           final champCategories = await client
               .from('championship_categories')
@@ -160,12 +159,10 @@ class HomeController extends GetxController {
           categoriesCount = champCategories.length;
         }
 
-        final enrichedEvent = {
+        fetchedEvents.add(RaceEventModel.fromJson({
           ...eventJson,
           'categories_count': categoriesCount,
-        };
-
-        fetchedEvents.add(RaceEventModel.fromJson(enrichedEvent));
+        }));
       }
 
       rawEvents.assignAll(fetchedEvents);

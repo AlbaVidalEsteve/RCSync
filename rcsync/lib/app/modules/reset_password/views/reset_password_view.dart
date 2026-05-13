@@ -72,7 +72,9 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
               ),
             )),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
+            Obx(() => _buildStrengthBar(controller.passwordStrength.value)),
+            const SizedBox(height: 16),
 
             _buildInputLabel('reset_confirm_password'.tr),
             Obx(() => TextField(
@@ -112,6 +114,32 @@ class ResetPasswordView extends GetView<ResetPasswordController> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStrengthBar(int strength) {
+    if (strength == 0) return const SizedBox.shrink();
+    final labels = ['', 'reg_pass_weak'.tr, 'reg_pass_medium'.tr, 'reg_pass_strong'.tr];
+    final colors = [Colors.transparent, Colors.redAccent, Colors.orangeAccent, Colors.green];
+    return Row(
+      children: [
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: strength / 3,
+              minHeight: 4,
+              backgroundColor: RCColors.divider,
+              valueColor: AlwaysStoppedAnimation<Color>(colors[strength]),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          labels[strength],
+          style: TextStyle(color: colors[strength], fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+      ],
     );
   }
 

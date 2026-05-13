@@ -7,13 +7,31 @@ class ResetPasswordController extends GetxController {
   RxBool isLoading = false.obs;
   RxBool isHiddenNew = true.obs;
   RxBool isHiddenConfirm = true.obs;
+  RxInt passwordStrength = 0.obs;
+
   TextEditingController passwordC = TextEditingController();
   TextEditingController confirmC = TextEditingController();
 
   final SupabaseClient _client = Supabase.instance.client;
 
+  static final _digitOrSymbolRegex = RegExp(r'[0-9!@#\$%^&*()\-_=+,.?":{}|<>]');
+
+  @override
+  void onInit() {
+    super.onInit();
+    passwordC.addListener(_updateStrength);
+  }
+
+  void _updateStrength() {
+    final p = passwordC.text;
+    if (p.isEmpty)    { passwordStrength.value = 0; return; }
+    if (p.length < 8) { passwordStrength.value = 1; return; }
+    passwordStrength.value = _digitOrSymbolRegex.hasMatch(p) ? 3 : 2;
+  }
+
   @override
   void onClose() {
+    passwordC.removeListener(_updateStrength);
     passwordC.dispose();
     confirmC.dispose();
     super.onClose();
@@ -27,8 +45,12 @@ class ResetPasswordController extends GetxController {
       Get.snackbar('ERROR', 'reset_empty'.tr);
       return;
     }
-    if (password.length < 6) {
-      Get.snackbar('ERROR', 'reset_too_short'.tr);
+    if (password.length < 8) {
+      Get.snackbar('ERROR', 'reg_pass_too_short'.tr);
+      return;
+    }
+    if (!_digitOrSymbolRegex.hasMatch(password)) {
+      Get.snackbar('ERROR', 'reg_pass_needs_number'.tr);
       return;
     }
     if (password != confirm) {

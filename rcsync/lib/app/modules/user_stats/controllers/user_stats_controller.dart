@@ -7,11 +7,15 @@ import 'package:rcsync/core/services/presence_service.dart';
 class UserStatsController extends GetxController {
   final _supabase = Supabase.instance.client;
 
-  final RxInt totalUsers = 0.obs;
+  final RxInt totalUsers    = 0.obs;
   final RxList<ProfileModel> lastRegistered = <ProfileModel>[].obs;
-  final RxBool isLoading = true.obs;
+  final RxBool isLoading    = true.obs;
 
-  RxList<Map<String, dynamic>> get onlineUsers => PresenceService.instance.onlineUsers;
+  RxList<Map<String, dynamic>> get onlineUsers =>
+      PresenceService.instance.onlineUsers;
+
+  RxList<Map<String, dynamic>> get recentlyOfflineUsers =>
+      PresenceService.instance.recentlyOfflineUsers;
 
   @override
   void onInit() {
@@ -22,8 +26,9 @@ class UserStatsController extends GetxController {
   Future<void> loadData() async {
     isLoading.value = true;
     try {
-      final allIds = await _supabase.from('profiles').select('id_profile');
-      totalUsers.value = (allIds as List).length;
+      // Contar usuarios reales de auth.users via función RPC
+      final count = await _supabase.rpc('count_auth_users');
+      totalUsers.value = (count as int?) ?? 0;
 
       final recent = await _supabase
           .from('profiles')

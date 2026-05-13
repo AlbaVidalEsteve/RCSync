@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/modules/profile/controllers/profile_controller.dart';
 import 'package:rcsync/app/routes/app_pages.dart';
@@ -328,6 +329,43 @@ class ProfileView extends GetView<ProfileController> {
             items: controller.themeModes.keys.toList(),
             onChanged: (val) => controller.changeTheme(val),
             labelBuilder: (k) => k.tr,
+          ),
+
+          const SizedBox(height: 20),
+          Divider(color: RCColors.divider, height: 1),
+          const SizedBox(height: 16),
+
+          // contacto soporte
+          GestureDetector(
+            onTap: () => launchUrl(Uri.parse('mailto:rcsync.app@gmail.com')),
+            child: Row(
+              children: [
+                Icon(Icons.mail_outline, size: 18, color: RCColors.textSecondary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'support'.tr,
+                        style: TextStyle(color: RCColors.textSecondary, fontSize: 14, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'rcsync.app@gmail.com',
+                        style: TextStyle(
+                          color: RCColors.orange,
+                          fontSize: 13,
+                          decoration: TextDecoration.underline,
+                          decorationColor: RCColors.orange,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.open_in_new, size: 14, color: RCColors.textSecondary),
+              ],
+            ),
           ),
         ],
       ),

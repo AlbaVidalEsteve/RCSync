@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:rcsync/core/theme/rc_colors.dart';
 import 'package:rcsync/app/modules/register/controllers/register_controller.dart';
 
@@ -166,7 +167,29 @@ class RegisterView extends GetView<RegisterController> {
               onPressed: () => Get.back(),
             ),
 
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
+
+            GestureDetector(
+              onTap: () => launchUrl(Uri.parse('mailto:rcsync.app@gmail.com')),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.mail_outline, size: 13, color: RCColors.textSecondary),
+                  const SizedBox(width: 5),
+                  Text(
+                    'rcsync.app@gmail.com',
+                    style: TextStyle(
+                      color: RCColors.textSecondary,
+                      fontSize: 12,
+                      decoration: TextDecoration.underline,
+                      decorationColor: RCColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
           ],
         ),
       ),

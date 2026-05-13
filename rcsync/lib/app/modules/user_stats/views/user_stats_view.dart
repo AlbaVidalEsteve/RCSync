@@ -50,6 +50,8 @@ class UserStatsView extends GetView<UserStatsController> {
                       _buildLastRegisteredSection(),
                       const SizedBox(height: 16),
                       _buildOnlineSection(),
+                      const SizedBox(height: 16),
+                      _buildRecentOfflineSection(),
                       const SizedBox(height: 32),
                     ],
                   ),
@@ -335,6 +337,98 @@ class UserStatsView extends GetView<UserStatsController> {
         placeholder: (context, url) => const CircleAvatar(radius: 20, child: CircularProgressIndicator(strokeWidth: 2)),
         errorWidget: (context, url, error) => const CircleAvatar(radius: 20, child: Icon(Icons.person, size: 18)),
       ),
+    );
+  }
+
+  Widget _buildRecentOfflineSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionTitle(Icons.history_outlined, 'stats_recent_offline'.tr),
+          const SizedBox(height: 10),
+          Obx(() {
+            final users = controller.recentlyOfflineUsers;
+            if (users.isEmpty) {
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(color: RCColors.card, borderRadius: BorderRadius.circular(16)),
+                child: Text('stats_no_offline'.tr,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: RCColors.textSecondary, fontSize: 13)),
+              );
+            }
+            return Container(
+              decoration: BoxDecoration(
+                color: RCColors.card,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.07), blurRadius: 8, offset: const Offset(0, 4))],
+              ),
+              child: Column(
+                children: users.asMap().entries.map((entry) {
+                  final isLast = entry.key == users.length - 1;
+                  return _buildOfflineUserRow(entry.value, isLast: isLast);
+                }).toList(),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOfflineUserRow(Map<String, dynamic> user, {required bool isLast}) {
+    final name     = user['full_name']?.toString() ?? 'Usuario';
+    final imageUrl = user['image_url']?.toString();
+    final offlineAt = user['offline_at'] != null
+        ? DateTime.tryParse(user['offline_at'].toString())
+        : null;
+    final timeStr = offlineAt != null
+        ? DateFormat('HH:mm', Get.locale?.languageCode ?? 'es').format(offlineAt.toLocal())
+        : '—';
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              Stack(
+                children: [
+                  _buildAvatar((imageUrl != null && imageUrl.isNotEmpty) ? imageUrl : null),
+                  Positioned(
+                    right: 0, bottom: 0,
+                    child: Container(
+                      width: 11, height: 11,
+                      decoration: BoxDecoration(
+                        color: RCColors.divider,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: RCColors.card, width: 1.5),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(name,
+                    style: TextStyle(color: RCColors.textPrimary, fontWeight: FontWeight.w500, fontSize: 13),
+                    maxLines: 1, overflow: TextOverflow.ellipsis),
+              ),
+              Row(
+                children: [
+                  Icon(Icons.logout_outlined, size: 12, color: RCColors.textSecondary),
+                  const SizedBox(width: 4),
+                  Text(timeStr, style: TextStyle(color: RCColors.textSecondary, fontSize: 12)),
+                ],
+              ),
+            ],
+          ),
+        ),
+        if (!isLast) Divider(height: 1, color: RCColors.divider, indent: 16, endIndent: 16),
+      ],
     );
   }
 

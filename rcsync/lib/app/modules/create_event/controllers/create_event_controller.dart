@@ -127,7 +127,10 @@ class CreateEventController extends GetxController {
         'event_reg_fin': eventRegFin.value?.toIso8601String(),
       };
 
-      if (isEditing.value) {
+      final wasEditing = isEditing.value;
+      final eventName  = nameController.text;
+
+      if (wasEditing) {
         await supabase.from('events').update(eventData).eq('id_event', editingEventId!);
       } else {
         await supabase.from('events').insert(eventData);
@@ -135,8 +138,25 @@ class CreateEventController extends GetxController {
 
       Get.back(result: true);
 
-      if (Get.isRegistered<HomeController>()) {
-        Get.find<HomeController>().getEvents();
+      // Defer the reload until after the navigation animation frame completes,
+      // avoiding a rendering bottleneck on Windows when getEvents() triggers
+      // heavy calendar widget rebuilds during the transition.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (Get.isRegistered<HomeController>()) {
+          Get.find<HomeController>().getEvents();
+        }
+      });
+
+      if (!wasEditing) {
+        Future.microtask(() async {
+          try {
+            await supabase.rpc('send_new_event_notifications', params: {
+              'p_event_name': eventName,
+            });
+          } catch (e) {
+            debugPrint('Notification error: $e');
+          }
+        });
       }
 
     } catch (e) {

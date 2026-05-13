@@ -77,27 +77,26 @@ class RegisterController extends GetxController {
       if (res.user == null) throw "Error al crear el usuario";
       final String userId = res.user!.id;
 
-      // subir imagen opc
-      String? imageUrl;
-      if (profileImage.value != null) {
+      // El trigger handle_new_user() ya crea el perfil con full_name.
+      // Solo actualizamos image_profile si el usuario subió foto Y hay sesión
+      // activa (sin confirmación por email). Con email confirmation, res.session
+      // es null y cualquier llamada autenticada fallaría (usuario es anon todavía).
+      if (profileImage.value != null && res.session != null) {
         try {
           final fileExt = profileImage.value!.path.split('.').last;
           final fileName = '$userId-${DateTime.now().millisecondsSinceEpoch}.$fileExt';
           final filePath = 'avatars/$fileName';
 
           await client.storage.from('profiles').upload(filePath, profileImage.value!);
-          imageUrl = client.storage.from('profiles').getPublicUrl(filePath);
+          final imageUrl = client.storage.from('profiles').getPublicUrl(filePath);
+
+          await client.from("profiles").update({
+            "image_profile": imageUrl,
+          }).eq("id_profile", userId);
         } catch (e) {
-          debugPrint("Error subiendo imagen: $e");
+          debugPrint("Error subiendo imagen de perfil: $e");
         }
       }
-
-      // Completar perfil
-      await client.from("profiles").upsert({
-        "id_profile": userId,
-        "full_name": name,
-        "image_profile": imageUrl,
-      });
 
       Get.defaultDialog(
         barrierDismissible: false,
