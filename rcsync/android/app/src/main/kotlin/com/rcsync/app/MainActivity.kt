@@ -1,4 +1,4 @@
-package com.rcsync.app
+package com.rcsync.oficial
 
 import io.flutter.embedding.android.FlutterActivity
 

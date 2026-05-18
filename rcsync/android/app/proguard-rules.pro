@@ -6,7 +6,7 @@
 -keep class postgrest.** { *; }
 
 # Keep your models to prevent R8 from stripping them
--keep class com.rcsync.app.app.data.models.** { *; }
+-keep class com.rcsync.oficial.app.data.models.** { *; }
 
 # Intl package
 -keep class com.google.android.gms.internal.measurement.** { *; }

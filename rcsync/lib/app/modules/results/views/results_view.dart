@@ -16,40 +16,41 @@ class ResultsView extends GetView<ResultsController> {
       backgroundColor: RCColors.background,
       body: Column(
         children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: double.infinity,
-                height: 180,
-                padding: const EdgeInsets.only(top: 60),
-                alignment: Alignment.topCenter,
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [RCColors.orange, Color(0xFFF68B28)],
+          SizedBox(
+            height: 335,
+            child: Stack(
+              children: [
+                Container(
+                  width: double.infinity,
+                  height: 180,
+                  padding: const EdgeInsets.only(top: 60),
+                  alignment: Alignment.topCenter,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [RCColors.orange, Color(0xFFF68B28)],
+                    ),
+                  ),
+                  child: Text(
+                    "res_title".tr,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
-                child: Text(
-                  "res_title".tr,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
+                Positioned(
+                  top: 110,
+                  left: 20,
+                  right: 20,
+                  child: _buildFiltersCard(),
                 ),
-              ),
-              Positioned(
-                top: 110,
-                left: 20,
-                right: 20,
-                child: _buildFiltersCard(),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 155),
           _buildStatusBanner(),
           Expanded(child: _buildList()),
         ],
@@ -177,36 +178,32 @@ class ResultsView extends GetView<ResultsController> {
           ],
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          initialValue: safeValue,
-          dropdownColor: RCColors.card,
-          icon: Icon(Icons.arrow_drop_down, color: RCColors.textSecondary),
-          style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: RCColors.background.withValues(alpha: 0.5),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(color: RCColors.divider, width: 1),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: RCColors.orange, width: 1),
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: BoxDecoration(
+            color: RCColors.background.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: RCColors.divider, width: 1),
           ),
-          items: items.isEmpty
-              ? null
-              : items.map((e) => DropdownMenuItem<String>(
-              value: e,
-              child: Text(e, style: TextStyle(color: RCColors.textPrimary))
-          )).toList(),
-          onChanged: items.isEmpty ? null : onChanged,
-          hint: items.isEmpty ? Text("res_loading".tr, style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.3), fontSize: 13)) : null,
+          child: DropdownButton<String>(
+            value: safeValue,
+            isExpanded: true,
+            underline: const SizedBox.shrink(),
+            dropdownColor: RCColors.card,
+            icon: Icon(Icons.arrow_drop_down, color: RCColors.textSecondary),
+            style: TextStyle(color: RCColors.textPrimary, fontSize: 14),
+            hint: Text(
+              "res_loading".tr,
+              style: TextStyle(color: RCColors.textSecondary.withValues(alpha: 0.3), fontSize: 13),
+            ),
+            items: items.isEmpty
+                ? null
+                : items.map((e) => DropdownMenuItem<String>(
+                    value: e,
+                    child: Text(e, style: TextStyle(color: RCColors.textPrimary)),
+                  )).toList(),
+            onChanged: items.isEmpty ? null : onChanged,
+          ),
         ),
       ],
     );

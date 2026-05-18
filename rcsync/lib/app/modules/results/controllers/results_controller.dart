@@ -12,6 +12,10 @@ class ResultsController extends GetxController {
   RxString selectedCategory = "".obs;
   RxString selectedSubFilter = "General".obs;
 
+  // Filas de campeonatos para el nombre seleccionado (id + year + is_active)
+  List<Map<String, dynamic>> _championshipRows = [];
+  int _selectedChampionshipId = 0;
+
   RxBool isChampionshipActive = true.obs;
 
   // Opciones de combos
@@ -55,11 +59,15 @@ class ResultsController extends GetxController {
     try {
       final response = await _supabase
           .from('championships')
-          .select('year')
-          .eq('name', selectedChampionshipName.value.trim())
+          .select('id_championship, year, is_active')
+          .ilike('name', selectedChampionshipName.value.trim())
           .order('year', ascending: false);
 
-      final List<String> years = (response as List)
+      _championshipRows = (response as List)
+          .map((r) => Map<String, dynamic>.from(r as Map))
+          .toList();
+
+      final List<String> years = _championshipRows
           .map((row) => row['year']?.toString() ?? '')
           .where((year) => year.isNotEmpty)
           .toSet()
@@ -74,52 +82,44 @@ class ResultsController extends GetxController {
       }
 
       fetchCategoriesForChampionship();
-        } catch (e) {
+    } catch (e) {
       debugPrint("❌ Error fetching available years: $e");
     }
   }
 
   Future<void> fetchCategoriesForChampionship() async {
-    if (selectedChampionshipName.value.isEmpty || selectedYear.value.isEmpty) return;
+    if (selectedYear.value.isEmpty || _championshipRows.isEmpty) return;
+
+    // Buscar el campeonato que corresponde al año seleccionado
+    final match = _championshipRows.firstWhere(
+      (r) => r['year']?.toString() == selectedYear.value,
+      orElse: () => <String, dynamic>{},
+    );
+    if (match.isEmpty) { _limpiarDatos(); return; }
+
+    _selectedChampionshipId = match['id_championship'] as int;
+    isChampionshipActive.value = match['is_active'] ?? true;
 
     try {
-      final champData = await _supabase
-          .from('championships')
-          .select('id_championship, is_active')
-          .eq('name', selectedChampionshipName.value.trim())
-          .eq('year', int.parse(selectedYear.value))
-          .maybeSingle();
+      final catResponse = await _supabase
+          .from('championship_categories')
+          .select('categories(name)')
+          .eq('id_championship', _selectedChampionshipId);
 
-      if (champData != null) {
-        isChampionshipActive.value = champData['is_active'] ?? true;
-        final champId = champData['id_championship'];
-
-        final catResponse = await _supabase
-            .from('championship_categories')
-            .select('categories(name)')
-            .eq('id_championship', champId);
-
-        if ((catResponse as List).isNotEmpty) {
-          final List<String> cats = (catResponse as List)
-              .map((c) {
+      final List<String> cats = (catResponse as List)
+          .map((c) {
             final categoryMap = c['categories'] as Map<String, dynamic>?;
             return categoryMap?['name']?.toString() ?? '';
           })
-              .where((name) => name.isNotEmpty)
-              .toList();
+          .where((name) => name.isNotEmpty)
+          .toList();
 
-          availableCategories.assignAll(cats);
-
-          if (cats.isNotEmpty && !cats.contains(selectedCategory.value)) {
-            selectedCategory.value = cats.first;
-          } else if (cats.isEmpty) {
-            selectedCategory.value = "";
-          }
-
-          fetchRanking();
-        } else {
-          _limpiarDatos();
+      if (cats.isNotEmpty) {
+        availableCategories.assignAll(cats);
+        if (!cats.contains(selectedCategory.value)) {
+          selectedCategory.value = cats.first;
         }
+        fetchRanking();
       } else {
         _limpiarDatos();
       }

@@ -186,6 +186,21 @@ class EventDetailsView extends GetView<EventDetailsController> {
             title: 'det_organizer'.tr,
             subtitle: event.organizerName ?? 'Club RC'
         ),
+        if (event.eventRegIni != null || event.eventRegFin != null) ...[
+          const Divider(height: 24),
+          _buildDetailRow(
+              icon: Icons.how_to_reg_outlined,
+              iconColor: Colors.green,
+              title: 'det_reg_open'.tr,
+              subtitle: controller.formattedRegIni
+          ),
+          _buildDetailRow(
+              icon: Icons.event_busy_outlined,
+              iconColor: Colors.redAccent,
+              title: 'det_reg_close'.tr,
+              subtitle: controller.formattedRegFin
+          ),
+        ],
       ],
     ),
   );
@@ -474,7 +489,7 @@ class EventDetailsView extends GetView<EventDetailsController> {
   Widget _buildBottomAction() {
     return Obx(() {
       final event = controller.event.value;
-      final bool isOpen = event.eventRegFin != null && event.eventRegFin!.isAfter(DateTime.now());
+      final bool isOpen = controller.regFinEndOfDay != null && controller.regFinEndOfDay!.isAfter(DateTime.now());
       final bool hasRegistrations = controller.userRegistrations.isNotEmpty;
 
       return Container(

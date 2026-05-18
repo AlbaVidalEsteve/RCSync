@@ -64,6 +64,21 @@ class EventDetailsController extends GetxController {
       ? "Fecha por definir"
       : DateFormat('dd MMM yyyy', 'es_ES').format(event.value.eventDateIni!);
 
+  String get formattedRegIni => event.value.eventRegIni == null
+      ? '---'
+      : DateFormat('dd MMM yyyy', 'es_ES').format(event.value.eventRegIni!);
+
+  // Fin de inscripción = final del día (23:59)
+  DateTime? get regFinEndOfDay {
+    final d = event.value.eventRegFin;
+    if (d == null) return null;
+    return DateTime(d.year, d.month, d.day, 23, 59, 59);
+  }
+
+  String get formattedRegFin => regFinEndOfDay == null
+      ? '---'
+      : '${DateFormat('dd MMM yyyy', 'es_ES').format(regFinEndOfDay!)} · 23:59';
+
   Future<void> fetchRulebooks() async {
     if (event.value.idChampionship == null) return;
 
